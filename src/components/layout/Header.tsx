@@ -1,0 +1,401 @@
+import { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { Menu, X, Globe, MessageCircle, MessageSquare, User, Download } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { usePWAInstall } from '../../hooks/usePWAInstall';
+
+const languages = [
+  { code: 'tn', label: '🇹🇳 تونسي', dir: 'rtl' },
+  { code: 'ar', label: '🇸🇦 العربية', dir: 'rtl' },
+  { code: 'fr', label: '🇫🇷 Français', dir: 'ltr' },
+  { code: 'en', label: '🇬🇧 English', dir: 'ltr' },
+  { code: 'it', label: '🇮🇹 Italiano', dir: 'ltr' },
+];
+
+const Header = () => {
+  const { t, i18n } = useTranslation();
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [langMenuOpen, setLangMenuOpen] = useState(false);
+  const [showInstallModal, setShowInstallModal] = useState(false);
+  const location = useLocation();
+  const { canInstall, isInstalled, isInstalling, install } = usePWAInstall();
+
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => { setMobileMenuOpen(false); }, [location]);
+
+  useEffect(() => {
+    document.body.style.overflow = mobileMenuOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [mobileMenuOpen]);
+
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+    localStorage.setItem('app_language', lng);
+    setLangMenuOpen(false);
+  };
+
+  const navLinks = [
+    { name: t('nav.home'), path: '/' },
+    { name: t('nav.products'), path: '/produits' },
+    { name: t('nav.about'), path: '/about' },
+    { name: t('nav.contact'), path: '/contact' },
+  ];
+
+  const currentFlag = languages.find(l => l.code === i18n.language)?.label.split(' ')[0] || '🇫🇷';
+
+  const LangDropdownContent = () => (
+    <motion.div
+      initial={{ opacity: 0, y: 8, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 8, scale: 0.95 }}
+      transition={{ duration: 0.14 }}
+      className="bg-white rounded-xl shadow-xl overflow-hidden"
+      style={{ border: '1px solid #DBDADA', minWidth: '150px' }}
+    >
+      {languages.map((lang) => (
+        <button
+          key={lang.code}
+          onClick={() => changeLanguage(lang.code)}
+          className="w-full text-start px-4 py-3 text-sm transition-colors duration-150"
+          style={{
+            fontFamily: 'DM Sans, sans-serif',
+            color: i18n.language === lang.code ? '#81C063' : '#2F2D2C',
+            background: i18n.language === lang.code ? '#F5F7FA' : 'transparent',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = '#F5F7FA'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = i18n.language === lang.code ? '#F5F7FA' : 'transparent'; }}
+        >
+          {lang.label}
+        </button>
+      ))}
+    </motion.div>
+  );
+
+  return (
+    <header
+      className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+      style={{
+        height: '68px',
+        background: '#FFFFFF',
+        boxShadow: isScrolled ? '0 2px 16px rgba(29,62,97,0.10)' : '0 1px 6px rgba(29,62,97,0.04)',
+        borderBottom: '1px solid #DBDADA',
+      }}
+    >
+      <style>{`
+        @media (max-width: 767px) {
+          .lang-dropdown-safe { position: fixed !important; left: 50% !important; right: auto !important; transform: translateX(-50%) !important; top: 68px !important; min-width: 160px !important; z-index: 9999 !important; }
+        }
+        @media (min-width: 768px) {
+          .lang-dropdown-safe { position: absolute !important; inset-inline-end: 0 !important; inset-inline-start: auto !important; margin-top: 10px; min-width: 150px; z-index: 50; }
+        }
+      `}</style>
+
+      <div className="container mx-auto px-4 h-full flex items-center justify-between gap-4">
+
+        {/* Logo */}
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', flexShrink: 0 }} className="group">
+          <img src="/logo-aluminium-space.png" alt="ALU SPACE Logo"
+            style={{ height: '58px', width: 'auto', objectFit: 'contain' }}
+            onError={e => { e.currentTarget.style.display = 'none'; }}
+          />
+          <div className="hidden sm:block">
+            <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '19px', color: '#2F2D2C', letterSpacing: '3px', textTransform: 'uppercase' }}>
+              ALUMINIUM <span style={{ color: '#1D3E61' }}>SPACE</span>
+            </div>
+            <div style={{ fontSize: '8px', letterSpacing: '3px', color: '#818181', fontWeight: 500, textTransform: 'uppercase', fontFamily: 'Rajdhani, sans-serif' }}>
+              MENUISERIE ALUMINIUM
+            </div>
+          </div>
+        </Link>
+
+        {/* Desktop: Nav + Actions (center, flex-1) */}
+        <div className="hidden md:flex items-center flex-1 justify-center gap-1">
+          {/* Nav links */}
+          <nav className="flex items-center gap-1">
+            {navLinks.map(link => {
+              const active = link.path === '/' ? location.pathname === '/' : location.pathname.startsWith(link.path);
+              return (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  className="relative px-4 py-2 transition-colors duration-200"
+                  style={{
+                    fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: '14px',
+                    letterSpacing: '1.5px', textTransform: 'uppercase',
+                    color: active ? '#81C063' : '#2F2D2C',
+                    textDecoration: 'none', borderRadius: '8px',
+                  }}
+                  onMouseEnter={e => { if (!active) e.currentTarget.style.color = '#81C063'; }}
+                  onMouseLeave={e => { if (!active) e.currentTarget.style.color = '#2F2D2C'; }}
+                >
+                  {link.name}
+                  {active && (
+                    <motion.div layoutId="nav-indicator"
+                      className="absolute bottom-0 left-3 right-3 h-[2px] rounded-full"
+                      style={{ background: '#81C063' }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                    />
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* Separator */}
+          <div style={{ width: '1px', height: '20px', background: '#DBDADA', margin: '0 4px', flexShrink: 0 }} />
+
+          {/* Action buttons */}
+          <div className="flex items-center gap-2">
+            <Link
+              to="/mon-espace"
+              title={t('nav.my_space')}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                width: '34px', height: '34px', borderRadius: '8px',
+                background: location.pathname === '/mon-espace' ? 'rgba(29,62,97,0.08)' : 'transparent',
+                color: location.pathname === '/mon-espace' ? '#1D3E61' : '#2F2D2C',
+                textDecoration: 'none', transition: 'all 0.2s',
+                border: location.pathname === '/mon-espace' ? '1px solid rgba(29,62,97,0.2)' : '1px solid transparent',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(29,62,97,0.06)'; e.currentTarget.style.color = '#1D3E61'; }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = location.pathname === '/mon-espace' ? 'rgba(29,62,97,0.08)' : 'transparent';
+                e.currentTarget.style.color = location.pathname === '/mon-espace' ? '#1D3E61' : '#2F2D2C';
+              }}
+            >
+              <User size={17} />
+            </Link>
+
+            {/* PWA Install button — always visible */}
+            {isInstalled ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#81C063', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                <Download size={12} />
+                Installée ✓
+              </div>
+            ) : (
+              <button
+                onClick={canInstall ? install : () => setShowInstallModal(true)}
+                disabled={isInstalling}
+                title="Installer l'application"
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '6px',
+                  background: 'rgba(129,192,99,0.10)', color: '#1D3E61',
+                  border: '1px solid rgba(129,192,99,0.40)',
+                  borderRadius: '8px', padding: '6px 12px',
+                  fontFamily: 'Rajdhani, sans-serif', fontWeight: 700,
+                  fontSize: '12px', letterSpacing: '1px', textTransform: 'uppercase',
+                  cursor: 'pointer', transition: 'all 0.2s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = '#81C063'; e.currentTarget.style.color = 'white'; e.currentTarget.style.borderColor = '#81C063'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(129,192,99,0.10)'; e.currentTarget.style.color = '#1D3E61'; e.currentTarget.style.borderColor = 'rgba(129,192,99,0.40)'; }}
+              >
+                <Download size={13} />
+                {isInstalling ? '...' : 'Installer'}
+              </button>
+            )}
+
+            {/* Language */}
+            <div className="relative" style={{ borderLeft: '1px solid #DBDADA', paddingLeft: '10px' }}>
+              <button
+                onClick={() => setLangMenuOpen(!langMenuOpen)}
+                className="flex items-center gap-1.5 text-sm transition-colors duration-200"
+                style={{ color: '#2F2D2C', fontFamily: 'DM Sans, sans-serif', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', borderRadius: '6px' }}
+                onMouseEnter={e => { e.currentTarget.style.color = '#81C063'; }}
+                onMouseLeave={e => { e.currentTarget.style.color = '#2F2D2C'; }}
+              >
+                <Globe className="w-4 h-4" />
+                <span style={{ fontSize: '15px' }}>{currentFlag}</span>
+              </button>
+              <AnimatePresence>
+                {langMenuOpen && <div className="lang-dropdown-safe"><LangDropdownContent /></div>}
+              </AnimatePresence>
+            </div>
+
+            {/* Devis CTA */}
+          </div>
+        </div>
+
+        {/* Grifo Flex logo — far right (desktop only) */}
+        <a
+          href="https://www.grifoflex.com" target="_blank" rel="noopener noreferrer"
+          className="hidden md:flex items-center flex-shrink-0"
+          style={{ textDecoration: 'none', paddingLeft: '12px', borderLeft: '1px solid #DBDADA' }}
+          title="Grifo Flex Tunisie — Partenaire officiel"
+        >
+          <img
+            src="/images/grifo-flex-logo.png"
+            alt="Grifo Flex Tunisie"
+            style={{ height: '44px', width: 'auto', maxWidth: '200px', objectFit: 'contain' }}
+          />
+        </a>
+
+        {/* Mobile: right icons */}
+        <div className="flex md:hidden items-center gap-1">
+          <div className="relative">
+            <button
+              onClick={() => setLangMenuOpen(!langMenuOpen)}
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center"
+              style={{ color: '#2F2D2C' }}
+              aria-label="Changer la langue"
+            >
+              <Globe className="w-5 h-5" />
+            </button>
+            <AnimatePresence>
+              {langMenuOpen && <div className="lang-dropdown-safe"><LangDropdownContent /></div>}
+            </AnimatePresence>
+          </div>
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center"
+            style={{ color: '#2F2D2C' }}
+            aria-label={mobileMenuOpen ? 'Fermer' : 'Menu'}
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
+      </div>
+
+      {/* PWA Install Guide Modal */}
+      <AnimatePresence>
+        {showInstallModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] flex items-center justify-center"
+            style={{ background: 'rgba(0,0,0,0.55)' }}
+            onClick={() => setShowInstallModal(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 20 }}
+              transition={{ duration: 0.18 }}
+              style={{ background: 'white', borderRadius: '20px', padding: '28px 28px 24px', maxWidth: '360px', width: 'calc(100% - 32px)', boxShadow: '0 24px 64px rgba(0,0,0,0.25)' }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+                <Download size={20} color="#1D3E61" />
+                <h3 style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '17px', color: '#1D3E61', letterSpacing: '1.5px', textTransform: 'uppercase', margin: 0 }}>
+                  Installer l'application
+                </h3>
+              </div>
+
+              <div style={{ marginBottom: '18px' }}>
+                <p style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '13px', color: '#2F2D2C', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px' }}>
+                  Chrome / Edge
+                </p>
+                <ol style={{ paddingLeft: '18px', margin: 0, fontFamily: 'DM Sans, sans-serif', fontSize: '13px', color: '#555', lineHeight: '1.9' }}>
+                  <li>Ouvrez le menu <strong>⋮</strong> (3 points en haut à droite)</li>
+                  <li>Cliquez <strong>"Installer Aluminium Space"</strong></li>
+                  <li>Confirmez l'installation</li>
+                </ol>
+              </div>
+
+              <div style={{ borderTop: '1px solid #DBDADA', paddingTop: '18px', marginBottom: '20px' }}>
+                <p style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '13px', color: '#2F2D2C', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px' }}>
+                  Safari (iPhone / iPad)
+                </p>
+                <ol style={{ paddingLeft: '18px', margin: 0, fontFamily: 'DM Sans, sans-serif', fontSize: '13px', color: '#555', lineHeight: '1.9' }}>
+                  <li>Appuyez sur le bouton <strong>Partager</strong> 📤 en bas</li>
+                  <li>Faites défiler → <strong>"Sur l'écran d'accueil"</strong></li>
+                  <li>Appuyez sur <strong>Ajouter</strong></li>
+                </ol>
+              </div>
+
+              <button
+                onClick={() => setShowInstallModal(false)}
+                style={{ width: '100%', background: '#1D3E61', color: 'white', border: 'none', borderRadius: '10px', padding: '12px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '14px', letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer' }}
+              >
+                Fermer
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Mobile Menu */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: '-100%' }} animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: '-100%' }} transition={{ type: 'tween', duration: 0.28 }}
+            className="fixed inset-0 z-40 bg-white flex flex-col"
+            style={{ paddingTop: '68px' }}
+          >
+            <div className="flex-1 overflow-y-auto px-5 pb-8">
+              <nav style={{ marginTop: '16px', borderRadius: '16px', overflow: 'hidden', border: '1px solid #DBDADA' }}>
+                {navLinks.map((link, idx) => {
+                  const active = link.path === '/' ? location.pathname === '/' : location.pathname.startsWith(link.path);
+                  return (
+                    <Link
+                      key={link.name}
+                      to={link.path}
+                      onClick={() => setMobileMenuOpen(false)}
+                      style={{
+                        display: 'flex', alignItems: 'center', padding: '0 20px',
+                        fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, letterSpacing: '2px',
+                        textTransform: 'uppercase', fontSize: '17px',
+                        color: active ? '#81C063' : '#2F2D2C',
+                        background: active ? '#F5F7FA' : 'white',
+                        borderBottom: idx < navLinks.length - 1 ? '1px solid #DBDADA' : 'none',
+                        minHeight: '54px', textDecoration: 'none',
+                      }}
+                    >
+                      {link.name}
+                    </Link>
+                  );
+                })}
+              </nav>
+
+              {/* Mon Espace */}
+              <Link
+                to="/mon-espace"
+                onClick={() => setMobileMenuOpen(false)}
+                style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '14px 20px', marginTop: '12px', background: '#F5F7FA', borderRadius: '12px', border: '1px solid #DBDADA', color: '#2F2D2C', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '15px', letterSpacing: '1.5px', textTransform: 'uppercase', textDecoration: 'none' }}
+              >
+                <User size={17} />
+                {t('nav.my_space')}
+              </Link>
+
+              <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <a
+                  href="https://wa.me/21657099070" target="_blank" rel="noopener noreferrer"
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: '#25D366', color: 'white', borderRadius: '12px', height: '52px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '15px', letterSpacing: '1.5px', textTransform: 'uppercase', textDecoration: 'none' }}
+                >
+                  <MessageSquare size={16} />
+                  WhatsApp
+                </a>
+                <a
+                  href="https://m.me/aluminium.space.tunisie" target="_blank" rel="noopener noreferrer"
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: '#0084FF', color: 'white', borderRadius: '12px', height: '52px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '15px', letterSpacing: '1.5px', textTransform: 'uppercase', textDecoration: 'none' }}
+                >
+                  <MessageCircle size={16} />
+                  Messenger
+                </a>
+                {!isInstalled && (
+                  <button
+                    onClick={() => { if (canInstall) { install(); setMobileMenuOpen(false); } else { setMobileMenuOpen(false); setShowInstallModal(true); } }}
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: '#1D3E61', color: 'white', border: 'none', borderRadius: '12px', height: '52px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '15px', letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer', width: '100%' }}
+                  >
+                    <Download size={16} />
+                    Installer l'application
+                  </button>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </header>
+  );
+};
+
+export default Header;
