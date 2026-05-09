@@ -25,7 +25,7 @@ const DEFAULTS: BusinessSettings = {
   whatsapp: '21657099070',
   email: 'contact@aluminiumspace.com',
   address: '125 lot Laaroussi, Mghira',
-  city: 'Ben Arous, Tunisie',
+  city: 'Tunis, Tunisie',
   hoursWeekday: '8h00–17h00',
   hoursSaturday: '8h00–12h00',
 };

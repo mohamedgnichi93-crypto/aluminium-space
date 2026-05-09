@@ -64,7 +64,7 @@ const Contact = () => {
       color: '#1D3E61',
       bg: 'rgba(29,62,97,0.08)',
       title: loc({ fr: 'Adresse', ar: 'العنوان', tn: 'العنوان', en: 'Address', it: 'Indirizzo' }),
-      lines: ['125 lot Laaroussi, Mghira', 'Ben Arous, Tunisie'],
+      lines: ['125 lot Laaroussi, Mghira', 'Tunis, Tunisie'],
       href: 'https://maps.google.com/?q=125+lot+Laaroussi+Mghira+Ben+Arous+Tunisie',
     },
     {
@@ -105,7 +105,7 @@ const Contact = () => {
   ];
 
   const inputStyle: React.CSSProperties = {
-    width: '100%', padding: '13px 16px', borderRadius: '10px',
+    width: '100%', padding: '13px 16px', minHeight: '52px', borderRadius: '10px',
     border: '1.5px solid #E8EDF5', fontFamily: 'DM Sans, sans-serif',
     fontSize: '14px', color: '#2F2D2C', background: '#FAFBFD',
     outline: 'none', transition: 'border-color 0.2s, box-shadow 0.2s',
@@ -116,12 +116,12 @@ const Contact = () => {
     <div style={{ background: '#F5F7FA', minHeight: '100vh' }}>
       <PageSEO
         path="/contact"
-        titleFr="Contact — Aluminium Space Mghira, Ben Arous"
-        titleAr="تواصل معنا — Aluminium Space مغيرة، بن عروس"
-        titleEn="Contact — Aluminium Space Mghira, Ben Arous"
-        descFr="Contactez Aluminium Space à Mghira, Ben Arous. Devis gratuit ou WhatsApp au +216 57 099 070."
-        descAr="تواصل مع Aluminium Space في مغيرة، بن عروس. دوفيس مجاني أو عبر واتساب +216 57 099 070."
-        descEn="Contact Aluminium Space in Mghira, Ben Arous. Free quote or WhatsApp +216 57 099 070."
+        titleFr="Contact — Aluminium Space Mghira, Tunis"
+        titleAr="تواصل معنا — Aluminium Space مغيرة، تونس"
+        titleEn="Contact — Aluminium Space Mghira, Tunis"
+        descFr="Contactez Aluminium Space à Mghira, Tunis. Devis gratuit ou WhatsApp au +216 57 099 070."
+        descAr="تواصل مع Aluminium Space في مغيرة، تونس. دوفيس مجاني أو عبر واتساب +216 57 099 070."
+        descEn="Contact Aluminium Space in Mghira, Tunis. Free quote or WhatsApp +216 57 099 070."
       />
 
       {/* ── HERO ───────────────────────────────────────────────────────────── */}
@@ -144,9 +144,10 @@ const Contact = () => {
             <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 'clamp(14px, 2.5vw, 17px)', color: 'rgba(255,255,255,0.65)', lineHeight: 1.75, maxWidth: '520px', margin: '0 auto 32px' }}>
               {loc({ fr: 'Une question, un devis ou besoin d\'infos ? Notre équipe vous répond rapidement.', ar: 'سؤال، عرض سعر أو تحتاج معلومات؟ فريقنا يرد عليكم بسرعة.', tn: 'سؤال، دوفيس أو محتاج معلومات؟ الفريق يرد عليكم بسرعة.', en: 'A question, quote or need info? Our team replies quickly.', it: 'Una domanda, un preventivo o info? Il nostro team risponde rapidamente.' })}
             </p>
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <div className="flex flex-col sm:flex-row" style={{ gap: '12px', justifyContent: 'center' }}>
               <a
                 href="tel:+21657099070"
+                className="w-full sm:w-auto flex justify-center"
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#81C063', color: 'white', borderRadius: '10px', padding: '12px 24px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '14px', letterSpacing: '1.5px', textTransform: 'uppercase', textDecoration: 'none', transition: 'all 0.2s', boxShadow: '0 4px 16px rgba(129,192,99,0.3)' }}
                 onMouseEnter={e => { e.currentTarget.style.background = '#5e9a43'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = '#81C063'; e.currentTarget.style.transform = 'none'; }}
@@ -157,6 +158,7 @@ const Contact = () => {
               <a
                 href="https://wa.me/21657099070"
                 target="_blank" rel="noopener noreferrer"
+                className="w-full sm:w-auto flex justify-center"
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.10)', color: 'white', borderRadius: '10px', padding: '12px 24px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '14px', letterSpacing: '1.5px', textTransform: 'uppercase', textDecoration: 'none', border: '1px solid rgba(255,255,255,0.20)', transition: 'all 0.2s' }}
                 onMouseEnter={e => { e.currentTarget.style.background = '#25D366'; e.currentTarget.style.borderColor = '#25D366'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.10)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.20)'; }}
@@ -346,7 +348,7 @@ const Contact = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <MapPin size={16} color="#81C063" />
             <span style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '13px', letterSpacing: '2px', textTransform: 'uppercase', color: 'white' }}>
-              {loc({ fr: 'Notre emplacement — Mghira, Ben Arous', ar: 'موقعنا — مغيرة، بن عروس', tn: 'موقعنا — مغيرة، بن عروس', en: 'Our location — Mghira, Ben Arous', it: 'La nostra sede — Mghira, Ben Arous' })}
+              {loc({ fr: 'Notre emplacement — Mghira, Tunis', ar: 'موقعنا — مغيرة، تونس', tn: 'موقعنا — مغيرة، تونس', en: 'Our location — Mghira, Tunis', it: 'La nostra sede — Mghira, Tunis' })}
             </span>
           </div>
           <a
@@ -363,11 +365,11 @@ const Contact = () => {
         <iframe
           src="https://maps.google.com/maps?q=125+lot+Laaroussi+Mghira+Ben+Arous+Tunisie&output=embed&zoom=15"
           width="100%"
-          height="360"
+          className="h-[220px] md:h-[360px]"
           style={{ border: 'none', display: 'block' }}
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
-          title="Aluminium Space — Mghira, Ben Arous"
+          title="Aluminium Space — Mghira, Tunis"
         />
       </motion.div>
 

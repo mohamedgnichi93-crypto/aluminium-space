@@ -78,7 +78,7 @@ const StepSummary = ({ formData, items, onPrev, onSubmitOrder, isSubmitting }: P
             <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#0D1B2A', lineHeight: 1.6 }}>
               <p style={{ fontWeight: 600 }}>Aluminium Space</p>
               <p style={{ color: '#4A5568' }}>125 lot Laaroussi, Mghira</p>
-              <p style={{ color: '#4A5568' }}>Ben Arous, Tunisie</p>
+              <p style={{ color: '#4A5568' }}>Tunis, Tunisie</p>
               <p style={{ color: '#4A5568' }}>Tél: (+216) 53 186 611</p>
               <p style={{ color: '#4A5568' }}>Email: contact@aluminiumspace.com</p>
             </div>
@@ -94,6 +94,7 @@ const StepSummary = ({ formData, items, onPrev, onSubmitOrder, isSubmitting }: P
           </div>
         </div>
 
+        <p className="block md:hidden" style={{ fontSize: '12px', color: '#94A3B8', textAlign: 'center', marginBottom: '6px', fontFamily: 'DM Sans, sans-serif' }}>← Faites défiler pour voir le tableau →</p>
         <div style={{ width: '100%', marginBottom: '32px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' as any, border: '1px solid #E2E8F0', borderRadius: '12px' }}>
           <div style={{ minWidth: '750px' }}>
             <div style={{

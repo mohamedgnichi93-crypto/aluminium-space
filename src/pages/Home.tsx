@@ -73,6 +73,7 @@ const Home = () => {
       {/* ═══ HERO ═══════════════════════════════════════════════════════════════ */}
       <section
         style={{ background: 'linear-gradient(135deg, #1D3E61 0%, #0F2444 100%)', position: 'relative', overflow: 'hidden', minHeight: 'clamp(520px, 80vh, 760px)', display: 'flex', alignItems: 'center', padding: 'clamp(60px, 8vw, 80px) 0' }}
+        className="hidden md:flex"
       >
         {/* Background decorations */}
         <div style={{ position: 'absolute', top: '-15%', right: '-5%', width: '600px', height: '600px', borderRadius: '50%', background: '#81C063', filter: 'blur(120px)', opacity: 0.06 }} />
@@ -177,7 +178,7 @@ const Home = () => {
       </section>
 
       {/* ═══ STATS STRIP ════════════════════════════════════════════════════════ */}
-      <section style={{ background: '#1D3E61', padding: 'clamp(32px, 5vw, 48px) 0' }}>
+      <section style={{ background: '#1D3E61', padding: 'clamp(32px, 5vw, 48px) 0' }} className="hidden md:block">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-px" style={{ background: 'rgba(255,255,255,0.08)', borderRadius: '16px', overflow: 'hidden' }}>
             {stats.map((s, i) => (
@@ -200,7 +201,7 @@ const Home = () => {
       </section>
 
       {/* ═══ PRODUCTS PREVIEW ════════════════════════════════════════════════ */}
-      <section style={{ background: '#FFFFFF', padding: 'clamp(48px, 8vw, 80px) 0' }}>
+      <section style={{ background: '#FFFFFF', padding: 'clamp(48px, 8vw, 80px) 0' }} className="hidden md:block">
         <div className="container mx-auto px-4">
           <div className="text-center" style={{ marginBottom: '40px' }}>
             <div style={{ display: 'inline-flex', background: 'rgba(129,192,99,0.1)', color: '#81C063', borderRadius: '20px', padding: '5px 16px', fontSize: '11px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', fontFamily: 'Rajdhani, sans-serif', marginBottom: '14px' }}>
@@ -261,7 +262,7 @@ const Home = () => {
       </section>
 
       {/* ═══ HOW IT WORKS ════════════════════════════════════════════════════ */}
-      <section style={{ background: '#1D3E61', padding: 'clamp(48px, 8vw, 80px) 0' }}>
+      <section style={{ background: '#1D3E61', padding: 'clamp(48px, 8vw, 80px) 0' }} className="hidden md:block">
         <div className="container mx-auto px-4">
           <div className="text-center" style={{ marginBottom: '40px' }}>
             <div style={{ display: 'inline-flex', background: 'rgba(129,192,99,0.15)', color: '#81C063', borderRadius: '20px', padding: '5px 16px', fontSize: '11px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', fontFamily: 'Rajdhani, sans-serif', marginBottom: '14px' }}>
@@ -300,7 +301,7 @@ const Home = () => {
       </section>
 
       {/* ═══ CTA BANNER ══════════════════════════════════════════════════════ */}
-      <section style={{ background: 'linear-gradient(135deg, #1D3E61 0%, #296788 100%)', padding: 'clamp(40px, 7vw, 72px) 0' }}>
+      <section style={{ background: 'linear-gradient(135deg, #1D3E61 0%, #296788 100%)', padding: 'clamp(40px, 7vw, 72px) 0' }} className="hidden md:block">
         <div className="container mx-auto px-4 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <h2 style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: 'clamp(22px, 5vw, 38px)', color: '#FFFFFF', letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '12px' }}>
@@ -320,6 +321,117 @@ const Home = () => {
             </Link>
           </motion.div>
         </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════════════════════════
+          MOBILE SPECIFIC SECTIONS (< 768px)
+          ══════════════════════════════════════════════════════════════════════════ */}
+
+      {/* MOBILE HERO */}
+      <section className="flex flex-col md:hidden" style={{ background: 'linear-gradient(180deg, #0A1628 0%, #1a2d4a 100%)', minHeight: '100svh', position: 'relative', overflow: 'hidden', padding: '100px 16px 30px', justifyContent: 'space-between' }}>
+        <div style={{ zIndex: 10, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <h1 style={{ fontFamily: 'Rajdhani, sans-serif', fontSize: 'clamp(32px, 8vw, 42px)', fontWeight: 700, color: 'white', lineHeight: 1.1, textTransform: 'uppercase', margin: 0 }}>
+            MOUSTIQUAIRES
+            <br />
+            <span style={{ color: '#81C063' }}>DE QUALITÉ</span>
+          </h1>
+          <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '14px', color: 'rgba(255,255,255,0.75)', margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+            {t('home.description')}
+          </p>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
+            <Link to="/produits" style={{ background: '#81C063', color: 'white', height: '52px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '1px', textDecoration: 'none', width: '100%' }}>
+              VOIR NOS PRODUITS
+            </Link>
+            <Link to="/devis" style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.6)', color: 'white', height: '52px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '1px', textDecoration: 'none', width: '100%' }}>
+              DEMANDER UN DEVIS
+            </Link>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px', padding: '0 8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'white', fontFamily: 'DM Sans, sans-serif' }}><CheckCircle size={12} color="#81C063" /> Sur mesure</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'white', fontFamily: 'DM Sans, sans-serif' }}><CheckCircle size={12} color="#81C063" /> Installation</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'white', fontFamily: 'DM Sans, sans-serif' }}><CheckCircle size={12} color="#81C063" /> Devis gratuit</div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', marginTop: '20px', zIndex: 10 }}>
+          <img src="/images/colibri-hero.png" alt="Grifo Flex" style={{ width: '100%', maxHeight: '250px', objectFit: 'contain' }} onError={e => { (e.currentTarget as HTMLImageElement).src = '/images/colibri-50.png'; }} />
+        </div>
+      </section>
+
+      {/* MOBILE STATS */}
+      <section className="md:hidden" style={{ background: '#112038', padding: '24px 16px' }}>
+        <div className="grid grid-cols-2 gap-4">
+          {stats.map((s, i) => (
+            <div key={i} style={{ textAlign: 'center', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', padding: '16px 12px' }}>
+              <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '28px', color: '#81C063', lineHeight: 1 }}>
+                <AnimatedCounter target={s.count} suffix={s.suffix} />
+              </div>
+              <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '11px', color: 'rgba(255,255,255,0.6)', marginTop: '4px' }}>
+                {loc(s.label)}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* MOBILE PRODUCTS */}
+      <section className="md:hidden" style={{ background: '#FFFFFF', padding: '40px 16px' }}>
+        <h2 style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '24px', textAlign: 'center', color: '#2F2D2C', marginBottom: '24px', letterSpacing: '2px', textTransform: 'uppercase' }}>
+          {loc({ fr: 'Nos Modèles', ar: 'موديلاتنا', tn: 'موديلاتنا', en: 'Our Models', it: 'I Nostri Modelli' })}
+        </h2>
+        <div className="flex flex-col gap-4">
+          {products.map((p) => (
+            <Link key={p.id} to={`/produits/${p.id}`} className="mobile-card" style={{ display: 'flex', height: '200px', background: '#F5F7FA', borderRadius: '16px', border: '1px solid #DBDADA', overflow: 'hidden', textDecoration: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+              <div style={{ width: '40%', background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '12px', borderRight: '1px solid #DBDADA' }}>
+                <img src={p.image} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+              </div>
+              <div style={{ width: '60%', padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative' }}>
+                <div style={{ fontSize: '10px', color: '#296788', fontWeight: 700, fontFamily: 'Rajdhani, sans-serif', textTransform: 'uppercase', marginBottom: '4px' }}>{loc(p.tag)}</div>
+                <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#2F2D2C', fontFamily: 'Rajdhani, sans-serif', marginBottom: '6px' }}>{p.name}</h3>
+                <p style={{ fontSize: '12px', color: '#818181', fontFamily: 'DM Sans, sans-serif', lineHeight: 1.4, margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{loc(p.desc)}</p>
+                <div style={{ position: 'absolute', bottom: '16px', right: '16px', background: '#81C063', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <ArrowRight size={14} color="white" />
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* MOBILE COMMENT ÇA MARCHE */}
+      <section className="md:hidden" style={{ background: '#1D3E61', padding: '40px 16px' }}>
+        <h2 style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '24px', textAlign: 'center', color: 'white', marginBottom: '32px', letterSpacing: '2px', textTransform: 'uppercase' }}>
+          {loc({ fr: 'Comment ça marche', ar: 'كيف يعمل', tn: 'كيفاش يتعمل', en: 'How it works', it: 'Come funziona' })}
+        </h2>
+        <div style={{ position: 'relative' }}>
+          <div style={{ position: 'absolute', left: '19px', top: '20px', bottom: '20px', width: '2px', background: 'rgba(129,192,99,0.3)', zIndex: 0 }} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', position: 'relative', zIndex: 1 }}>
+            {processSteps.map((step, i) => (
+              <div key={i} style={{ display: 'flex', gap: '16px' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#81C063', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: 'white', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '16px' }}>
+                  {step.num}
+                </div>
+                <div style={{ paddingTop: '8px' }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'white', fontFamily: 'Rajdhani, sans-serif', textTransform: 'uppercase', marginBottom: '6px' }}>{loc(step.title)}</h3>
+                  <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', fontFamily: 'DM Sans, sans-serif', lineHeight: 1.5, margin: 0 }}>{loc(step.desc)}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* MOBILE CTA BANNER */}
+      <section className="md:hidden" style={{ background: '#81C063', padding: '40px 16px', textAlign: 'center' }}>
+        <h2 style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '22px', color: 'white', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '16px', lineHeight: 1.2 }}>
+          {loc({ fr: 'Prêt pour cet été ?', ar: 'جاهز لهذا الصيف؟', tn: 'حاضر لهذا الصيف؟', en: 'Ready for this summer?', it: 'Pronto per questa estate?' })}
+        </h2>
+        <Link to="/devis" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'white', color: '#81C063', height: '48px', padding: '0 24px', borderRadius: '12px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '15px', letterSpacing: '1px', textTransform: 'uppercase', textDecoration: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+          {t('home.cta_quote')}
+          <ArrowRight size={16} />
+        </Link>
       </section>
 
     </div>

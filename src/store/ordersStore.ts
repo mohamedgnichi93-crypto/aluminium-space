@@ -18,6 +18,7 @@ export interface Order {
     height: number;
     quantity: number;
     meshType?: string;
+    color?: string;
     unitPrice: number;
     totalPrice: number;
   }>;

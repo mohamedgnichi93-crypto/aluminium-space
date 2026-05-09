@@ -4,15 +4,15 @@ import type { Order } from '../store/ordersStore';
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
 const COLORS = {
-  blue:       [26, 93, 168]  as [number,number,number],
-  darkNavy:   [13, 27, 42]   as [number,number,number],
-  white:      [255,255,255]  as [number,number,number],
-  lightGray:  [245,247,250]  as [number,number,number],
-  medGray:    [156,163,175]  as [number,number,number],
-  darkGray:   [55, 65, 81]   as [number,number,number],
-  black:      [0,  0,  0]    as [number,number,number],
-  red:        [220,38, 38]   as [number,number,number],
-  green:      [34, 197,94]   as [number,number,number],
+  blue: [26, 93, 168] as [number, number, number],
+  darkNavy: [13, 27, 42] as [number, number, number],
+  white: [255, 255, 255] as [number, number, number],
+  lightGray: [245, 247, 250] as [number, number, number],
+  medGray: [156, 163, 175] as [number, number, number],
+  darkGray: [55, 65, 81] as [number, number, number],
+  black: [0, 0, 0] as [number, number, number],
+  red: [220, 38, 38] as [number, number, number],
+  green: [34, 197, 94] as [number, number, number],
 };
 
 const MARGIN = { left: 14, right: 14, top: 14, bottom: 20 };
@@ -61,7 +61,7 @@ function drawHeader(doc: jsPDF, orderId?: string): void {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(22);
   doc.setTextColor(...COLORS.blue);
-  doc.text('DEVIS OFFICIEL', PAGE_W - MARGIN.right, 18, { align: 'right' });
+  doc.text('DEVIS', PAGE_W - MARGIN.right, 18, { align: 'right' });
 
   // Date + Validité (right)
   doc.setFont('helvetica', 'normal');
@@ -104,7 +104,7 @@ function drawFromTo(doc: jsPDF, order: Order): number {
   doc.setTextColor(...COLORS.darkGray);
   const deLines = [
     '125 lot Laaroussi, Mghira',
-    'Ben Arous, Tunisie',
+    'Tunis, Tunisie',
     'Tél : (+216) 53 186 611',
     'Email : contact@aluminiumspace.com',
   ];
@@ -141,19 +141,37 @@ function drawFromTo(doc: jsPDF, order: Order): number {
   return startY + 38 + 6; // return Y after this section
 }
 
-function drawItemsTable(doc: jsPDF, order: Order, startY: number): number {
+async function getBase64Image(url: string): Promise<string> {
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.readAsDataURL(blob);
+    });
+  } catch { return ''; }
+}
+
+async function drawItemsTable(doc: jsPDF, order: Order, startY: number): Promise<number> {
   // Column widths — must sum to 182mm
   // Desc(58) + Dims(30) + Qty(12) + PU(28) + Rem(26) + Net(28) = 182 ✅
   const COL_WIDTHS = [58, 30, 12, 28, 26, 28];
 
   const tableData = order.items.map(item => [
-    item.productName + '\n' + (item.meshType ? 'Filet ' + item.meshType : '').toUpperCase(),
+    item.productName + 
+    (item.meshType ? '\nFilet ' + item.meshType.toUpperCase() : '') +
+    (item.color ? '\nCouleur : ' + item.color : ''),
     `${item.width}\u00A0×\u00A0${item.height}\u00A0cm`,
     String(item.quantity || 1),
     formatDTWithUnit(item.unitPrice),
     formatDTWithUnit(item.unitPrice * (item.quantity || 1) * 0.20),
     formatDTWithUnit(item.unitPrice * (item.quantity || 1) * 0.80),
   ]);
+
+  const colibriImg = await getBase64Image('/images/colibri-50.png');
+  const sidneyImg = await getBase64Image('/images/colibri-hero.png');
+  const elbaImg = await getBase64Image('/images/elba.png');
 
   autoTable(doc, {
     startY,
@@ -198,10 +216,35 @@ function drawItemsTable(doc: jsPDF, order: Order, startY: number): number {
       4: { cellWidth: COL_WIDTHS[4], halign: 'right', textColor: COLORS.red },
       5: { cellWidth: COL_WIDTHS[5], halign: 'right', textColor: COLORS.blue, fontStyle: 'bold' },
     },
+    didDrawCell: (data) => {
+      if (data.section === 'body' && data.column.index === 0 && data.row.index >= 0) {
+        const item = order.items[data.row.index];
+        if (!item) return;
+        
+        const imageMap: Record<string, string> = {
+          'colibri-50': colibriImg,
+          'sidney-50': sidneyImg,
+          'sidney-50-ac': sidneyImg,
+          'elba': elbaImg,
+        };
+        
+        const imgPath = imageMap[item.productId];
+        if (!imgPath) return;
+        
+        try {
+          const cellX = data.cell.x + data.cell.width - 22;
+          const cellY = data.cell.y + 2;
+          doc.addImage(imgPath, 'PNG', cellX, cellY, 18, 18);
+        } catch (e) {
+          // Image not available, skip silently
+        }
+      }
+    },
     didParseCell(data) {
       // Style the sub-label line in description column
       if (data.column.index === 0 && data.row.section === 'body') {
         data.cell.styles.fontSize = 8.5;
+        data.cell.styles.minCellHeight = 22;
       }
     },
   });
@@ -214,30 +257,30 @@ function drawTotals(doc: jsPDF, order: Order, startY: number): number {
   const boxW = PAGE_W - MARGIN.right - boxX;
   let y = startY + 6;
 
-  const brutHT = order.items.reduce((sum, item) => 
+  const brutHT = order.items.reduce((sum, item) =>
     sum + (item.unitPrice * (item.quantity || 1)), 0
   );
-  
-  const remise    = brutHT * 0.20;
-  const netHT     = brutHT * 0.80;
-  const fodec     = netHT * 0.01;
-  const baseTVA   = netHT + fodec;
-  const tva       = baseTVA * 0.19;
-  const timbre    = 1000; // 1.000 DT in millimes
-  const totalTTC  = baseTVA + tva + timbre;
+
+  const remise = brutHT * 0.20;
+  const netHT = brutHT * 0.80;
+  const fodec = netHT * 0.01;
+  const baseTVA = netHT + fodec;
+  const tva = baseTVA * 0.19;
+  const timbre = 1000; // 1.000 DT in millimes
+  const totalTTC = baseTVA + tva + timbre;
 
   const rows: [string, string, boolean, boolean][] = [
-    ['Total brut HT :', formatDTWithUnit(brutHT),   false, false],
+    ['Total brut HT :', formatDTWithUnit(brutHT), false, false],
     ['Remise (20%) :', `- ${formatDTWithUnit(remise)}`, false, true],
-    ['Total net HT :', formatDTWithUnit(netHT),     true,  false],
-    ['FODEC (1%) :',  formatDTWithUnit(fodec),       false, false],
-    ['Base TVA :',    formatDTWithUnit(baseTVA),     false, false],
-    ['TVA (19%) :',   formatDTWithUnit(tva),         false, false],
-    ['Timbre fiscal :', formatDTWithUnit(timbre),    false, false],
+    ['Total net HT :', formatDTWithUnit(netHT), true, false],
+    ['FODEC (1%) :', formatDTWithUnit(fodec), false, false],
+    ['Base TVA :', formatDTWithUnit(baseTVA), false, false],
+    ['TVA (19%) :', formatDTWithUnit(tva), false, false],
+    ['Timbre fiscal :', formatDTWithUnit(timbre), false, false],
   ];
 
   // Separator line
-  doc.setDrawColor(...COLORS.lightGray as [number,number,number]);
+  doc.setDrawColor(...COLORS.lightGray as [number, number, number]);
   doc.setLineWidth(0.3);
   doc.line(boxX - 4, y - 2, PAGE_W - MARGIN.right, y - 2);
 
@@ -312,24 +355,19 @@ function drawConditions(doc: jsPDF, y: number): void {
 }
 
 function drawPageFooter(doc: jsPDF, pageNum: number, totalPages: number): void {
-  // Dark navy bar: from PAGE_H-14 to PAGE_H, blue accent covers bottom 3mm
-  // Visible dark area: PAGE_H-14 to PAGE_H-3 = 11mm
-  // Center text at: PAGE_H - 14 + (11/2) = PAGE_H - 8.5
-  const textY = PAGE_H - 8.5;
-
-  doc.setFillColor(...COLORS.darkNavy);
-  doc.rect(0, PAGE_H - 14, PAGE_W, 14, 'F');
-
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7);
-  doc.setTextColor(...COLORS.white);
+  doc.setTextColor(100, 100, 100);
   doc.text(
-    'Aluminium Space — 125 lot Laaroussi, Mghira, Ben Arous  |  Tél : (+216) 53 186 611  |  contact@aluminiumspace.com',
-    PAGE_W / 2,
-    textY,
-    { align: 'center' }
+    'Siège Social: LOT 125 LOTISSEMENT LAROUSSI 1EL MGHIRA - TUNIS CP: 2074 | Tél: 53 186 611 - Mobile: 57 099 070',
+    PAGE_W / 2, PAGE_H - 16, { align: 'center' }
   );
-  doc.text(`Page ${pageNum} / ${totalPages}`, PAGE_W - MARGIN.right, textY, { align: 'right' });
+  doc.text(
+    'Matricule Fiscal: 1651250W/A/M/000 | Email: aluminium.space1@gmail.com | RIB: 11 05500 01215002788 56 - Agence: BOUMHEL',
+    PAGE_W / 2, PAGE_H - 11, { align: 'center' }
+  );
+
+  doc.text(`Page ${pageNum} / ${totalPages}`, PAGE_W - MARGIN.right, PAGE_H - 11, { align: 'right' });
 
   // Blue accent bottom
   doc.setFillColor(...COLORS.blue);
@@ -337,7 +375,7 @@ function drawPageFooter(doc: jsPDF, pageNum: number, totalPages: number): void {
 }
 
 // ─── MAIN EXPORT ──────────────────────────────────────────────────────────────
-export function generatePDF(order: Order): void {
+export async function generatePDF(order: Order): Promise<void> {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
   // Page 1 header
@@ -347,7 +385,7 @@ export function generatePDF(order: Order): void {
   const afterFromTo = drawFromTo(doc, order);
 
   // Items table
-  const afterTable = drawItemsTable(doc, order, afterFromTo);
+  const afterTable = await drawItemsTable(doc, order, afterFromTo);
 
   // Check if totals + conditions fit on current page
   const totalsHeight = 80; // approximate

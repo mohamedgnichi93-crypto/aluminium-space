@@ -10,7 +10,7 @@
   },
   "hero": {
     "title": "ALUMINIUM SPACE",
-    "subtitle": "Menuiserie Aluminium — Mghira, Ben Arous",
+    "subtitle": "Menuiserie Aluminium — Mghira, Tunis",
     "badge": "Distributeur officiel Grifo Flex",
     "cta_products": "Voir nos produits",
     "cta_quote": "Demander un devis"
@@ -68,7 +68,7 @@
     "title": "Nos Produits",
     "quality_badge": "Grifo Flex — Qualité Italienne",
     "why_title": "Pourquoi choisir nos moustiquaires ?",
-    "why_desc": "Nos moustiquaires Grifo Flex sont fabriquées en Italie avec des matériaux de haute qualité. Chaque produit est conçu pour offrir une protection optimale contre les insectes tout en restant esthétique et discret. Aluminium Space vous propose une installation professionnelle sur mesure à Mghira et dans toute la région de Ben Arous.",
+    "why_desc": "Nos moustiquaires Grifo Flex sont fabriquées en Italie avec des matériaux de haute qualité. Chaque produit est conçu pour offrir une protection optimale contre les insectes tout en restant esthétique et discret. Aluminium Space vous propose une installation professionnelle sur mesure à Mghira et dans toute la région de Tunis.",
     "feat1_title": "Matériaux Premium",
     "feat1_desc": "Fibre de verre recouverte de PVC, cadre aluminium blanc résistant.",
     "feat2_title": "Fabrication Sur Mesure",
@@ -111,7 +111,7 @@
     "tooltip_exact_wh": "Prix pour {{w}}cm × {{h}}cm",
     "availability_label": "Disponibilité",
     "availability_status": "Installation sous 3–7 jours ouvrables",
-    "availability_zone": "Ben Arous & Grand Tunis"
+    "availability_zone": "Tunis & Grand Tunis"
   },
   "contact_page": {
     "description": "N'hésitez pas à nous contacter pour toute question ou demande de devis.",
@@ -158,7 +158,7 @@
     "summary": "RÉSUMÉ"
   },
   "footer": {
-    "address": "125 lot Laaroussi, Mghira, Ben Arous",
+    "address": "125 lot Laaroussi, Mghira, Tunis",
     "phone": "(+216) 53 186 611",
     "email": "contact@aluminiumspace.com",
     "partner": "Distributeur officiel Grifo Flex Tunisie",
@@ -167,7 +167,7 @@
     "slogan": "Projetez. Visualisez. Réalisez.",
     "vr_sub": "Vivez vos fenêtres en réalité virtuelle",
     "motto": "Être parmi les meilleurs avec une touche qui sort de l'ordinaire.",
-    "brand_desc": "Spécialiste de la menuiserie aluminium à Mghira, Ben Arous. Nous fabriquons et installons des moustiquaires sur mesure de haute qualité pour votre confort.",
+    "brand_desc": "Spécialiste de la menuiserie aluminium à Mghira, Tunis. Nous fabriquons et installons des moustiquaires sur mesure de haute qualité pour votre confort.",
     "see_maps": "Voir sur Google Maps",
     "powered_by": "Powered by Grifo Flex"
   }

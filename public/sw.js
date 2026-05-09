@@ -1,10 +1,10 @@
-const CACHE = 'alu-space-v4';
+const CACHE = 'alu-space-v6';
 const PRECACHE = ['/', '/manifest.json', '/logo-aluminium-space.png'];
 
 self.addEventListener('install', e => {
   self.skipWaiting();
   e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(PRECACHE).catch(() => {}))
+    caches.open(CACHE).then(c => c.addAll(PRECACHE).catch(() => { }))
   );
 });
 

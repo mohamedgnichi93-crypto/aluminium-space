@@ -3,7 +3,6 @@ import { motion, useScroll, useSpring } from 'framer-motion';
 import Header from './Header';
 import Footer from './Footer';
 import ToastContainer from '../ui/Toast';
-import StickyCTA from '../ui/StickyCTA';
 import { useToast } from '../../hooks/useToast';
 
 const Layout = () => {
@@ -38,8 +37,7 @@ const Layout = () => {
 
       {!isDashboard && <Footer />}
 
-      {/* Sticky mobile CTA */}
-      {!isDashboard && <StickyCTA />}
+      {/* Sticky mobile CTA — removed to fix mobile responsiveness (covered footer, overlapped AI agent) */}
 
       {/* Toast Container */}
       <ToastContainer toasts={toasts} onRemove={removeToast} />

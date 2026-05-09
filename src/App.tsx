@@ -13,7 +13,6 @@ import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import { AIAgentProvider, useAIAgentContext, type Lang } from './context/AIAgentContext';
 import AIAgent from './components/ai/AIAgent';
-import ScrollToTop from './components/utils/ScrollToTop';
 
 const pageVariants = {
   initial: { opacity: 0, y: 20 },
@@ -25,7 +24,7 @@ function AnimatedRoutes() {
   const location = useLocation();
 
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode="wait" onExitComplete={() => window.scrollTo({ top: 0, left: 0, behavior: 'instant' })}>
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Layout />}>
           <Route index element={<motion.div {...pageVariants} initial="initial" animate="animate" exit="exit"><Home /></motion.div>} />
@@ -74,7 +73,6 @@ function App() {
 
   return (
     <Router>
-      <ScrollToTop />
       <AIAgentProvider>
         <AppContent />
       </AIAgentProvider>

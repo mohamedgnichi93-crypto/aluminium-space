@@ -23,9 +23,9 @@ const defaults = {
   titleAr: `${BRAND} — مستيكارات Grifo Flex على المقاس في تونس`,
   titleEn: `${BRAND} — Custom Grifo Flex Screens in Tunisia`,
   titleIt: `${BRAND} — Zanzariere Grifo Flex su misura in Tunisia`,
-  descFr: 'Distributeur officiel Grifo Flex en Tunisie — moustiquaires sur mesure, installation professionnelle à Mghira, Ben Arous.',
-  descAr: 'الموزع الرسمي لـ Grifo Flex في تونس — مستيكارات على المقاس، تركيب احترافي في مغيرة، بن عروس.',
-  descEn: 'Official Grifo Flex distributor in Tunisia — custom screens, professional installation in Mghira, Ben Arous.',
+  descFr: 'Distributeur officiel Grifo Flex en Tunisie — moustiquaires sur mesure, installation professionnelle à Mghira, Tunis.',
+  descAr: 'الموزع الرسمي لـ Grifo Flex في تونس — مستيكارات على المقاس، تركيب احترافي في مغيرة، تونس.',
+  descEn: 'Official Grifo Flex distributor in Tunisia — custom screens, professional installation in Mghira, Tunis.',
   descIt: 'Distributore ufficiale Grifo Flex in Tunisia — zanzariere su misura, installazione professionale a Mghira.',
 };
 
@@ -35,15 +35,15 @@ const PageSEO = ({ titleFr, titleAr, titleEn, titleIt, descFr, descAr, descEn, d
 
   const title =
     lang === 'ar' || lang === 'tn' ? (titleAr ?? defaults.titleAr) :
-    lang === 'en' ? (titleEn ?? defaults.titleEn) :
-    lang === 'it' ? (titleIt ?? defaults.titleIt) :
-    (titleFr ?? defaults.titleFr);
+      lang === 'en' ? (titleEn ?? defaults.titleEn) :
+        lang === 'it' ? (titleIt ?? defaults.titleIt) :
+          (titleFr ?? defaults.titleFr);
 
   const desc =
     lang === 'ar' || lang === 'tn' ? (descAr ?? defaults.descAr) :
-    lang === 'en' ? (descEn ?? defaults.descEn) :
-    lang === 'it' ? (descIt ?? defaults.descIt) :
-    (descFr ?? defaults.descFr);
+      lang === 'en' ? (descEn ?? defaults.descEn) :
+        lang === 'it' ? (descIt ?? defaults.descIt) :
+          (descFr ?? defaults.descFr);
 
   const canonical = `${BASE_URL}${path}`;
 

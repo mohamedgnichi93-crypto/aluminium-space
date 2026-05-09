@@ -142,7 +142,7 @@ export function useAIAgentLogic(
 
   // ── Send message ──────────────────────────────────────────────
   const sendMessage = useCallback(
-    async (userText: string) => {
+    async (userText: string, base64Image?: string | null) => {
       if (!userText.trim() || isLoading) return;
 
       const userMsg: Message = {
@@ -156,7 +156,7 @@ export function useAIAgentLogic(
       setIsLoading(true);
 
       try {
-        const response = await processLocalMessage(userText, messagesRef.current, language);
+        const response = await processLocalMessage(userText, messagesRef.current, language, base64Image);
         const { text, action, actionLabel, suggestions, navigating, detectedLang, productImage, devisButton, comparisonTable } = response;
 
         const assistantMsg: Message = {

@@ -17,6 +17,7 @@ export interface ConvMemory {
   lastPrice: number | null;
   awaitingDimensions: boolean;
   awaitingProduct: boolean;
+  awaitingPhone: boolean;
   mentionCount: number;
 }
 
@@ -216,10 +217,18 @@ function norm(s: string) {
 }
 
 // ─── SESSION STATE ───────────────────────────────────────────────
-let sessionLang: Lang = 'fr';
+const savedLang = typeof localStorage !== 'undefined' ? localStorage.getItem('alu_chat_lang') as Lang : null;
+let sessionLang: Lang = savedLang || 'fr';
+
+function updateSessionLang(l: Lang) {
+  sessionLang = l;
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('alu_chat_lang', l);
+  }
+}
 let sessionCount = 0;
 
-export function resetSessionCount(lang?: Lang) { sessionCount = 0; sessionLang = lang || 'fr'; }
+export function resetSessionCount(lang?: Lang) { sessionCount = 0; updateSessionLang(lang || 'fr'); }
 
 // ─── LANGUAGE DETECTION ──────────────────────────────────────────
 export function detectLanguage(msg: string): Lang {
@@ -227,16 +236,16 @@ export function detectLanguage(msg: string): Lang {
   const mn = norm(m);
 
   // Explicit switches
-  if (/(b arbi|a7ki.*arbi|a7ki.*3arbi|en arabe|parle.*arabe|reponds.*arabe|تكلم عربي|بالعربية|رد بالعربي|speak.*arabic|respond.*arabic|in arabic)/.test(mn)) { sessionLang = 'ar'; return 'ar'; }
-  if (/(b tounsi|a7ki.*tounsi|en tounsi|parle.*tunisien|speak.*tunisian|b dialecte)/.test(mn)) { sessionLang = 'tn'; return 'tn'; }
-  if (/(b français|b francais|en français|en francais|parle.*français|parle.*francais|speak.*french|in french|reponds.*francais)/.test(mn)) { sessionLang = 'fr'; return 'fr'; }
-  if (/(in english|speak.*english|parle.*anglais|b anglais|respond.*english|reply.*english)/.test(mn)) { sessionLang = 'en'; return 'en'; }
-  if (/(in italiano|parla.*italiano|speak.*italian|in italian|rispondi.*italiano)/.test(mn)) { sessionLang = 'it'; return 'it'; }
+  if (/(b arbi|a7ki.*arbi|a7ki.*3arbi|en arabe|parle.*arabe|reponds.*arabe|تكلم عربي|بالعربية|رد بالعربي|speak.*arabic|respond.*arabic|in arabic)/.test(mn)) { updateSessionLang('ar'); return 'ar'; }
+  if (/(b tounsi|a7ki.*tounsi|en tounsi|parle.*tunisien|speak.*tunisian|b dialecte)/.test(mn)) { updateSessionLang('tn'); return 'tn'; }
+  if (/(b français|b francais|en français|en francais|parle.*français|parle.*francais|speak.*french|in french|reponds.*francais)/.test(mn)) { updateSessionLang('fr'); return 'fr'; }
+  if (/(in english|speak.*english|parle.*anglais|b anglais|respond.*english|reply.*english)/.test(mn)) { updateSessionLang('en'); return 'en'; }
+  if (/(in italiano|parla.*italiano|speak.*italian|in italian|rispondi.*italiano)/.test(mn)) { updateSessionLang('it'); return 'it'; }
 
   // Arabic script
   if (/[؀-ۿ]/.test(m)) {
-    if (/(علاش|وقتاش|فاش|شنوة|شنية|كيفاش|برشة|مزيان|باهي|اللي|متاع|هكا|هاكا|عندي|نحب|نقدر|تكون|معايا|معاك|قداه|باش|تو\b|ياسر|حاجة)/.test(m)) { sessionLang = 'tn'; return 'tn'; }
-    sessionLang = 'ar'; return 'ar';
+    if (/(علاش|وقتاش|فاش|شنوة|شنية|كيفاش|برشة|مزيان|باهي|اللي|متاع|هكا|هاكا|عندي|نحب|نقدر|تكون|معايا|معاك|قداه|باش|تو\b|ياسر|حاجة)/.test(m)) { updateSessionLang('tn'); return 'tn'; }
+    updateSessionLang('ar'); return 'ar';
   }
 
   // Tunisian latin
@@ -280,7 +289,7 @@ function buildMemory(history: Message[]): ConvMemory {
   const mem: ConvMemory = {
     clientName: null, lastProduct: null, lastWidth: null, lastHeight: null,
     lastQuantity: null, lastPrice: null, awaitingDimensions: false,
-    awaitingProduct: false, mentionCount: 0,
+    awaitingProduct: false, awaitingPhone: false, mentionCount: 0,
   };
 
   for (const msg of [...history].reverse()) {
@@ -297,6 +306,9 @@ function buildMemory(history: Message[]): ConvMemory {
     }
     if (!mem.clientName && msg.role === 'user') {
       mem.clientName = extractClientName(msg.content);
+    }
+    if (msg.role === 'assistant' && /(rappel|téléphone|phone|رقم)/i.test(msg.content)) {
+       mem.awaitingPhone = true;
     }
   }
   return mem;
@@ -322,6 +334,7 @@ function detectIntent(msg: string): string {
   if (extractAllDimensions(msg).length > 0) return 'dimensions_provided';
   if (/(devis|preventivo|quote|estimation|estimer|calcul|عرض.*سعر|تقدير|ديفيس|yehsibli|ahsibli|namel.*devis|n7eb.*devis|3ardh)/.test(m)) return 'devis_request';
   if (/(prix|tarif|combien|cout|coût|cher|price|cost|prezzo|quanto|thaman|ثمن|سعر|قداش|9adech|b9adech|becha|يكلف|ye5lef|thmen\b)/.test(m)) return 'price_inquiry';
+  if (/(me contacter|rappel|rappelez|callback|اتصل بي|kallemni)/.test(m)) return 'callback_request';
   if (/(contact|telephone|tel|appel|appeler|whatsapp|watsap|numero|numéro|chiamare|telefono|واتساب|اتصل|رقم|هاتف|تلفون|atslni|teslni)/.test(m)) return 'contact';
   if (/(adresse|address|localisation|ou\b|où|fouchana|indirizzo|dove|وين|فين|فوشانة|عنوان|maps|win nla9akom|winfin ntom)/.test(m)) return 'location';
   if (/(horaire|heure|ouvert|ferme|fermé|orario|aperto|متى|ساعة|وقت|wa9t|9adeh.*se3a|quand.*ouvr)/.test(m)) return 'hours';
@@ -368,11 +381,11 @@ function priceResponse(
   const greet = clientName ? clientName + ', ' : '';
 
   const lines = {
-    fr: `💰 Prix estimé pour **${productName}** ${w}×${h}cm${qtyStr} :\n\n• Prix unitaire HT : ${fmt(b.unitPrice)}\n• Remise 20% : -${fmt(b.remise)}\n• Net HT : ${fmt(b.netHT)}\n• FODEC (1%) : ${fmt(b.fodec)}\n• TVA (19%) : ${fmt(b.tva)}\n• Timbre : ${fmt(b.timbre)}\n━━━━━━━━━━━━━━━\n💳 **TOTAL TTC : ${fmt(b.totalTTC)}**\n\n${greet}Voulez-vous passer au devis ?`,
-    tn: `💰 El thmen mte3 **${productName}** ${w}×${h}cm${qtyStr} :\n\n• Prix HT : ${fmt(b.unitPrice)}\n• Remise 20% : -${fmt(b.remise)}\n• Net HT : ${fmt(b.netHT)}\n• FODEC (1%) : ${fmt(b.fodec)}\n• TVA (19%) : ${fmt(b.tva)}\n• Timbre : ${fmt(b.timbre)}\n━━━━━━━━━━━━━━━\n💳 **TOTAL TTC : ${fmt(b.totalTTC)}**\n\n${greet}T7eb namel devis ?`,
-    ar: `💰 السعر المقدر لـ **${productName}** ${w}×${h}سم${qtyStr} :\n\n• السعر بدون TVA : ${fmt(b.unitPrice)}\n• خصم 20% : -${fmt(b.remise)}\n• صافي HT : ${fmt(b.netHT)}\n• FODEC (1%) : ${fmt(b.fodec)}\n• TVA (19%) : ${fmt(b.tva)}\n• الطابع : ${fmt(b.timbre)}\n━━━━━━━━━━━━━━━\n💳 **الإجمالي مع TVA : ${fmt(b.totalTTC)}**\n\n${greet}هل تريد إعداد عرض الأسعار؟`,
-    en: `💰 Estimated price for **${productName}** ${w}×${h}cm${qtyStr}:\n\n• Unit price excl. VAT: ${fmt(b.unitPrice)}\n• Discount 20%: -${fmt(b.remise)}\n• Net excl. VAT: ${fmt(b.netHT)}\n• FODEC (1%): ${fmt(b.fodec)}\n• VAT (19%): ${fmt(b.tva)}\n• Stamp: ${fmt(b.timbre)}\n━━━━━━━━━━━━━━━\n💳 **TOTAL incl. VAT: ${fmt(b.totalTTC)}**\n\n${greet}Would you like to proceed with a quote?`,
-    it: `💰 Prezzo stimato per **${productName}** ${w}×${h}cm${qtyStr}:\n\n• Prezzo unitario IVA escl.: ${fmt(b.unitPrice)}\n• Sconto 20%: -${fmt(b.remise)}\n• Netto IVA escl.: ${fmt(b.netHT)}\n• FODEC (1%): ${fmt(b.fodec)}\n• IVA (19%): ${fmt(b.tva)}\n• Bollo: ${fmt(b.timbre)}\n━━━━━━━━━━━━━━━\n💳 **TOTALE IVA incl.: ${fmt(b.totalTTC)}**\n\n${greet}Vuoi procedere con un preventivo?`,
+    fr: `Pour un **${productName}** en ${w}×${h} cm${qtyStr} :\n• Prix HT : ${fmt(b.unitPrice)}\n• Remise 20% : -${fmt(b.remise)}\n• Total TTC : ${fmt(b.totalTTC)}\n\n${greet}Voulez-vous passer au devis ?`,
+    tn: `Lel **${productName}** f ${w}×${h} cm${qtyStr} :\n• Prix HT : ${fmt(b.unitPrice)}\n• Remise 20% : -${fmt(b.remise)}\n• Total TTC : ${fmt(b.totalTTC)}\n\n${greet}T7eb namel devis ?`,
+    ar: `لـ **${productName}** بـ ${w}×${h} سم${qtyStr} :\n• السعر بدون TVA : ${fmt(b.unitPrice)}\n• خصم 20% : -${fmt(b.remise)}\n• الإجمالي مع TVA : ${fmt(b.totalTTC)}\n\n${greet}هل تريد إعداد عرض الأسعار؟`,
+    en: `For a **${productName}** in ${w}×${h} cm${qtyStr}:\n• Price excl. VAT: ${fmt(b.unitPrice)}\n• Discount 20%: -${fmt(b.remise)}\n• Total incl. VAT: ${fmt(b.totalTTC)}\n\n${greet}Would you like to proceed with a quote?`,
+    it: `Per una **${productName}** in ${w}×${h} cm${qtyStr}:\n• Prezzo IVA escl.: ${fmt(b.unitPrice)}\n• Sconto 20%: -${fmt(b.remise)}\n• Totale IVA incl.: ${fmt(b.totalTTC)}\n\n${greet}Vuoi procedere con un preventivo?`,
   };
   return lines[lang] || lines.fr;
 }
@@ -497,16 +510,17 @@ async function processWithOpenAI(
   userText: string,
   history: Message[],
   lang: Lang,
+  base64Image?: string | null,
 ): Promise<string | null> {
   const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
   if (!apiKey) return null;
 
-  const langInstruction: Record<Lang, string> = {
-    fr: 'Réponds en français.',
-    ar: 'أجب باللغة العربية الفصحى.',
-    tn: 'Réponds en dialecte tunisien (écriture latine ou arabe selon la question).',
-    en: 'Reply in English.',
-    it: 'Rispondi in italiano.',
+  const langInstruction: Record<string, string> = {
+    fr: 'CRITICAL: Respond ONLY in French. Never mix languages. Every single word must be French.',
+    ar: 'CRITICAL: Respond ONLY in Modern Standard Arabic (العربية الفصحى). Never mix languages. Every single word must be Arabic.',
+    tn: 'CRITICAL: Respond ONLY in Tunisian Arabic dialect (تونسي). Use Tunisian words and expressions only. Never mix with French.',
+    en: 'CRITICAL: Respond ONLY in English. Never mix languages. Every single word must be English.',
+    it: 'CRITICAL: Respond ONLY in Italian. Never mix languages. Every single word must be Italian.',
   };
 
   const systemPrompt = `Tu es ALU, l'assistant virtuel d'Aluminium Space — entreprise tunisienne spécialisée dans la fabrication et l'installation de moustiquaires de qualité italienne Grifo Flex.
@@ -518,7 +532,7 @@ PRODUITS:
 • ELBA — Panneau fixe. Max 120×250 cm. 143 DT/m² (fibre), 183 DT/m² (alu), 262 DT/m² (inox).
 
 COULEURS: Blanc (standard) et Noir.
-ADRESSE: 125 lot Laaroussi Mghira, Ben Arous, Tunisie.
+ADRESSE: 125 lot Laaroussi Mghira, Tunis, Tunisie.
 TÉLÉPHONE: +216 53 186 611 / +216 57 099 070. WhatsApp: +216 57 099 070.
 HORAIRES: Lundi–Samedi 8h00–17h00. Fermé dimanche.
 GARANTIE: 2 ans structure aluminium, 1 an grille.
@@ -534,7 +548,7 @@ RÈGLES:
 - Pour naviguer, suggère à l'utilisateur de cliquer sur le bouton ou le menu.`;
 
   try {
-    const recentHistory = history.slice(-8).map(m => ({
+    const recentHistory = history.slice(-10).map(m => ({
       role: m.role as 'user' | 'assistant',
       content: m.content,
     }));
@@ -549,8 +563,18 @@ RÈGLES:
         model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: systemPrompt },
+          {
+            role: 'system',
+            content: `REMINDER: You must respond in ${lang === 'fr' ? 'French' : lang === 'ar' ? 'Arabic' : lang === 'tn' ? 'Tunisian Arabic' : lang === 'en' ? 'English' : 'Italian'} ONLY. Do not switch languages under any circumstances.`
+          },
           ...recentHistory,
-          { role: 'user', content: userText },
+          {
+            role: 'user',
+            content: base64Image ? [
+              { type: 'text', text: `[User language: ${lang}] ${userText}\nAnalyze this image. If it shows a window or door opening, suggest the most appropriate Grifo Flex mosquito screen model and explain why.` },
+              { type: 'image_url', image_url: { url: base64Image } }
+            ] : `[User language: ${lang}] ${userText}`
+          },
         ],
         max_tokens: 350,
         temperature: 0.7,
@@ -559,7 +583,40 @@ RÈGLES:
 
     if (!response.ok) return null;
     const data = await response.json();
-    return (data.choices?.[0]?.message?.content as string) || null;
+    let aiText = (data.choices?.[0]?.message?.content as string) || '';
+
+    // Fix 4: Validation and Retry
+    const isArabicScript = /[\u0600-\u06FF]/.test(aiText);
+    const needsArabic = lang === 'ar' || lang === 'tn';
+    const needsFrench = lang === 'fr';
+
+    if ((needsArabic && !isArabicScript) || (needsFrench && isArabicScript)) {
+      // Retry once
+      const retryResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'system', content: lang === 'fr' ? 'RÉPONDS EN FRANÇAIS UNIQUEMENT. PAS D\'ARABE.' : 'أجب بالعربية فقط. لا تستخدم أي لغة أخرى.' },
+            ...recentHistory,
+            { role: 'user', content: `[RETRY - Language Violation] ${userText}` },
+          ],
+          max_tokens: 350,
+          temperature: 0.3, // Lower temperature for more strict adherence
+        }),
+      });
+      if (retryResponse.ok) {
+        const retryData = await retryResponse.json();
+        aiText = retryData.choices?.[0]?.message?.content || aiText;
+      }
+    }
+
+    return aiText || null;
   } catch {
     return null;
   }
@@ -570,9 +627,15 @@ export async function processLocalMessage(
   userText: string,
   history: Message[],
   preferredLang?: Lang,
+  base64Image?: string | null,
 ): Promise<AIResponse> {
+  // Image handling forces OpenAI fallback immediately
+  if (base64Image) {
+    const aiText = await processWithOpenAI(userText, history, preferredLang || 'fr', base64Image);
+    return { text: aiText || 'Erreur image', detectedLang: preferredLang || 'fr' };
+  }
   // Seed session language from site language on first message
-  if (preferredLang && sessionCount === 0) sessionLang = preferredLang;
+  if (preferredLang && sessionCount === 0) updateSessionLang(preferredLang);
   sessionCount++;
   const lang = detectLanguage(userText);
   const intent = detectIntent(userText);
@@ -682,7 +745,7 @@ export async function processLocalMessage(
         width: w,
         height: h,
         price: breakdown.totalTTC,
-        label: `➕ Ajouter au devis — ${fmt(breakdown.totalTTC)} TTC`,
+        label: `📋 Demander ce devis — ${fmt(breakdown.totalTTC)}`,
       },
       action: { type: 'open_devis_wizard', params: { productId, width: w, height: h } },
       actionLabel: undefined,
@@ -735,27 +798,48 @@ export async function processLocalMessage(
       detectedLang: lang,
       suggestions: getSuggestions('price', lang),
       productImage: p?.image,
-      devisButton: { show: true, productId, width: mem.lastWidth!, height: mem.lastHeight!, price: b.totalTTC, label: `➕ Ajouter au devis — ${fmt(b.totalTTC)} TTC` },
+      devisButton: { show: true, productId, width: mem.lastWidth!, height: mem.lastHeight!, price: b.totalTTC, label: `📋 Demander ce devis — ${fmt(b.totalTTC)}` },
       loadingType: 'calculate',
     };
   }
 
-  // DEVIS REQUEST
+  // DEVIS REQUEST (Guided Flow)
   if (intent === 'devis_request') {
-    const texts: Record<Lang, string> = {
-      fr: `📋 **Créer votre devis** :\nNotre assistant devis vous guidera en quelques étapes :\n1. Sélectionnez votre produit\n2. Saisissez vos dimensions\n3. Renseignez vos coordonnées\n4. Téléchargez votre devis PDF !\n\nCliquez sur le bouton ci-dessous pour commencer.`,
-      tn: `📋 **Amel devis** :\nEl-assistant mte3na yasshellek :\n1. T5tar el produit\n2. Da5el el dimensions\n3. Da5el coordonnées\n4. T7amel devis PDF !\n\nClic 3al bouton bech tebda.`,
-      ar: `📋 **إعداد عرض الأسعار** :\nمساعد الديفيس يرشدك خطوة بخطوة :\n1. اختر المنتج\n2. أدخل الأبعاد\n3. أدخل بياناتك\n4. حمّل ديفيسك PDF !\n\nانقر على الزر أدناه للبدء.`,
-      en: `📋 **Create your quote** :\nOur quote assistant guides you in a few steps:\n1. Select your product\n2. Enter dimensions\n3. Enter your details\n4. Download your PDF quote!\n\nClick the button below to start.`,
-      it: `📋 **Crea il tuo preventivo** :\nIl nostro assistente ti guida in pochi passi:\n1. Seleziona il prodotto\n2. Inserisci le dimensioni\n3. Inserisci i dati\n4. Scarica il preventivo PDF!\n\nClicca il pulsante per iniziare.`,
-    };
-    return {
-      text: texts[lang] || texts.fr,
-      detectedLang: lang,
-      action: { type: 'open_devis_wizard', params: mem.lastProduct ? { productId: mem.lastProduct } : {} },
-      actionLabel: { fr: '📋 Ouvrir le devis', tn: '📋 Iftah el devis', ar: '📋 فتح الديفيس', en: '📋 Open quote wizard', it: '📋 Apri preventivo' }[lang] || '📋 Ouvrir le devis',
-      suggestions: getSuggestions('price', lang),
-    };
+    if (!mem.lastWidth || !mem.lastHeight) {
+      return {
+        text: {
+          fr: "Quelle largeur × hauteur (en cm) souhaitez-vous pour ce devis ?",
+          tn: "A3tini el 3ardh × toul (b cm) lel devis hetha ?",
+          ar: "ما هو العرض × الارتفاع (بالسم) الذي تريده لعرض الأسعار هذا؟",
+          en: "What width × height (in cm) would you like for this quote?",
+          it: "Che larghezza × altezza (in cm) desideri per questo preventivo?",
+        }[lang] || "Dimensions?",
+        detectedLang: lang,
+      };
+    }
+    if (!mem.lastProduct) {
+      return {
+        text: {
+          fr: "Quel produit souhaitez-vous ? (Colibrì 50, Sidney 50, Elba...)",
+          tn: "Asch produit t7eb ? (Colibrì 50, Sidney 50, Elba...)",
+          ar: "أي منتج تريد؟ (Colibrì 50, Sidney 50, Elba...)",
+          en: "Which product would you like? (Colibrì 50, Sidney 50, Elba...)",
+          it: "Quale prodotto desideri? (Colibrì 50, Sidney 50, Elba...)",
+        }[lang] || "Product?",
+        detectedLang: lang,
+      };
+    }
+    
+    // Have both: calculate and show button
+    const b = calcPriceBreakdown(mem.lastProduct, mem.lastWidth, mem.lastHeight);
+    if (b) {
+      return {
+        text: priceResponse(lang, PRODUCTS[mem.lastProduct].name, mem.lastWidth, mem.lastHeight, 1, b, clientName),
+        action: { type: 'open_devis_wizard', params: { productId: mem.lastProduct, width: mem.lastWidth, height: mem.lastHeight } },
+        actionLabel: { fr: '📋 Ouvrir le Devis Wizard', tn: '📋 Iftah el Devis', ar: '📋 فتح الديفيس', en: '📋 Open Quote Wizard', it: '📋 Apri Preventivo' }[lang] || '📋 Ouvrir le Devis Wizard',
+        detectedLang: lang,
+      };
+    }
   }
 
   // PRODUCT INTENTS
@@ -798,6 +882,66 @@ export async function processLocalMessage(
       action: { type: 'navigate_to_page', params: { path: PRODUCTS['elba'].path } },
       actionLabel: { fr: '🔍 Voir ELBA', tn: '🔍 Chouf ELBA', ar: '🔍 رؤية ELBA', en: '🔍 View ELBA', it: '🔍 Vedi ELBA' }[lang] || '🔍 Voir ELBA',
     };
+  }
+
+  // COMPARISON
+  if (intent === 'comparison') {
+    const texts: Record<Lang, string> = {
+      fr: `⚖️ **Comparatif des moustiquaires :**\n\n🪟 **Colibrì 50** : Fenêtre (Enroulable)\n💰 Dès 263 DT | Idéal pour chambres.\n\n🚪 **Sidney 50** : Porte (Enroulable latérale)\n💰 Dès 611 DT | Idéal pour balcons.\n\n🚪🚪 **Sidney 50 AC** : Grande Porte (Double)\n💰 Dès 1224 DT | Pour grandes ouvertures.\n\n🖼️ **Elba** : Panneau Fixe\n💰 143 DT/m² | Fixation permanente.\n\nLequel vous intéresse ?`,
+      tn: `⚖️ **Mokarana mte3 el moustiquaires :**\n\n🪟 **Colibrì 50** : Chbek (Yatlawa)\n💰 Min 263 DT | Behi lel byout.\n\n🚪 **Sidney 50** : Bab (Yatlawa)\n💰 Min 611 DT | Behi lel balcon.\n\n🚪🚪 **Sidney 50 AC** : Bab Kbir (Double)\n💰 Min 1224 DT | Lel biban lekbar.\n\n🖼️ **Elba** : Fixe\n💰 143 DT/m² | Fixe dima.\n\nAsch t7eb ?`,
+      ar: `⚖️ **مقارنة الناموسيات :**\n\n🪟 **Colibrì 50** : نافذة (قابلة للطي)\n💰 من 263 DT | مثالية للغرف.\n\n🚪 **Sidney 50** : باب (طي جانبي)\n💰 من 611 DT | مثالية للشرفات.\n\n🚪🚪 **Sidney 50 AC** : باب كبير (مزدوج)\n💰 من 1224 DT | للفتحات الكبيرة.\n\n🖼️ **Elba** : لوح ثابت\n💰 143 DT/m² | تثبيت دائم.\n\nما الذي يهمك؟`,
+      en: `⚖️ **Mosquito Screen Comparison:**\n\n🪟 **Colibrì 50**: Window (Roller)\n💰 From 263 DT | Ideal for bedrooms.\n\n🚪 **Sidney 50**: Door (Side Roller)\n💰 From 611 DT | Ideal for balconies.\n\n🚪🚪 **Sidney 50 AC**: Large Door (Double)\n💰 From 1224 DT | For large openings.\n\n🖼️ **Elba**: Fixed Panel\n💰 143 DT/m² | Permanent fixing.\n\nWhich one interests you?`,
+      it: `⚖️ **Confronto Zanzariere:**\n\n🪟 **Colibrì 50**: Finestra (Avvolgibile)\n💰 Da 263 DT | Ideale per camere.\n\n🚪 **Sidney 50**: Porta (Avvolgibile laterale)\n💰 Da 611 DT | Ideale per balconi.\n\n🚪🚪 **Sidney 50 AC**: Porta Grande (Doppia)\n💰 Da 1224 DT | Per grandi aperture.\n\n🖼️ **Elba**: Pannello Fisso\n💰 143 DT/m² | Fissaggio permanente.\n\nQuale ti interessa?`,
+    };
+    return {
+      text: texts[lang] || texts.fr,
+      suggestions: ['Voir Colibrì 50', 'Voir Sidney 50', 'Voir Elba'],
+      detectedLang: lang,
+    };
+  }
+
+  // CALLBACK REQUEST
+  if (intent === 'callback_request' || mem.awaitingPhone) {
+    const phoneMatch = userText.match(/(?:(?:(?:\+|00)216)?[\s.-]*[234579]\d{7})/);
+    const extractedPhone = phoneMatch ? phoneMatch[0] : null;
+
+    if (extractedPhone && clientName) {
+      const waUrl = `https://wa.me/${BUSINESS_CONFIG.WHATSAPP.replace(/\D/g, '')}?text=${encodeURIComponent(`Nouveau rappel demandé: ${clientName} - ${extractedPhone}`)}`;
+      return {
+        text: {
+           fr: `Merci ${clientName}. J'ai noté votre numéro ${extractedPhone}. Je transmets la demande !`,
+           tn: `Ayshek ${clientName}. 9ayedt numrourek ${extractedPhone}. Taw nkalmok!`,
+           ar: `شكراً ${clientName}. لقد سجلت رقمك ${extractedPhone}. سأنقل طلبك!`,
+           en: `Thank you ${clientName}. I have noted your number ${extractedPhone}. I'm forwarding the request!`,
+           it: `Grazie ${clientName}. Ho annotato il tuo numero ${extractedPhone}. Inoltro la richiesta!`,
+        }[lang] || `Merci.`,
+        action: { type: 'navigate_to_page', params: { path: waUrl } },
+        actionLabel: '💬 Ouvrir WhatsApp',
+        detectedLang: lang,
+      };
+    } else if (clientName && !extractedPhone) {
+      return {
+        text: {
+          fr: "Quel est votre numéro de téléphone pour que nous puissions vous rappeler ?",
+          tn: "A3tini numrourek bech nkalmok ?",
+          ar: "ما هو رقم هاتفك لكي نتمكن من الاتصال بك؟",
+          en: "What is your phone number so we can call you back?",
+          it: "Qual è il tuo numero di telefono per richiamarti?",
+        }[lang] || "Phone number?",
+        detectedLang: lang,
+      };
+    } else if (!clientName) {
+      return {
+        text: {
+          fr: "Quel est votre nom et votre numéro de téléphone pour le rappel ?",
+          tn: "Asmk w numrourek bech nkalmok ?",
+          ar: "ما هو اسمك ورقم هاتفك للاتصال بك؟",
+          en: "What is your name and phone number for the callback?",
+          it: "Qual è il tuo nome e numero di telefono per il richiamo?",
+        }[lang] || "Name and phone?",
+        detectedLang: lang,
+      };
+    }
   }
 
   // PRODUCT LIST
@@ -873,11 +1017,11 @@ export async function processLocalMessage(
   // LOCATION
   if (intent === 'location') {
     const texts: Record<Lang, string> = {
-      fr: `📍 **Showroom Aluminium Space** :\n${COMPANY.address}\n\n🗺 À Mghira, Ben Arous — facilement accessible depuis Tunis (20 min).`,
-      tn: `📍 **Showroom mte3na** :\n${COMPANY.address}\n\n🗺 Fi Mghira, Ben Arous — 20 min men Tunis.`,
-      ar: `📍 **معرض Aluminium Space** :\n${COMPANY.address}\n\n🗺 في مغيرة، بن عروس — 20 دقيقة من تونس العاصمة.`,
-      en: `📍 **Aluminium Space Showroom** :\n${COMPANY.address}\n\n🗺 In Mghira, Ben Arous — 20 min from Tunis.`,
-      it: `📍 **Showroom Aluminium Space** :\n${COMPANY.address}\n\n🗺 A Mghira, Ben Arous — 20 min da Tunisi.`,
+      fr: `📍 **Showroom Aluminium Space** :\n${COMPANY.address}\n\n🗺 À Mghira, Tunis — facilement accessible depuis Tunis (20 min).`,
+      tn: `📍 **Showroom mte3na** :\n${COMPANY.address}\n\n🗺 Fi Mghira, Tunis — 20 min men Tunis.`,
+      ar: `📍 **معرض Aluminium Space** :\n${COMPANY.address}\n\n🗺 في مغيرة، تونس — 20 دقيقة من تونس العاصمة.`,
+      en: `📍 **Aluminium Space Showroom** :\n${COMPANY.address}\n\n🗺 In Mghira, Tunis — 20 min from Tunis.`,
+      it: `📍 **Showroom Aluminium Space** :\n${COMPANY.address}\n\n🗺 A Mghira, Tunis — 20 min da Tunisi.`,
     };
     return {
       text: texts[lang] || texts.fr,
@@ -901,11 +1045,11 @@ export async function processLocalMessage(
   // ABOUT
   if (intent === 'about') {
     const texts: Record<Lang, string> = {
-      fr: `🏢 **Aluminium Space** est spécialisé dans la fabrication et l'installation de moustiquaires de qualité italienne Grifo Flex.\n\n📍 Basé à Mghira, Ben Arous\n🏆 Produits certifiés, structure aluminium\n🇮🇹 Qualité italienne\n\nNous servons toute la Tunisie avec un service professionnel.`,
-      tn: `🏢 **Aluminium Space** mta3 moustika de qualité italienne Grifo Flex.\n\n📍 Fi Mghira, Ben Arous\n🏆 Produits certifiés, haykel aluminium\n🇮🇹 Qualité italienne\n\nNkhedmou l kol tounes.`,
-      ar: `🏢 **Aluminium Space** متخصص في تصنيع وتركيب مستيكارات إيطالية الجودة Grifo Flex.\n\n📍 في مغيرة، بن عروس\n🏆 منتجات معتمدة، هيكل ألومنيوم\n🇮🇹 جودة إيطالية\n\nنخدم كل تونس.`,
-      en: `🏢 **Aluminium Space** specializes in manufacturing and installing quality Italian mosquito screens (Grifo Flex).\n\n📍 Based in Mghira, Ben Arous\n🏆 Certified products, aluminum structure\n🇮🇹 Italian quality\n\nServing all of Tunisia.`,
-      it: `🏢 **Aluminium Space** è specializzata nella produzione e installazione di zanzariere di qualità italiana Grifo Flex.\n\n📍 A Mghira, Ben Arous\n🏆 Prodotti certificati, struttura in alluminio\n🇮🇹 Qualità italiana\n\nServiamo tutta la Tunisia.`,
+      fr: `🏢 **Aluminium Space** est spécialisé dans la fabrication et l'installation de moustiquaires de qualité italienne Grifo Flex.\n\n📍 Basé à Mghira, Tunis\n🏆 Produits certifiés, structure aluminium\n🇮🇹 Qualité italienne\n\nNous servons toute la Tunisie avec un service professionnel.`,
+      tn: `🏢 **Aluminium Space** mta3 moustika de qualité italienne Grifo Flex.\n\n📍 Fi Mghira, Tunis\n🏆 Produits certifiés, haykel aluminium\n🇮🇹 Qualité italienne\n\nNkhedmou l kol tounes.`,
+      ar: `🏢 **Aluminium Space** متخصص في تصنيع وتركيب مستيكارات إيطالية الجودة Grifo Flex.\n\n📍 في مغيرة، تونس\n🏆 منتجات معتمدة، هيكل ألومنيوم\n🇮🇹 جودة إيطالية\n\nنخدم كل تونس.`,
+      en: `🏢 **Aluminium Space** specializes in manufacturing and installing quality Italian mosquito screens (Grifo Flex).\n\n📍 Based in Mghira, Tunis\n🏆 Certified products, aluminum structure\n🇮🇹 Italian quality\n\nServing all of Tunisia.`,
+      it: `🏢 **Aluminium Space** è specializzata nella produzione e installazione di zanzariere di qualità italiana Grifo Flex.\n\n📍 A Mghira, Tunis\n🏆 Prodotti certificati, struttura in alluminio\n🇮🇹 Qualità italiana\n\nServiamo tutta la Tunisia.`,
     };
     return {
       text: texts[lang] || texts.fr,

@@ -73,22 +73,22 @@ const About = () => {
         it: 'Gli Inizi',
       },
       desc: {
-        fr: 'Avant de devenir Aluminium Space, nous étions un petit atelier à El Mourouj 3, Ben Arous — passionnés par la menuiserie aluminium et déterminés à offrir un travail de qualité.',
-        ar: 'قبل أن نصبح Aluminium Space، كنا ورشة صغيرة في المروج 3، بن عروس — شغوفون بنجارة الألومنيوم وعازمون على تقديم عمل عالي الجودة.',
-        tn: 'قبل ما نولوا Aluminium Space، كنا ورشة صغيرة في المروج 3، بن عروس — محبين للألومنيوم ومصمّمين على الخدمة الزينة.',
-        en: 'Before becoming Aluminium Space, we were a small workshop in El Mourouj 3, Ben Arous — passionate about aluminum joinery and determined to deliver quality work.',
-        it: 'Prima di diventare Aluminium Space, eravamo un piccolo laboratorio a El Mourouj 3, Ben Arous — appassionati di falegnameria in alluminio e determinati a offrire un lavoro di qualità.',
+        fr: 'Avant de devenir Aluminium Space, nous étions un petit atelier à El Mourouj 3, Tunis — passionnés par la menuiserie aluminium et déterminés à offrir un travail de qualité.',
+        ar: 'قبل أن نصبح Aluminium Space، كنا ورشة صغيرة في المروج 3، تونس — شغوفون بنجارة الألومنيوم وعازمون على تقديم عمل عالي الجودة.',
+        tn: 'قبل ما نولوا Aluminium Space، كنا ورشة صغيرة في المروج 3، تونس — محبين للألومنيوم ومصمّمين على الخدمة الزينة.',
+        en: 'Before becoming Aluminium Space, we were a small workshop in El Mourouj 3, Tunis — passionate about aluminum joinery and determined to deliver quality work.',
+        it: 'Prima di diventare Aluminium Space, eravamo un piccolo laboratorio a El Mourouj 3, Tunis — appassionati di falegnameria in alluminio e determinati a offrire un lavoro di qualità.',
       },
     },
     {
       year: '2018',
       title: { fr: 'Fondation', ar: 'التأسيس', tn: 'التأسيس', en: 'Foundation', it: 'Fondazione' },
       desc: {
-        fr: 'Aluminium Space ouvre ses portes à Fouchana, Ben Arous — avec la vision d\'apporter des solutions de menuiserie aluminium haut de gamme en Tunisie.',
-        ar: 'فتح Aluminium Space أبوابه في فوشانة، بن عروس — برؤية إحضار حلول نجارة ألومنيوم عالية الجودة إلى تونس.',
-        tn: 'Aluminium Space يفتح أبوابه في فوشانة، بن عروس — برؤية إحضار حلول نجارة ألمنيوم عالية الجودة لتونس.',
-        en: 'Aluminium Space opens its doors in Fouchana, Ben Arous — with the vision of bringing premium aluminum solutions to Tunisia.',
-        it: 'Aluminium Space apre le porte a Fouchana, Ben Arous — con la visione di portare soluzioni premium in alluminio in Tunisia.',
+        fr: 'Aluminium Space ouvre ses portes à Fouchana, Tunis — avec la vision d\'apporter des solutions de menuiserie aluminium haut de gamme en Tunisie.',
+        ar: 'فتح Aluminium Space أبوابه في فوشانة، تونس — برؤية إحضار حلول نجارة ألومنيوم عالية الجودة إلى تونس.',
+        tn: 'Aluminium Space يفتح أبوابه في فوشانة، تونس — برؤية إحضار حلول نجارة ألمنيوم عالية الجودة لتونس.',
+        en: 'Aluminium Space opens its doors in Fouchana, Tunis — with the vision of bringing premium aluminum solutions to Tunisia.',
+        it: 'Aluminium Space apre le porte a Fouchana, Tunis — con la visione di portare soluzioni premium in alluminio in Tunisia.',
       },
     },
     {
@@ -239,10 +239,10 @@ const About = () => {
                 marginBottom: '16px',
               }}>
                 {loc({
-                  fr: 'Aluminium Space est une entreprise spécialisée dans la menuiserie aluminium et la distribution de moustiquaires sur mesure. Implantée à Mghira, dans la région de Ben Arous, nous servons les particuliers et professionnels de toute la Tunisie.',
-                  ar: 'Aluminium Space شركة متخصصة في نجارة الألومنيوم وتوزيع المستيكارات على المقاس. موجودة في مغيرة، في منطقة بن عروس، نخدم الأفراد والمهنيين في كل أنحاء تونس.',
-                  tn: 'Aluminium Space شركة متخصصة في نجارة الألمنيوم وتوزيع الموستيكار على المقاس. في مغيرة، منطقة بن عروس، نخدموا الأفراد والمهنيين في كل تونس.',
-                  en: 'Aluminium Space is a company specializing in aluminum joinery and custom mosquito screen distribution. Located in Mghira, Ben Arous region, we serve individuals and professionals across all of Tunisia.',
+                  fr: 'Aluminium Space est une entreprise spécialisée dans la menuiserie aluminium et la distribution de moustiquaires sur mesure. Implantée à Mghira, dans la région de Tunis, nous servons les particuliers et professionnels de toute la Tunisie.',
+                  ar: 'Aluminium Space شركة متخصصة في نجارة الألومنيوم وتوزيع المستيكارات على المقاس. موجودة في مغيرة، في منطقة تونس، نخدم الأفراد والمهنيين في كل أنحاء تونس.',
+                  tn: 'Aluminium Space شركة متخصصة في نجارة الألمنيوم وتوزيع الموستيكار على المقاس. في مغيرة، منطقة تونس، نخدموا الأفراد والمهنيين في كل تونس.',
+                  en: 'Aluminium Space is a company specializing in aluminum joinery and custom mosquito screen distribution. Located in Mghira, Tunis region, we serve individuals and professionals across all of Tunisia.',
                 })}
               </p>
               <p style={{

@@ -2,14 +2,14 @@ import { useState, Suspense, lazy } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calculator, Box, Glasses, ChevronDown, Ruler, Bot } from 'lucide-react';
+import { Calculator, Box, ChevronDown, Ruler, Bot } from 'lucide-react';
 import { products, priceTables } from '../data/products';
 import { useAIAgentContext } from '../context/AIAgentContext';
 import DevisModal from '../components/devis/DevisModal';
 import PageSEO from '../components/ui/PageSEO';
 
 const ProductViewer3D    = lazy(() => import('../components/products/ProductViewer3D'));
-const ProductVRExperience = lazy(() => import('../components/products/ProductVRExperience'));
+
 const MeasurementGuide   = lazy(() => import('../components/products/MeasurementGuide'));
 
 const PriceTable1D = ({ title, columns, prices, prefix, tooltipTemplate }: {
@@ -74,10 +74,11 @@ const ProductDetail = () => {
   const { t } = useTranslation();
   const { sendMessageToAgent } = useAIAgentContext();
   const [show3D, setShow3D] = useState(false);
-  const [showVR, setShowVR] = useState(false);
+
   const [showMeasure, setShowMeasure] = useState(false);
   const [showPrices, setShowPrices] = useState(false);
   const [showDevis, setShowDevis] = useState(false);
+  const [showSpecsMobile, setShowSpecsMobile] = useState(false);
 
   const product = products.find(p => p.id === id);
 
@@ -90,9 +91,9 @@ const ProductDetail = () => {
       <PageSEO
         path={`/produits/${product.id}`}
         titleFr={`${product.name} — Moustiquaire sur mesure | Aluminium Space`}
-        descFr={`Découvrez ${product.name} : moustiquaire sur mesure Grifo Flex à Mghira, Ben Arous. Qualité italienne, pose rapide, devis gratuit.`}
+        descFr={`Découvrez ${product.name} : moustiquaire sur mesure Grifo Flex à Mghira, Tunis. Qualité italienne, pose rapide, devis gratuit.`}
         titleEn={`${product.name} — Custom mosquito net | Aluminium Space`}
-        descEn={`Discover ${product.name}: custom Grifo Flex mosquito net in Mghira, Ben Arous. Italian quality, fast installation, free quote.`}
+        descEn={`Discover ${product.name}: custom Grifo Flex mosquito net in Mghira, Tunis. Italian quality, fast installation, free quote.`}
       />
 
       {/* Dark hero banner */}
@@ -119,7 +120,7 @@ const ProductDetail = () => {
         </div>
       </div>
 
-    <div style={{ background: '#F5F7FA', minHeight: '100vh' }}>
+    <div className="pb-[88px] md:pb-0" style={{ background: '#F5F7FA', minHeight: '100vh' }}>
       <div className="product-detail-container" style={{ maxWidth: '1200px', margin: '0 auto', padding: 'clamp(32px, 4vw, 48px) clamp(16px, 3vw, 24px)' }}>
 
         {/* TWO COLUMN LAYOUT */}
@@ -137,22 +138,23 @@ const ProductDetail = () => {
                 <img
                   src={product.imageUrl}
                   alt={product.name}
-                  style={{ width: '100%', maxHeight: 'clamp(220px, 40vw, 420px)', objectFit: 'contain' }}
+                  className="h-[280px] md:h-auto md:max-h-[420px]"
+                  style={{ width: '100%', objectFit: 'contain' }}
                   loading="lazy"
                 />
               </div>
 
               {/* Boutons viewers */}
-              <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div style={{ marginTop: '16px', gap: '10px' }} className="flex flex-col gap-3 w-full">
                 <button
                   onClick={() => setShow3D(true)}
+                  className="w-full"
                   style={{
                     background: 'white',
                     border: '2px solid #1D3E61',
                     color: '#1D3E61',
                     borderRadius: '10px',
                     height: '48px',
-                    width: '100%',
                     fontFamily: 'Rajdhani, sans-serif',
                     fontWeight: 700,
                     fontSize: '14px',
@@ -169,46 +171,20 @@ const ProductDetail = () => {
                   onMouseLeave={(e) => { e.currentTarget.style.background = 'white'; e.currentTarget.style.borderColor = '#1D3E61'; e.currentTarget.style.color = '#1D3E61'; }}
                 >
                   <Box className="w-5 h-5" />
-                  {t('product_detail.btn_3d')}
+                  <span className="hidden md:inline">{t('product_detail.btn_3d')}</span>
                 </button>
 
-                <button
-                  onClick={() => setShowVR(true)}
-                  style={{
-                    background: '#1D3E61',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '10px',
-                    height: '48px',
-                    width: '100%',
-                    fontFamily: 'Rajdhani, sans-serif',
-                    fontWeight: 700,
-                    fontSize: '14px',
-                    letterSpacing: '1.5px',
-                    textTransform: 'uppercase',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    transition: 'all 0.2s',
-                    cursor: 'pointer',
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = '#0F2444'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = '#1D3E61'; e.currentTarget.style.transform = 'translateY(0)'; }}
-                >
-                  <Glasses className="w-5 h-5" />
-                  {t('product_detail.btn_vr')}
-                </button>
+
 
                 <button
                   onClick={() => setShowMeasure(true)}
+                  className="w-full"
                   style={{
                     background: 'rgba(129,192,99,0.08)',
                     color: '#81C063',
                     border: '1.5px solid rgba(129,192,99,0.35)',
                     borderRadius: '10px',
                     height: '48px',
-                    width: '100%',
                     fontFamily: 'Rajdhani, sans-serif',
                     fontWeight: 700,
                     fontSize: '13px',
@@ -225,7 +201,7 @@ const ProductDetail = () => {
                   onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(129,192,99,0.08)'; e.currentTarget.style.transform = 'translateY(0)'; }}
                 >
                   <Ruler className="w-4 h-4" />
-                  {t('product_detail.btn_measure')}
+                  <span className="hidden md:inline">{t('product_detail.btn_measure')}</span>
                 </button>
               </div>
             </div>
@@ -279,8 +255,8 @@ const ProductDetail = () => {
               {/* Divider */}
               <div style={{ borderTop: '1px solid #DBDADA', margin: '0 0 24px' }} />
 
-              {/* Specs */}
-              <div style={{ background: '#F5F7FA', borderRadius: '12px', padding: '20px', marginBottom: '24px' }}>
+              {/* Specs Desktop */}
+              <div className="hidden md:block" style={{ background: '#F5F7FA', borderRadius: '12px', padding: '20px', marginBottom: '24px' }}>
                 <h3 style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '15px', color: '#2F2D2C', marginBottom: '12px', letterSpacing: '1px', textTransform: 'uppercase' }}>
                   {t('product_detail.specs_title')}
                 </h3>
@@ -303,6 +279,42 @@ const ProductDetail = () => {
                     <span style={{ fontSize: '14px', color: '#2F2D2C', fontWeight: 600, fontFamily: 'monospace' }}>{product.specs.mesures}</span>
                   </motion.div>
                 </div>
+              </div>
+
+              {/* Specs Mobile Accordion */}
+              <div className="md:hidden" style={{ background: '#F5F7FA', borderRadius: '12px', marginBottom: '24px' }}>
+                <button 
+                  onClick={() => setShowSpecsMobile(!showSpecsMobile)}
+                  style={{ width: '100%', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'transparent', border: 'none' }}
+                >
+                  <span style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '15px', color: '#2F2D2C', letterSpacing: '1px', textTransform: 'uppercase' }}>{t('product_detail.specs_title')}</span>
+                  <ChevronDown className="w-5 h-5 transition-transform duration-300" style={{ transform: showSpecsMobile ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+                </button>
+                <AnimatePresence>
+                  {showSpecsMobile && (
+                    <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} style={{ overflow: 'hidden' }}>
+                      <div style={{ padding: '0 16px 16px' }}>
+                        {product.specs.caisson && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 0', borderBottom: '1px solid #DBDADA' }}>
+                            <span style={{ color: '#81C063', fontWeight: 700, flexShrink: 0 }}>✓</span>
+                            <span style={{ fontSize: '13px', color: '#818181', flex: 1, fontFamily: 'DM Sans, sans-serif' }}>{t('product_detail.spec_caisson')}</span>
+                            <span style={{ fontSize: '14px', color: '#2F2D2C', fontWeight: 600, fontFamily: 'monospace' }}>{product.specs.caisson}</span>
+                          </div>
+                        )}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 0', borderBottom: '1px solid #DBDADA' }}>
+                          <span style={{ color: '#81C063', fontWeight: 700, flexShrink: 0 }}>✓</span>
+                          <span style={{ fontSize: '13px', color: '#818181', flex: 1, fontFamily: 'DM Sans, sans-serif' }}>{t('product_detail.spec_size')}</span>
+                          <span style={{ fontSize: '14px', color: '#2F2D2C', fontWeight: 600, fontFamily: 'monospace' }}>{product.specs.tailleEffective}</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 0' }}>
+                          <span style={{ color: '#81C063', fontWeight: 700, flexShrink: 0 }}>✓</span>
+                          <span style={{ fontSize: '13px', color: '#818181', flex: 1, fontFamily: 'DM Sans, sans-serif' }}>{t('product_detail.spec_measures')}</span>
+                          <span style={{ fontSize: '14px', color: '#2F2D2C', fontWeight: 600, fontFamily: 'monospace' }}>{product.specs.mesures}</span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               {/* Toggle tarif */}
@@ -498,9 +510,10 @@ const ProductDetail = () => {
                 </div>
               </div>
 
-              {/* Bouton CTA Devis */}
+              {/* Bouton CTA Devis Desktop */}
               <button
                 onClick={() => setShowDevis(true)}
+                className="hidden md:flex"
                 style={{
                   background: '#81C063',
                   color: 'white',
@@ -575,16 +588,7 @@ const ProductDetail = () => {
         </Suspense>
       )}
 
-      {/* Overlay VR */}
-      {showVR && (
-        <Suspense fallback={
-          <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 9999, background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ width: '48px', height: '48px', border: '4px solid #1D3E61', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}></div>
-          </div>
-        }>
-          <ProductVRExperience productId={product.id} productName={product.name} onClose={() => setShowVR(false)} />
-        </Suspense>
-      )}
+
 
       {/* Guide mesures */}
       {showMeasure && (

@@ -55,13 +55,6 @@ const QUICK_ACTIONS: Record<Lang, { label: string; message: string }[]> = {
   ],
 };
 
-const PROACTIVE_MESSAGES: Record<Lang, string> = {
-  fr: "👋 Besoin d'aide pour choisir ? Je suis là !",
-  ar: "👋 هل تحتاج مساعدة في الاختيار؟ أنا هنا!",
-  tn: "👋 T7eb n3awnek ta5tar el moustika el m3amla liik?",
-  en: "👋 Need help choosing? I'm here!",
-  it: "👋 Hai bisogno di aiuto per scegliere? Sono qui!",
-};
 
 const PLACEHOLDER_NORMAL: Record<Lang, string> = {
   fr: 'Tapez votre message...', ar: 'اكتب رسالتك...', tn: 'Ekteb 7na...',
@@ -85,7 +78,6 @@ export default function AIAgent() {
 
   const [inputValue, setInputValue] = useState('');
   const [showQuickActions, setShowQuickActions] = useState(true);
-  const [showProactive, setShowProactive] = useState(false);
   const [avatarError, setAvatarError] = useState(false);
   const [awaitingDimensions, setAwaitingDimensions] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -148,12 +140,6 @@ export default function AIAgent() {
     }
   }, [messages]);
 
-  // Proactive bubble after 30s
-  useEffect(() => {
-    if (isOpen) return;
-    const t = setTimeout(() => { if (!isOpen) setShowProactive(true); }, 30_000);
-    return () => clearTimeout(t);
-  }, [isOpen]);
 
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 640);
   useEffect(() => {
@@ -173,6 +159,11 @@ export default function AIAgent() {
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      alert("La taille de l'image ne doit pas dépasser 5MB.");
+      e.target.value = '';
+      return;
+    }
     const reader = new FileReader();
     reader.onload = (ev) => {
       setImagePreview(ev.target?.result as string);
@@ -186,7 +177,7 @@ export default function AIAgent() {
 
   const handleSend = () => {
     if (!inputValue.trim() || isLoading) return;
-    sendMessage(inputValue.trim());
+    sendMessage(inputValue.trim(), imagePreview);
     setInputValue('');
     setImagePreview(null);
     setShowQuickActions(false);
@@ -210,34 +201,12 @@ export default function AIAgent() {
 
   return (
     <>
-      {/* ── Proactive bubble ────────────────────────────────────── */}
-      <AnimatePresence>
-        {showProactive && !isOpen && (
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 30 }}
-            className="fixed bottom-[160px] md:bottom-24 right-6 z-40 bg-white rounded-2xl shadow-xl px-4 py-3 max-w-[220px] cursor-pointer"
-            style={{ border: '1px solid #DBDADA' }}
-            onClick={() => { setShowProactive(false); toggleAgent(); }}
-          >
-            <button
-              className="absolute -top-2 -right-2 w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-300"
-              onClick={e => { e.stopPropagation(); setShowProactive(false); }}
-            >
-              <X className="w-3 h-3" />
-            </button>
-            <p style={{ fontSize: '13px', color: '#2F2D2C', fontFamily: 'DM Sans, sans-serif', lineHeight: 1.5 }}>
-              {PROACTIVE_MESSAGES[currentLanguage] || PROACTIVE_MESSAGES.fr}
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Proactive bubble — removed to prevent content overlap on all screens */}
 
       {/* ── FAB Button ──────────────────────────────────────────── */}
       <motion.button
-        onClick={() => { toggleAgent(); setShowProactive(false); }}
-        className="fixed bottom-[90px] md:bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center"
+        onClick={() => { toggleAgent(); }}
+        className="ai-fab-button fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center"
         style={{ background: '#1A5DA8', boxShadow: '0 8px 32px rgba(26,93,168,0.45)' }}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}

@@ -561,10 +561,7 @@ export default function ProductViewer3D({
 
   const FRAME_PRESETS: { name: string; hex: string; rgb: [number, number, number] }[] = [
     { name: 'Blanc RAL 9010', hex: '#F4F1EC', rgb: [0.985, 0.982, 0.978] },
-    { name: 'Gris anthracite', hex: '#5C5C5C', rgb: [0.360, 0.360, 0.360] },
-    { name: 'Bronze', hex: '#9B7340', rgb: [0.608, 0.451, 0.251] },
     { name: 'Noir mat', hex: '#2A2A2A', rgb: [0.165, 0.165, 0.165] },
-    { name: 'Vert olive', hex: '#5C7A4E', rgb: [0.361, 0.478, 0.306] },
   ];
 
   useEffect(() => { requestAnimationFrame(() => setVisible(true)); }, []);
@@ -682,7 +679,8 @@ export default function ProductViewer3D({
                   onMouseLeave={e => (e.currentTarget.style.background = '#1A5DA8')}
                   onClick={() => setOpenPct(p => p > 50 ? 0 : 100)}
                 >
-                  {openPct > 50 ? 'Fermer la moustiquaire' : 'Ouvrir la moustiquaire'}
+                  <span className="hidden md:inline">{openPct > 50 ? 'Fermer la moustiquaire' : 'Ouvrir la moustiquaire'}</span>
+                  <span className="inline md:hidden">{openPct > 50 ? 'Fermer' : 'Ouvrir'}</span>
                 </button>
               )}
               <button
@@ -691,7 +689,7 @@ export default function ProductViewer3D({
                 onMouseLeave={e => (e.currentTarget.style.background = 'white')}
                 onClick={() => setViewMode('exploded')}
               >
-                ❖ Vue éclatée
+                ❖ <span className="hidden md:inline">Vue éclatée</span><span className="inline md:hidden">Éclatée</span>
               </button>
             </>
           ) : (
@@ -720,13 +718,13 @@ export default function ProductViewer3D({
               setViewMode('assembled');
             }}
           >
-            ↺ Réinitialiser la vue
+            ↺ <span className="hidden md:inline">Réinitialiser la vue</span><span className="inline md:hidden">Reset</span>
           </button>
         </div>
 
         {/* Frame color picker */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
-          <span style={{ color: 'rgba(255,255,255,0.65)', fontSize: '12px', fontWeight: 600, letterSpacing: '1px', fontFamily: 'Space Grotesk,sans-serif', textTransform: 'uppercase' }}>
+          <span className="hidden md:inline" style={{ color: 'rgba(255,255,255,0.65)', fontSize: '12px', fontWeight: 600, letterSpacing: '1px', fontFamily: 'Space Grotesk,sans-serif', textTransform: 'uppercase' }}>
             Couleur cadre :
           </span>
           {FRAME_PRESETS.map(p => {
@@ -737,9 +735,9 @@ export default function ProductViewer3D({
                 title={p.name}
                 onClick={() => setFrameColor(p.rgb)}
                 style={{
-                  width: '28px', height: '28px', borderRadius: '50%', border: isActive ? '3px solid #4A9EDB' : '2px solid rgba(255,255,255,0.3)',
+                  width: '32px', height: '32px', borderRadius: '50%', border: isActive ? '3px solid #4A9EDB' : '2px solid rgba(255,255,255,0.9)',
                   background: p.hex, cursor: 'pointer', transition: 'all 0.2s',
-                  boxShadow: isActive ? '0 0 0 2px rgba(74,158,219,0.5)' : 'none',
+                  boxShadow: isActive ? '0 0 0 2px rgba(74,158,219,0.5), 0 2px 6px rgba(0,0,0,0.4)' : '0 2px 6px rgba(0,0,0,0.4)',
                   transform: isActive ? 'scale(1.2)' : 'scale(1)',
                   flexShrink: 0,
                 }}
@@ -748,7 +746,7 @@ export default function ProductViewer3D({
               />
             );
           })}
-          <span style={{ color: 'rgba(255,255,255,0.50)', fontSize: '11px', fontFamily: 'DM Sans,sans-serif' }}>
+          <span className="hidden md:inline" style={{ color: 'rgba(255,255,255,0.50)', fontSize: '11px', fontFamily: 'DM Sans,sans-serif' }}>
             {FRAME_PRESETS.find(p => p.rgb[0] === frameColor[0])?.name}
           </span>
         </div>

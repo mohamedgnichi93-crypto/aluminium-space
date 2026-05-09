@@ -238,13 +238,13 @@ const ClientPortal = () => {
                         transition: 'width 0.8s ease',
                       }} />
 
-                      <div style={{ display: 'flex', justifyContent: 'space-between', position: 'relative', overflowX: 'auto', paddingBottom: '8px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', position: 'relative', overflowX: 'auto', WebkitOverflowScrolling: 'touch', paddingBottom: '8px' }}>
                         {STATUS_STEPS.map((step, i) => {
                           const isCompleted = i <= currentStepIndex;
                           const isActive = i === currentStepIndex;
                           const Icon = step.icon;
                           return (
-                            <div key={step.key} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '80px', flex: 1 }}>
+                            <div key={step.key} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '56px', flex: 1 }}>
                               <div style={{
                                 width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
                                 background: isCompleted ? step.color : '#F5F7FA',
@@ -347,7 +347,7 @@ const ClientPortal = () => {
               <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                 <button
                   onClick={() => generatePDF(order)}
-                  style={{ flex: 1, minWidth: '200px', height: '52px', background: '#1A5DA8', color: 'white', border: 'none', borderRadius: '12px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '15px', letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'all 0.2s', boxShadow: '0 4px 16px rgba(26,93,168,0.3)' }}
+                  style={{ flex: 1, minWidth: '140px', height: '52px', background: '#1A5DA8', color: 'white', border: 'none', borderRadius: '12px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '14px', letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'all 0.2s', boxShadow: '0 4px 16px rgba(26,93,168,0.3)' }}
                   onMouseEnter={e => { e.currentTarget.style.background = '#0F3F78'; }}
                   onMouseLeave={e => { e.currentTarget.style.background = '#1A5DA8'; }}
                 >
@@ -358,7 +358,7 @@ const ClientPortal = () => {
                   href={`https://wa.me/21657099070?text=${encodeURIComponent(`Bonjour, je veux des informations sur ma commande #${order.id}`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ flex: 1, minWidth: '180px', height: '52px', background: '#25D366', color: 'white', border: 'none', borderRadius: '12px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '15px', letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', textDecoration: 'none', transition: 'all 0.2s', boxShadow: '0 4px 16px rgba(37,211,102,0.3)' }}
+                  style={{ flex: 1, minWidth: '140px', height: '52px', background: '#25D366', color: 'white', border: 'none', borderRadius: '12px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '14px', letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', textDecoration: 'none', transition: 'all 0.2s', boxShadow: '0 4px 16px rgba(37,211,102,0.3)' }}
                   onMouseEnter={e => { e.currentTarget.style.background = '#1EA352'; }}
                   onMouseLeave={e => { e.currentTarget.style.background = '#25D366'; }}
                 >
@@ -367,7 +367,7 @@ const ClientPortal = () => {
                 </a>
                 <button
                   onClick={() => navigate('/produits')}
-                  style={{ flex: 1, minWidth: '160px', height: '52px', background: 'white', color: '#1A5DA8', border: '1.5px solid #1A5DA8', borderRadius: '12px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '15px', letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'all 0.2s' }}
+                  style={{ flex: 1, minWidth: '140px', height: '52px', background: 'white', color: '#1A5DA8', border: '1.5px solid #1A5DA8', borderRadius: '12px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '14px', letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'all 0.2s' }}
                   onMouseEnter={e => { e.currentTarget.style.background = '#F0F6FF'; }}
                   onMouseLeave={e => { e.currentTarget.style.background = 'white'; }}
                 >

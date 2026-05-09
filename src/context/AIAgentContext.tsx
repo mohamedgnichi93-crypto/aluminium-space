@@ -26,6 +26,7 @@ const defaultMemory: ConvMemory = {
   lastPrice: null,
   awaitingDimensions: false,
   awaitingProduct: false,
+  awaitingPhone: false,
   mentionCount: 0,
 };
 

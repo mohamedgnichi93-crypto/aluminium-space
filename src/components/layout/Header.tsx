@@ -1,16 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Menu, X, Globe, MessageCircle, MessageSquare, User, Download } from 'lucide-react';
+import { Menu, X, Globe, MessageCircle, MessageSquare, User, Download, Home, LayoutGrid, Info, Phone, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePWAInstall } from '../../hooks/usePWAInstall';
 
 const languages = [
-  { code: 'tn', label: '🇹🇳 تونسي', dir: 'rtl' },
-  { code: 'ar', label: '🇸🇦 العربية', dir: 'rtl' },
-  { code: 'fr', label: '🇫🇷 Français', dir: 'ltr' },
-  { code: 'en', label: '🇬🇧 English', dir: 'ltr' },
-  { code: 'it', label: '🇮🇹 Italiano', dir: 'ltr' },
+  { code: 'tn', label: 'تونسي', dir: 'rtl', flag: 'https://flagcdn.com/16x12/tn.png' },
+  { code: 'ar', label: 'العربية', dir: 'rtl', flag: 'https://flagcdn.com/16x12/sa.png' },
+  { code: 'fr', label: 'Français', dir: 'ltr', flag: 'https://flagcdn.com/16x12/fr.png' },
+  { code: 'en', label: 'English', dir: 'ltr', flag: 'https://flagcdn.com/16x12/gb.png' },
+  { code: 'it', label: 'Italiano', dir: 'ltr', flag: 'https://flagcdn.com/16x12/it.png' },
 ];
 
 const Header = () => {
@@ -21,6 +21,18 @@ const Header = () => {
   const [showInstallModal, setShowInstallModal] = useState(false);
   const location = useLocation();
   const { canInstall, isInstalled, isInstalling, install } = usePWAInstall();
+  const langRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as Element;
+      if (langRef.current && !langRef.current.contains(target) && !target.closest('.mobile-lang-container')) {
+        setLangMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -31,8 +43,17 @@ const Header = () => {
   useEffect(() => { setMobileMenuOpen(false); }, [location]);
 
   useEffect(() => {
-    document.body.style.overflow = mobileMenuOpen ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+      document.body.classList.add('menu-open');
+    } else {
+      document.body.style.overflow = '';
+      document.body.classList.remove('menu-open');
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.classList.remove('menu-open');
+    };
   }, [mobileMenuOpen]);
 
   const changeLanguage = (lng: string) => {
@@ -48,7 +69,8 @@ const Header = () => {
     { name: t('nav.contact'), path: '/contact' },
   ];
 
-  const currentFlag = languages.find(l => l.code === i18n.language)?.label.split(' ')[0] || '🇫🇷';
+  const currentLang = languages.find(l => l.code === i18n.language);
+  const currentFlagUrl = currentLang?.flag || 'https://flagcdn.com/16x12/fr.png';
 
   const LangDropdownContent = () => (
     <motion.div
@@ -72,7 +94,10 @@ const Header = () => {
           onMouseEnter={e => { e.currentTarget.style.background = '#F5F7FA'; }}
           onMouseLeave={e => { e.currentTarget.style.background = i18n.language === lang.code ? '#F5F7FA' : 'transparent'; }}
         >
-          {lang.label}
+          <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <img src={lang.flag} alt={lang.code} style={{ width: '16px', height: '12px', borderRadius: '2px' }} />
+            {lang.label}
+          </span>
         </button>
       ))}
     </motion.div>
@@ -90,14 +115,14 @@ const Header = () => {
     >
       <style>{`
         @media (max-width: 767px) {
-          .lang-dropdown-safe { position: fixed !important; left: 50% !important; right: auto !important; transform: translateX(-50%) !important; top: 68px !important; min-width: 160px !important; z-index: 9999 !important; }
+          .lang-dropdown-safe { position: fixed !important; right: 8px !important; left: auto !important; transform: none !important; top: 68px !important; min-width: 160px !important; z-index: 9999 !important; }
         }
         @media (min-width: 768px) {
           .lang-dropdown-safe { position: absolute !important; inset-inline-end: 0 !important; inset-inline-start: auto !important; margin-top: 10px; min-width: 150px; z-index: 50; }
         }
       `}</style>
 
-      <div className="container mx-auto px-4 h-full flex items-center justify-between gap-4">
+      <div className="container mx-auto px-4 h-full flex items-center justify-between gap-4 relative">
 
         {/* Logo */}
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', flexShrink: 0 }} className="group">
@@ -109,8 +134,10 @@ const Header = () => {
             <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '19px', color: '#2F2D2C', letterSpacing: '3px', textTransform: 'uppercase' }}>
               ALUMINIUM <span style={{ color: '#1D3E61' }}>SPACE</span>
             </div>
-            <div style={{ fontSize: '8px', letterSpacing: '3px', color: '#818181', fontWeight: 500, textTransform: 'uppercase', fontFamily: 'Rajdhani, sans-serif' }}>
+            <div style={{ fontSize: '8px', letterSpacing: '3px', color: '#818181', fontWeight: 500, textTransform: 'uppercase', fontFamily: 'Rajdhani, sans-serif', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <img src="https://flagcdn.com/16x12/tn.png" alt="Tunisia" style={{ width: '16px', height: '12px' }} />
               MENUISERIE ALUMINIUM
+              <img src="https://flagcdn.com/16x12/it.png" alt="Italy" style={{ width: '16px', height: '12px' }} />
             </div>
           </div>
         </Link>
@@ -202,7 +229,7 @@ const Header = () => {
             )}
 
             {/* Language */}
-            <div className="relative" style={{ borderLeft: '1px solid #DBDADA', paddingLeft: '10px' }}>
+            <div className="relative" ref={langRef} style={{ borderLeft: '1px solid #DBDADA', paddingLeft: '10px' }}>
               <button
                 onClick={() => setLangMenuOpen(!langMenuOpen)}
                 className="flex items-center gap-1.5 text-sm transition-colors duration-200"
@@ -211,7 +238,7 @@ const Header = () => {
                 onMouseLeave={e => { e.currentTarget.style.color = '#2F2D2C'; }}
               >
                 <Globe className="w-4 h-4" />
-                <span style={{ fontSize: '15px' }}>{currentFlag}</span>
+                <img src={currentFlagUrl} alt={i18n.language} style={{ width: '16px', height: '12px', borderRadius: '2px' }} />
               </button>
               <AnimatePresence>
                 {langMenuOpen && <div className="lang-dropdown-safe"><LangDropdownContent /></div>}
@@ -237,12 +264,12 @@ const Header = () => {
         </a>
 
         {/* Mobile: right icons */}
-        <div className="flex md:hidden items-center gap-1">
-          <div className="relative">
+        <div className="flex md:hidden items-center gap-2 absolute left-1/2 -translate-x-1/2">
+          <div className="relative mobile-lang-container">
             <button
               onClick={() => setLangMenuOpen(!langMenuOpen)}
               className="min-w-[44px] min-h-[44px] flex items-center justify-center"
-              style={{ color: '#2F2D2C' }}
+              style={{ color: '#2F2D2C', border: '1.5px solid #1e3a5f', borderRadius: '10px', padding: '7px 10px', background: 'transparent', boxShadow: '0 1px 4px rgba(30, 58, 95, 0.15)' }}
               aria-label="Changer la langue"
             >
               <Globe className="w-5 h-5" />
@@ -251,15 +278,49 @@ const Header = () => {
               {langMenuOpen && <div className="lang-dropdown-safe"><LangDropdownContent /></div>}
             </AnimatePresence>
           </div>
+
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="min-w-[44px] min-h-[44px] flex items-center justify-center"
-            style={{ color: '#2F2D2C' }}
+            style={{ color: '#2F2D2C', border: '1.5px solid #1e3a5f', borderRadius: '10px', padding: '7px 10px', background: 'transparent', boxShadow: '0 1px 4px rgba(30, 58, 95, 0.15)' }}
             aria-label={mobileMenuOpen ? 'Fermer' : 'Menu'}
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-6 h-6" />}
           </button>
+
+          {!isInstalled && (
+            <button
+              onClick={canInstall ? install : () => setShowInstallModal(true)}
+              disabled={isInstalling}
+              title="Installer l'application"
+              className="flex items-center justify-center"
+              style={{ width: '36px', height: '36px', color: '#2F2D2C', border: '1.5px solid #1e3a5f', borderRadius: '10px', padding: '7px 10px', background: 'transparent', boxShadow: '0 1px 4px rgba(30, 58, 95, 0.15)', flexShrink: 0 }}
+            >
+              <Download className="w-4 h-4" />
+            </button>
+          )}
+
         </div>
+
+        {/* Small Grifo Flex logo — mobile header far right */}
+        <a
+          href="https://www.grifoflex.com" target="_blank" rel="noopener noreferrer"
+          className="flex md:hidden items-center"
+          style={{ paddingLeft: '4px', borderLeft: '1px solid #DBDADA', marginLeft: '2px', flexShrink: 0, overflow: 'visible' }}
+          title="Grifo Flex"
+        >
+          <img
+            src="/grifo-icon.png"
+            alt="Grifo Flex"
+            style={{
+              height: '38px',
+              width: '38px',
+              objectFit: 'contain',
+              flexShrink: 0,
+              borderRadius: '6px'
+            }}
+          />
+        </a>
       </div>
 
       {/* PWA Install Guide Modal */}
@@ -324,74 +385,136 @@ const Header = () => {
       {/* Mobile Menu */}
       <AnimatePresence>
         {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: '-100%' }} animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: '-100%' }} transition={{ type: 'tween', duration: 0.28 }}
-            className="fixed inset-0 z-40 bg-white flex flex-col"
-            style={{ paddingTop: '68px' }}
-          >
-            <div className="flex-1 overflow-y-auto px-5 pb-8">
-              <nav style={{ marginTop: '16px', borderRadius: '16px', overflow: 'hidden', border: '1px solid #DBDADA' }}>
-                {navLinks.map((link, idx) => {
-                  const active = link.path === '/' ? location.pathname === '/' : location.pathname.startsWith(link.path);
-                  return (
-                    <Link
-                      key={link.name}
-                      to={link.path}
-                      onClick={() => setMobileMenuOpen(false)}
-                      style={{
-                        display: 'flex', alignItems: 'center', padding: '0 20px',
-                        fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, letterSpacing: '2px',
-                        textTransform: 'uppercase', fontSize: '17px',
-                        color: active ? '#81C063' : '#2F2D2C',
-                        background: active ? '#F5F7FA' : 'white',
-                        borderBottom: idx < navLinks.length - 1 ? '1px solid #DBDADA' : 'none',
-                        minHeight: '54px', textDecoration: 'none',
-                      }}
-                    >
-                      {link.name}
-                    </Link>
-                  );
-                })}
-              </nav>
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-50"
+              style={{ background: 'rgba(0,0,0,0.5)' }}
+              onClick={() => setMobileMenuOpen(false)}
+            />
 
-              {/* Mon Espace */}
-              <Link
-                to="/mon-espace"
-                onClick={() => setMobileMenuOpen(false)}
-                style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '14px 20px', marginTop: '12px', background: '#F5F7FA', borderRadius: '12px', border: '1px solid #DBDADA', color: '#2F2D2C', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '15px', letterSpacing: '1.5px', textTransform: 'uppercase', textDecoration: 'none' }}
-              >
-                <User size={17} />
-                {t('nav.my_space')}
-              </Link>
-
-              <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <a
-                  href="https://wa.me/21657099070" target="_blank" rel="noopener noreferrer"
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: '#25D366', color: 'white', borderRadius: '12px', height: '52px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '15px', letterSpacing: '1.5px', textTransform: 'uppercase', textDecoration: 'none' }}
+            {/* Slide-in Panel */}
+            <motion.div
+              initial={{ x: '100%', opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: '100%', opacity: 0 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed top-0 right-0 bottom-0 z-50 flex flex-col"
+              style={{ width: '85%', maxWidth: '320px', background: '#0A1628' }}
+            >
+              {/* Panel Header */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: '2px solid #81C063' }}>
+                <div>
+                  <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 800, fontSize: '16px', color: '#FFFFFF', letterSpacing: '3px', textTransform: 'uppercase' }}>
+                    ALUMINIUM <span style={{ color: '#81C063' }}>SPACE</span>
+                  </div>
+                  <div style={{ fontSize: '16px', letterSpacing: '3px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 800, marginTop: '2px', textTransform: 'uppercase' }}>
+                    <span style={{ color: '#FFFFFF' }}>× GRIFO </span>
+                    <span style={{ color: '#81C063' }}>FLEX</span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.05)', color: '#FFFFFF', cursor: 'pointer' }}
+                  aria-label="Fermer"
                 >
-                  <MessageSquare size={16} />
-                  WhatsApp
-                </a>
-                <a
-                  href="https://m.me/aluminium.space.tunisie" target="_blank" rel="noopener noreferrer"
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: '#0084FF', color: 'white', borderRadius: '12px', height: '52px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '15px', letterSpacing: '1.5px', textTransform: 'uppercase', textDecoration: 'none' }}
-                >
-                  <MessageCircle size={16} />
-                  Messenger
-                </a>
-                {!isInstalled && (
-                  <button
-                    onClick={() => { if (canInstall) { install(); setMobileMenuOpen(false); } else { setMobileMenuOpen(false); setShowInstallModal(true); } }}
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: '#1D3E61', color: 'white', border: 'none', borderRadius: '12px', height: '52px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '15px', letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer', width: '100%' }}
-                  >
-                    <Download size={16} />
-                    Installer l'application
-                  </button>
-                )}
+                  <X size={18} />
+                </button>
               </div>
-            </div>
-          </motion.div>
+
+              {/* Scrollable Content */}
+              <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+                {/* Nav Links */}
+                <nav style={{ padding: '8px 0' }}>
+                  {navLinks.map((link) => {
+                    const active = link.path === '/' ? location.pathname === '/' : location.pathname.startsWith(link.path);
+                    const iconMap: Record<string, React.ReactNode> = {
+                      '/': <Home size={16} />,
+                      '/produits': <LayoutGrid size={16} />,
+                      '/about': <Info size={16} />,
+                      '/contact': <Phone size={16} />,
+                    };
+                    return (
+                      <Link
+                        key={link.path}
+                        to={link.path}
+                        onClick={() => setMobileMenuOpen(false)}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: '12px', padding: '16px 24px',
+                          fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, letterSpacing: '2px',
+                          textTransform: 'uppercase', fontSize: '16px',
+                          color: active ? '#81C063' : '#FFFFFF',
+                          background: active ? 'rgba(129,192,99,0.08)' : 'transparent',
+                          borderBottom: '1px solid rgba(255,255,255,0.08)',
+                          borderLeft: active ? '3px solid #81C063' : '3px solid transparent',
+                          textDecoration: 'none', transition: 'background 0.15s',
+                        }}
+                      >
+                        <span style={{ opacity: active ? 1 : 0.6, display: 'flex' }}>{iconMap[link.path]}</span>
+                        <span style={{ flex: 1 }}>{link.name}</span>
+                        <ChevronRight size={14} style={{ opacity: 0.4 }} />
+                      </Link>
+                    );
+                  })}
+                </nav>
+
+                <div style={{ padding: '0 20px', marginTop: '8px' }}>
+                  <Link
+                    to="/mon-espace"
+                    onClick={() => setMobileMenuOpen(false)}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '10px', padding: '14px 20px',
+                      borderRadius: '10px', border: '1px solid rgba(255,255,255,0.3)',
+                      color: '#FFFFFF', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700,
+                      fontSize: '15px', letterSpacing: '1.5px', textTransform: 'uppercase',
+                      textDecoration: 'none', background: 'transparent', transition: 'background 0.15s',
+                    }}
+                  >
+                    <User size={17} />
+                    {t('nav.my_space')}
+                  </Link>
+                </div>
+
+                {/* Contact Buttons */}
+                <div style={{ padding: '0 20px', marginTop: '20px' }}>
+                  <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', color: '#94A3B8', marginBottom: '12px' }}>
+                    NOUS CONTACTER
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <a
+                      href="https://wa.me/21657099070" target="_blank" rel="noopener noreferrer"
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: '#25D366', color: 'white', borderRadius: '10px', height: '48px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '14px', letterSpacing: '1.5px', textTransform: 'uppercase', textDecoration: 'none' }}
+                    >
+                      <MessageSquare size={16} />
+                      WhatsApp
+                    </a>
+                    <a
+                      href="https://m.me/aluminium.space.tunisie" target="_blank" rel="noopener noreferrer"
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: '#0084FF', color: 'white', borderRadius: '10px', height: '48px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '14px', letterSpacing: '1.5px', textTransform: 'uppercase', textDecoration: 'none' }}
+                    >
+                      <MessageCircle size={16} />
+                      Messenger
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* Panel Footer */}
+              <div style={{ padding: '16px 20px', borderTop: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
+                <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '11px', color: '#94A3B8', marginBottom: '6px' }}>
+                  © 2026 Aluminium Space × Grifo Flex
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
+                  <img src="https://flagcdn.com/16x12/tn.png" alt="Tunisia" style={{ width: '16px', height: '12px' }} />
+                  <img src="https://flagcdn.com/16x12/it.png" alt="Italy" style={{ width: '16px', height: '12px' }} />
+                </div>
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </header>

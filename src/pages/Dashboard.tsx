@@ -39,7 +39,7 @@ const Dashboard = () => {
   // --- SESSION & AUTH STATE ---
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
-  
+
   // Security
   const [lockoutTimer, setLockoutTimer] = useState<number | null>(null);
   const lockoutIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -132,7 +132,7 @@ const Dashboard = () => {
       setIsAuthenticated(true);
       toast.success('Connexion réussie');
       localStorage.setItem('login_attempts', JSON.stringify({ count: 0, lastAttempt: Date.now(), lockedUntil: null }));
-      
+
       sessionStorage.setItem('aluminium_space_auth', 'true');
       sessionStorage.setItem('dashboard_session', JSON.stringify({
         authenticated: true,
@@ -152,7 +152,7 @@ const Dashboard = () => {
     let attempts = attemptsStr ? JSON.parse(attemptsStr) : { count: 0, lastAttempt: Date.now(), lockedUntil: null };
     attempts.count += 1;
     attempts.lastAttempt = Date.now();
-    
+
     if (attempts.count >= 5) {
       attempts.lockedUntil = Date.now() + (15 * 60 * 1000); // 15 mins
       toast.error('Trop de tentatives. Réessayez dans 15 minutes.');
@@ -175,7 +175,7 @@ const Dashboard = () => {
   // --- SESSION TRACKER ---
   useEffect(() => {
     if (!isAuthenticated) return;
-    
+
     const checkSession = () => {
       const sessionStr = sessionStorage.getItem('dashboard_session');
       if (!sessionStr) {
@@ -204,9 +204,9 @@ const Dashboard = () => {
     window.addEventListener('mousemove', updateActivity);
     window.addEventListener('keydown', updateActivity);
     window.addEventListener('click', updateActivity);
-    
+
     const interval = setInterval(checkSession, 60000);
-    
+
     return () => {
       window.removeEventListener('mousemove', updateActivity);
       window.removeEventListener('keydown', updateActivity);
@@ -349,11 +349,11 @@ const Dashboard = () => {
 
   // Filtering
   const filteredOrders = orders.filter(o => {
-    const matchesSearch = (o.clientInfo?.fullName || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          (o.clientInfo?.phone || '').includes(searchTerm) || 
-                          o.id.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = (o.clientInfo?.fullName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (o.clientInfo?.phone || '').includes(searchTerm) ||
+      o.id.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || o.status === statusFilter;
-    
+
     let matchesDate = true;
     const orderDate = new Date(o.date);
     const today = new Date();
@@ -386,7 +386,7 @@ const Dashboard = () => {
           </div>
           <h1 style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '24px', color: '#0D1B2A', marginBottom: '8px' }}>Administration</h1>
           <p style={{ fontFamily: 'Inter, sans-serif', color: '#7A8FA6', fontSize: '15px', marginBottom: '16px' }}>Veuillez vous connecter pour accéder au tableau de bord</p>
-          
+
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: '#27AE60', fontSize: '13px', fontWeight: 600, marginBottom: '24px', background: '#E8F8F0', padding: '8px', borderRadius: '8px' }}>
             🔒 Connexion sécurisée — Aluminium Space Admin
           </div>
@@ -405,22 +405,22 @@ const Dashboard = () => {
                 style={{ width: '100%', padding: '14px 20px', borderRadius: '12px', border: '1px solid #E8EDF5', fontFamily: 'Inter, sans-serif', fontSize: '15px', marginBottom: '20px', outline: 'none' }}
                 required
               />
-              
+
               <button
                 type="submit"
                 disabled={password.trim() === ''}
-                style={{ 
-                  width: '100%', 
-                  background: password.trim() === '' ? '#C8D9F0' : '#1D3E61', 
-                  color: 'white', 
-                  padding: '14px', 
-                  borderRadius: '12px', 
-                  border: 'none', 
-                  fontFamily: 'Inter, sans-serif', 
-                  fontWeight: 600, 
-                  fontSize: '16px', 
-                  cursor: password.trim() === '' ? 'not-allowed' : 'pointer', 
-                  transition: 'background 0.3s' 
+                style={{
+                  width: '100%',
+                  background: password.trim() === '' ? '#C8D9F0' : '#1D3E61',
+                  color: 'white',
+                  padding: '14px',
+                  borderRadius: '12px',
+                  border: 'none',
+                  fontFamily: 'Inter, sans-serif',
+                  fontWeight: 600,
+                  fontSize: '16px',
+                  cursor: password.trim() === '' ? 'not-allowed' : 'pointer',
+                  transition: 'background 0.3s'
                 }}
               >
                 Se connecter
@@ -438,28 +438,28 @@ const Dashboard = () => {
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: '#F4F7FB' }}>
       <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
-      
+
       {/* SIDEBAR */}
-      <aside 
-        style={{ 
-          width: sidebarWidth, 
-          background: '#0D1B2A', 
-          color: 'white', 
-          display: 'flex', 
-          flexDirection: 'column', 
-          flexShrink: 0, 
+      <aside
+        style={{
+          width: sidebarWidth,
+          background: '#0D1B2A',
+          color: 'white',
+          display: 'flex',
+          flexDirection: 'column',
+          flexShrink: 0,
           height: '100vh',
           transition: 'width 0.3s ease',
           overflow: 'hidden',
           zIndex: 40
-        }} 
+        }}
       >
         <div style={{ padding: isSidebarCollapsed ? '24px 0' : '32px 24px', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: isSidebarCollapsed ? 'center' : 'flex-start' }}>
           {/* LOGO IN SIDEBAR */}
-          <img 
+          <img
             src="/logo-aluminium-space.png"
-            alt="Aluminium Space" 
-            style={{ 
+            alt="Aluminium Space"
+            style={{
               width: isSidebarCollapsed ? '36px' : '48px',
               height: isSidebarCollapsed ? '36px' : '48px',
               objectFit: 'contain',
@@ -470,15 +470,15 @@ const Dashboard = () => {
               marginBottom: isSidebarCollapsed ? '0' : '12px'
             }}
           />
-          
+
           {!isSidebarCollapsed && (
             <>
               <div style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 800, fontSize: '20px', letterSpacing: '1px', color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>ALU SPACE</div>
               <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '10px', color: '#7A8FA6', letterSpacing: '2px', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>MENUISERIE</div>
             </>
           )}
-          
-          <button 
+
+          <button
             onClick={toggleSidebar}
             style={{ position: 'absolute', top: '32px', right: isSidebarCollapsed ? 'auto' : '16px', background: 'transparent', border: 'none', color: '#7A8FA6', cursor: 'pointer' }}
           >
@@ -502,15 +502,15 @@ const Dashboard = () => {
               onClick={() => setActiveTab(item.id)}
               title={item.label}
               style={{
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: isSidebarCollapsed ? '0' : '12px', 
+                display: 'flex',
+                alignItems: 'center',
+                gap: isSidebarCollapsed ? '0' : '12px',
                 padding: isSidebarCollapsed ? '12px' : '12px 16px',
-                borderRadius: '8px', 
-                border: 'none', 
-                cursor: 'pointer', 
-                fontFamily: 'Inter, sans-serif', 
-                fontSize: '14px', 
+                borderRadius: '8px',
+                border: 'none',
+                cursor: 'pointer',
+                fontFamily: 'Inter, sans-serif',
+                fontSize: '14px',
                 fontWeight: 500,
                 background: activeTab === item.id ? '#1D3E61' : 'transparent',
                 color: activeTab === item.id ? 'white' : 'rgba(255,255,255,0.6)',
@@ -519,28 +519,28 @@ const Dashboard = () => {
                 width: '100%',
                 overflow: 'hidden'
               }}
-              onMouseEnter={(e) => { if(activeTab !== item.id) e.currentTarget.style.background = 'rgba(255,255,255,0.08)' }}
-              onMouseLeave={(e) => { if(activeTab !== item.id) e.currentTarget.style.background = 'transparent' }}
+              onMouseEnter={(e) => { if (activeTab !== item.id) e.currentTarget.style.background = 'rgba(255,255,255,0.08)' }}
+              onMouseLeave={(e) => { if (activeTab !== item.id) e.currentTarget.style.background = 'transparent' }}
             >
               <div style={{ flexShrink: 0, width: '20px', display: 'flex', justifyContent: 'center' }}>
                 <item.icon size={18} />
               </div>
-              
+
               {!isSidebarCollapsed && (
-                <span style={{ 
-                  flex: 1, 
-                  whiteSpace: 'nowrap', 
-                  overflow: 'hidden', 
+                <span style={{
+                  flex: 1,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   textAlign: 'left'
                 }}>
                   {item.label}
                 </span>
               )}
-              
+
               {!isSidebarCollapsed && (item.count || 0) > 0 && (
-                <div style={{ 
-                  background: '#EF4444', color: 'white', fontSize: '10px', fontWeight: 'bold', 
+                <div style={{
+                  background: '#EF4444', color: 'white', fontSize: '10px', fontWeight: 'bold',
                   borderRadius: '10px', padding: '2px 6px',
                   marginLeft: 'auto',
                   flexShrink: 0
@@ -550,7 +550,7 @@ const Dashboard = () => {
               )}
 
               {isSidebarCollapsed && (item.count || 0) > 0 && (
-                <div style={{ 
+                <div style={{
                   position: 'absolute', top: '8px', right: '8px',
                   width: '6px', height: '6px', borderRadius: '50%', background: '#EF4444'
                 }} />
@@ -563,18 +563,18 @@ const Dashboard = () => {
           <button
             onClick={handleLogout}
             title="Se déconnecter"
-            style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: isSidebarCollapsed ? '0' : '12px', 
-              color: '#EF4444', 
-              background: 'transparent', 
-              border: 'none', 
-              cursor: 'pointer', 
-              fontFamily: 'Inter, sans-serif', 
-              fontSize: '14px', 
-              fontWeight: 500, 
-              width: '100%', 
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: isSidebarCollapsed ? '0' : '12px',
+              color: '#EF4444',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              fontFamily: 'Inter, sans-serif',
+              fontSize: '14px',
+              fontWeight: 500,
+              width: '100%',
               justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
               padding: isSidebarCollapsed ? '0' : '8px'
             }}
@@ -588,14 +588,14 @@ const Dashboard = () => {
       </aside>
 
       {/* MAIN CONTENT AREA */}
-      <main 
-        style={{ 
-          flex: 1, 
-          minWidth: 0, 
-          display: 'flex', 
-          flexDirection: 'column', 
-          overflow: 'hidden' 
-        }} 
+      <main
+        style={{
+          flex: 1,
+          minWidth: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden'
+        }}
       >
         {/* HEADER BAR */}
         <header className="dashboard-header-bar" style={{
@@ -608,18 +608,18 @@ const Dashboard = () => {
           padding: '0 32px',
           flexShrink: 0
         }}>
-          <h2 style={{ 
-            fontFamily: 'Space Grotesk, sans-serif', 
-            fontWeight: 700, 
-            fontSize: '18px', 
-            color: '#0D1B2A', 
+          <h2 style={{
+            fontFamily: 'Space Grotesk, sans-serif',
+            fontWeight: 700,
+            fontSize: '18px',
+            color: '#0D1B2A',
             margin: 0,
             textTransform: 'uppercase',
             letterSpacing: '1px'
           }}>
             {activeTab === 'dashboard' ? 'Tableau de bord' : activeTab === 'orders' ? 'Commandes' : activeTab === 'stats' ? 'Statistiques' : activeTab === 'corbeille' ? 'Corbeille' : activeTab === 'chat' ? 'Messages Clients' : activeTab === 'parametres' ? 'Paramètres' : 'Tableau de bord'}
           </h2>
-          
+
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#7A8FA6' }} className="hidden lg:inline-block">
               {currentTime.toLocaleDateString('fr-FR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })} • {currentTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
@@ -651,15 +651,15 @@ const Dashboard = () => {
               <Bell size={20} color="#3D5166" />
               <div style={{ position: 'absolute', top: '-4px', right: '-4px', width: '8px', height: '8px', borderRadius: '50%', background: '#EF4444' }} />
             </div>
-            
+
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               {/* LOGO IMAGE AS AVATAR */}
-              <img 
-                src="/logo-aluminium-space.png" 
+              <img
+                src="/logo-aluminium-space.png"
                 alt="Aluminium Space"
-                style={{ 
-                  width: '38px', 
-                  height: '38px', 
+                style={{
+                  width: '38px',
+                  height: '38px',
                   objectFit: 'contain',
                   borderRadius: '8px',
                   background: 'white',
@@ -687,10 +687,10 @@ const Dashboard = () => {
                   }
                 }}
               />
-              
-              <button 
-                onClick={handleLogout} 
-                style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#7A8FA6', padding: '4px' }} 
+
+              <button
+                onClick={handleLogout}
+                style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#7A8FA6', padding: '4px' }}
                 title="Se déconnecter"
               >
                 <LogOut size={18} />
@@ -838,15 +838,15 @@ const Dashboard = () => {
                         return (
                           <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '7px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', color: 'rgba(255,255,255,0.6)' }}><span>Base HT</span><span>1 000.000 DT</span></div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', color: '#FF8A8A' }}><span>− Remise {settings.remisePercent}%</span><span>−{(remise/1000).toFixed(3)} DT</span></div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', color: 'rgba(255,255,255,0.85)', fontWeight: 600 }}><span>Net HT</span><span>{(netHT/1000).toFixed(3)} DT</span></div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', color: 'rgba(255,255,255,0.5)' }}><span>+ FODEC {settings.fodecPercent}%</span><span>+{(fodec/1000).toFixed(3)} DT</span></div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', color: 'rgba(255,255,255,0.5)' }}><span>+ TVA {settings.tvaPercent}%</span><span>+{(tva/1000).toFixed(3)} DT</span></div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', color: '#FF8A8A' }}><span>− Remise {settings.remisePercent}%</span><span>−{(remise / 1000).toFixed(3)} DT</span></div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', color: 'rgba(255,255,255,0.85)', fontWeight: 600 }}><span>Net HT</span><span>{(netHT / 1000).toFixed(3)} DT</span></div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', color: 'rgba(255,255,255,0.5)' }}><span>+ FODEC {settings.fodecPercent}%</span><span>+{(fodec / 1000).toFixed(3)} DT</span></div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', color: 'rgba(255,255,255,0.5)' }}><span>+ TVA {settings.tvaPercent}%</span><span>+{(tva / 1000).toFixed(3)} DT</span></div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', color: 'rgba(255,255,255,0.5)' }}><span>+ Timbre</span><span>+{settings.timbreFiscal.toFixed(3)} DT</span></div>
                             <div style={{ height: '1px', background: 'rgba(255,255,255,0.15)', margin: '4px 0' }} />
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: '16px' }}>
                               <span>TOTAL TTC</span>
-                              <span style={{ color: '#81C063' }}>{(ttc/1000).toFixed(3)} DT</span>
+                              <span style={{ color: '#81C063' }}>{(ttc / 1000).toFixed(3)} DT</span>
                             </div>
                           </div>
                         );
@@ -916,7 +916,7 @@ const Dashboard = () => {
                       </div>
                       <div>
                         <label style={{ display: 'block', fontFamily: 'Inter, sans-serif', fontSize: '11px', fontWeight: 700, color: '#4A5568', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Ville / Gouvernorat</label>
-                        <input type="text" value={settings.city || ''} placeholder="Ben Arous, Tunisie"
+                        <input type="text" value={settings.city || ''} placeholder="Tunis, Tunisie"
                           onChange={e => setSettings(s => ({ ...s, city: e.target.value }))}
                           style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1.5px solid #E8EDF5', fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#0D1B2A', outline: 'none', boxSizing: 'border-box', background: '#FAFBFD' }}
                           onFocus={e => { e.currentTarget.style.borderColor = '#1D3E61'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(29,62,97,0.08)'; e.currentTarget.style.background = 'white'; }}
@@ -996,7 +996,7 @@ const Dashboard = () => {
                     onMouseLeave={e => { if (!settingsSaved) { e.currentTarget.style.background = '#1D3E61'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(29,62,97,0.2)'; } }}
                   >
                     {settingsSaved ? (
-                      <><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg> Paramètres sauvegardés !</>
+                      <><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg> Paramètres sauvegardés !</>
                     ) : (
                       <><Settings size={16} /> Enregistrer tous les paramètres</>
                     )}
@@ -1022,7 +1022,7 @@ const Dashboard = () => {
               <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #E8EDF5', overflow: 'hidden' }}>
                 <div style={{ padding: '20px 24px', borderBottom: '1px solid #E8EDF5', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <h3 style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600, fontSize: '16px', color: '#0D1B2A', margin: 0 }}>Corbeille (Les éléments sont supprimés après 30 jours)</h3>
-                  <button 
+                  <button
                     onClick={handleEmptyTrash}
                     disabled={trashedOrders.length === 0}
                     style={{ background: '#FEE2E2', color: '#EF4444', border: 'none', borderRadius: '8px', padding: '8px 16px', fontFamily: 'Inter, sans-serif', fontSize: '13px', fontWeight: 600, cursor: trashedOrders.length === 0 ? 'not-allowed' : 'pointer' }}
@@ -1472,19 +1472,19 @@ const Dashboard = () => {
                             <select
                               value={order.status}
                               onChange={(e) => handleStatusChange(order.id, e.target.value as Order['status'])}
-                              style={{ 
-                                padding: '6px 10px', borderRadius: '20px', border: '1px solid #E8EDF5', 
+                              style={{
+                                padding: '6px 10px', borderRadius: '20px', border: '1px solid #E8EDF5',
                                 fontFamily: 'Inter, sans-serif', fontSize: '12px', fontWeight: 600, outline: 'none',
-                                background: order.status === 'pending' || (order.status as any) === 'en_attente' ? '#FEF3C7' : 
-                                            order.status === 'confirmed' || (order.status as any) === 'confirme' ? '#D1FAE5' :
-                                            order.status === 'en_fabrication' ? '#DBEAFE' :
-                                            order.status === 'pret' ? '#EDE9FE' :
-                                            order.status === 'installe' || order.status === 'livree' ? '#D1FAE5' : '#FEE2E2',
-                                color: order.status === 'pending' || (order.status as any) === 'en_attente' ? '#92400E' : 
-                                       order.status === 'confirmed' || (order.status as any) === 'confirme' ? '#065F46' :
-                                       order.status === 'en_fabrication' ? '#1E40AF' :
-                                       order.status === 'pret' ? '#5B21B6' :
-                                       order.status === 'installe' || order.status === 'livree' ? '#065F46' : '#991B1B'
+                                background: order.status === 'pending' || (order.status as any) === 'en_attente' ? '#FEF3C7' :
+                                  order.status === 'confirmed' || (order.status as any) === 'confirme' ? '#D1FAE5' :
+                                    order.status === 'en_fabrication' ? '#DBEAFE' :
+                                      order.status === 'pret' ? '#EDE9FE' :
+                                        order.status === 'installe' || order.status === 'livree' ? '#D1FAE5' : '#FEE2E2',
+                                color: order.status === 'pending' || (order.status as any) === 'en_attente' ? '#92400E' :
+                                  order.status === 'confirmed' || (order.status as any) === 'confirme' ? '#065F46' :
+                                    order.status === 'en_fabrication' ? '#1E40AF' :
+                                      order.status === 'pret' ? '#5B21B6' :
+                                        order.status === 'installe' || order.status === 'livree' ? '#065F46' : '#991B1B'
                               }}
                             >
                               <option value="pending">En attente</option>

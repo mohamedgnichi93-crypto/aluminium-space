@@ -7,6 +7,6 @@ export const BUSINESS_CONFIG = {
   COMPANY_PHONE1: '+216 53 186 611',
   COMPANY_PHONE2: '+216 57 099 070',
   COMPANY_EMAIL: 'contact@aluminiumspace.com',
-  COMPANY_ADDRESS: '125 lot Laaroussi, Mghira, Ben Arous',
+  COMPANY_ADDRESS: '125 lot Laaroussi, Mghira, Tunis',
   WHATSAPP: 'https://wa.me/21657099070',
 };

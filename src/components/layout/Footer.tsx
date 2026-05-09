@@ -19,8 +19,8 @@ const Footer = () => {
         borderTop: '3px solid #81C063',
       }}
     >
-      <div className="container mx-auto px-4 pt-16 pb-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 mb-12">
+      <div className="container mx-auto px-4 pt-16 pb-[24px] md:pb-8">
+        <div className="flex flex-col md:grid md:grid-cols-3 gap-8 md:gap-12 mb-12">
 
           {/* Brand Column */}
           <div>
@@ -39,7 +39,7 @@ const Footer = () => {
             <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '14px', lineHeight: 1.7, maxWidth: '340px', marginBottom: '24px', fontFamily: 'DM Sans, sans-serif' }}>
               {t('footer.brand_desc')}
             </p>
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center justify-center md:justify-start gap-3 flex-wrap">
               {[
                 { icon: (
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -81,8 +81,8 @@ const Footer = () => {
                   rel="noopener noreferrer"
                   className="footer-social-icon flex items-center justify-center transition-all duration-300"
                   style={{
-                    width: '44px',
-                    height: '44px',
+                    width: '48px',
+                    height: '48px',
                     borderRadius: '50%',
                     background: 'rgba(255,255,255,0.08)',
                     border: '1px solid rgba(255,255,255,0.15)',
@@ -112,7 +112,7 @@ const Footer = () => {
               {t('footer.quick_links')}
             </h3>
             <div style={{ width: '30px', height: '2px', background: '#81C063', marginBottom: '20px', borderRadius: '1px' }} />
-            <ul className="space-y-3">
+            <ul className="grid grid-cols-2 gap-y-3 md:block md:space-y-3">
               {quickLinks.map(link => (
                 <li key={link.path}>
                   <Link

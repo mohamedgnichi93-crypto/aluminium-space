@@ -560,3 +560,118 @@ h1, h2, h3, h4, h5, h6, .font-display {
   }
 }
 
+/* Hide AI Agent FAB when mobile menu is open */
+body.menu-open .ai-fab-button {
+  display: none !important;
+}
+
+/* ══════════════════════════════════════════
+   GLOBAL MOBILE STYLES (max-width: 767px)
+   ══════════════════════════════════════════ */
+@media (max-width: 767px) {
+  /* Smooth scrolling & no horizontal overflow */
+  html {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+  body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
+  /* Touch targets */
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* iOS input zoom prevention */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+
+  /* Card touch feedback */
+  .mobile-card:active {
+    transform: scale(0.98);
+    transition: transform 0.1s;
+  }
+
+  /* Horizontal scroll containers */
+  .scroll-x { 
+    overflow-x: auto; 
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .scroll-x::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Snap scroll */
+  .snap-x { scroll-snap-type: x mandatory; }
+  .snap-item { scroll-snap-align: start; }
+
+  /* ── Devis Wizard Mobile ─────────────────── */
+  /* FIX 2: Reduce container padding */
+  .devis-wizard-container {
+    border-radius: 12px !important;
+  }
+  .devis-wizard-container > div:nth-child(2) {
+    padding: 16px 14px 0 !important;
+  }
+  .devis-wizard-container > div:nth-child(3) {
+    padding: 16px 14px !important;
+  }
+
+  /* FIX 3: Simplify progress bar on mobile */
+  .devis-step-label {
+    display: none !important;
+  }
+  .devis-step-circle {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 12px !important;
+  }
+
+  /* FIX 4: Stack devis nav buttons */
+  .devis-nav-buttons {
+    flex-direction: column-reverse !important;
+    gap: 10px !important;
+  }
+  .devis-nav-buttons > button,
+  .devis-nav-buttons > div {
+    width: 100% !important;
+  }
+  .devis-nav-buttons > div {
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+  .devis-nav-buttons > div > button {
+    width: 100% !important;
+  }
+
+  /* FIX 5: Step 4 (Résumé) mobile layout */
+  .devis-from-to-grid {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+  .devis-invoice-container {
+    padding: 20px 16px !important;
+    border-radius: 12px !important;
+  }
+  .devis-totals-outer {
+    justify-content: stretch !important;
+  }
+  .devis-totals-panel {
+    width: 100% !important;
+  }
+  .devis-summary-action-buttons {
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+  .devis-summary-action-buttons > button,
+  .devis-summary-action-buttons > a {
+    width: 100% !important;
+    min-width: 0 !important;
+    justify-content: center !important;
+  }
+}

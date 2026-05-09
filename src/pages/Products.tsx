@@ -151,17 +151,19 @@ const Products = () => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}
+          className="scroll-x snap-x flex md:justify-center pr-[70px] md:pr-0"
+          style={{ gap: '8px', marginBottom: '24px', flexWrap: 'nowrap' }}
         >
           {filters.map(f => (
             <button
               key={f.key}
               onClick={() => setActiveFilter(f.key)}
+              className="snap-item"
               style={{
                 padding: '8px 20px',
-                borderRadius: '8px',
-                border: `1.5px solid ${activeFilter === f.key ? '#1D3E61' : '#DBDADA'}`,
-                background: activeFilter === f.key ? '#1D3E61' : 'white',
+                borderRadius: '22px',
+                border: `1.5px solid ${activeFilter === f.key ? '#81C063' : '#DBDADA'}`,
+                background: activeFilter === f.key ? '#81C063' : 'white',
                 color: activeFilter === f.key ? 'white' : '#2F2D2C',
                 fontFamily: 'Rajdhani, sans-serif',
                 fontWeight: 700,
@@ -170,6 +172,11 @@ const Products = () => {
                 textTransform: 'uppercase',
                 cursor: 'pointer',
                 transition: 'all 0.2s',
+                whiteSpace: 'nowrap',
+                height: '44px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
               }}
             >
               {loc(f.label)}
@@ -177,10 +184,36 @@ const Products = () => {
           ))}
         </motion.div>
 
-        {/* Grille produits */}
-        <div className={`grid gap-5 max-w-[1200px] mx-auto ${filteredProducts.length === 4 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' : filteredProducts.length === 3 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : filteredProducts.length === 2 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 max-w-[320px]'}`}>
+        {/* Grille produits Desktop */}
+        <div className={`hidden md:grid gap-5 max-w-[1200px] mx-auto ${filteredProducts.length === 4 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' : filteredProducts.length === 3 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : filteredProducts.length === 2 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 max-w-[320px]'}`}>
           {filteredProducts.map((product, index) => (
             <ProductCard key={product.id} product={product} index={index} />
+          ))}
+        </div>
+
+        {/* Liste produits Mobile */}
+        <div className="flex flex-col gap-4 md:hidden">
+          {filteredProducts.map((p) => (
+            <div key={p.id} className="mobile-card" style={{ display: 'flex', height: '160px', background: '#FFFFFF', borderRadius: '16px', border: '1px solid #DBDADA', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+              <div style={{ width: '35%', background: '#F5F7FA', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '12px', borderRight: '1px solid #DBDADA' }}>
+                <img src={p.imageUrl} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+              </div>
+              <div style={{ width: '65%', padding: '16px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ fontSize: '10px', color: '#296788', fontWeight: 700, fontFamily: 'Rajdhani, sans-serif', textTransform: 'uppercase', marginBottom: '4px' }}>{t(`products.category_${p.category}`)}</div>
+                  <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#2F2D2C', fontFamily: 'Rajdhani, sans-serif', marginBottom: '2px' }}>{p.name}</h3>
+                  <p style={{ fontSize: '11px', color: '#818181', fontFamily: 'DM Sans, sans-serif', lineHeight: 1.3, margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{t(p.descriptionKey)}</p>
+                </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <Link to={`/produits/${p.id}`} style={{ flex: 1, background: '#1D3E61', color: 'white', height: '36px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '12px', textTransform: 'uppercase', textDecoration: 'none' }}>
+                    Voir
+                  </Link>
+                  <Link to={`/produits/${p.id}`} style={{ flex: 1, background: '#81C063', color: 'white', height: '36px', borderRadius: '8px', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '12px', textTransform: 'uppercase', textDecoration: 'none' }}>
+                    Devis
+                  </Link>
+                </div>
+              </div>
+            </div>
           ))}
         </div>
 

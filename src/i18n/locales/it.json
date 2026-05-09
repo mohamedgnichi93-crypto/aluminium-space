@@ -10,7 +10,7 @@
   },
   "hero": {
     "title": "ALUMINIUM SPACE",
-    "subtitle": "Infissi in Alluminio — Mghira, Ben Arous",
+    "subtitle": "Infissi in Alluminio — Mghira, Tunis",
     "badge": "Distributore ufficiale Grifo Flex",
     "cta_products": "Vedi i nostri prodotti",
     "cta_quote": "Richiedi un preventivo"
@@ -68,7 +68,7 @@
     "title": "I Nostri Prodotti",
     "quality_badge": "Grifo Flex — Qualità Italiana",
     "why_title": "Perché scegliere le nostre zanzariere?",
-    "why_desc": "Le nostre zanzariere Grifo Flex sono prodotte in Italia con materiali di alta qualità. Ogni prodotto è progettato per offrire una protezione ottimale dagli insetti rimanendo estetico e discreto. Aluminium Space offre un'installazione professionale su misura a Mghira e in tutta la regione di Ben Arous.",
+    "why_desc": "Le nostre zanzariere Grifo Flex sono prodotte in Italia con materiali di alta qualità. Ogni prodotto è progettato per offrire una protezione ottimale dagli insetti rimanendo estetico e discreto. Aluminium Space offre un'installazione professionale su misura a Mghira e in tutta la regione di Tunis.",
     "feat1_title": "Materiali Premium",
     "feat1_desc": "Fibra di vetro rivestita in PVC, telaio in alluminio bianco resistente.",
     "feat2_title": "Produzione Su Misura",
@@ -111,7 +111,7 @@
     "tooltip_exact_wh": "Prezzo per {{w}}cm × {{h}}cm",
     "availability_label": "Disponibilità",
     "availability_status": "Installazione entro 3–7 giorni lavorativi",
-    "availability_zone": "Ben Arous & Grande Tunisi"
+    "availability_zone": "Tunis & Grande Tunisi"
   },
   "contact_page": {
     "description": "Non esitare a contattarci per qualsiasi domanda o richiesta di preventivo.",
@@ -158,7 +158,7 @@
     "summary": "RIEPILOGO"
   },
   "footer": {
-    "address": "125 lot Laaroussi, Mghira, Ben Arous",
+    "address": "125 lot Laaroussi, Mghira, Tunis",
     "phone": "(+216) 53 186 611",
     "email": "contact@aluminiumspace.com",
     "partner": "Distributore ufficiale Grifo Flex Tunisia",
@@ -167,7 +167,7 @@
     "slogan": "Progetta. Visualizza. Realizza.",
     "vr_sub": "Vivi le tue finestre in realtà virtuale",
     "motto": "Essere tra i migliori con un tocco fuori dall'ordinario.",
-    "brand_desc": "Specialista in infissi in alluminio a Mghira, Ben Arous. Produciamo e installiamo zanzariere su misura di alta qualità per il tuo comfort.",
+    "brand_desc": "Specialista in infissi in alluminio a Mghira, Tunis. Produciamo e installiamo zanzariere su misura di alta qualità per il tuo comfort.",
     "see_maps": "Vedi su Google Maps",
     "powered_by": "Powered by Grifo Flex"
   }

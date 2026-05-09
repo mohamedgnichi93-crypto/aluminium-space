@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -68,6 +68,7 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
   const [codeCopied, setCodeCopied] = useState(false);
   const [waUrl, setWaUrl] = useState('');
   const [items, setItems] = useState<DevisItem[]>([]);
+  const wizardTopRef = useRef<HTMLDivElement>(null);
 
   const { register, formState: { errors }, watch, setValue, trigger, getValues, resetField } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -124,10 +125,10 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
           resetField('meshType');
           setValue('color', 'Blanc');
           setStep(1);
-          window.scrollTo(0, 0);
+          wizardTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         } else {
           setStep(3);
-          window.scrollTo(0, 0);
+          wizardTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       }
     }
@@ -140,7 +141,7 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
       isValid = await trigger(['productId']);
       if (isValid) {
         setStep(2);
-        window.scrollTo(0, 0);
+        wizardTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     } else if (step === 2) {
       handleAddItem(false);
@@ -148,14 +149,17 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
       isValid = await trigger(['fullName', 'phone', 'email', 'address']);
       if (isValid) {
         setStep(4);
-        window.scrollTo(0, 0);
+        wizardTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }
   };
 
   const handlePrev = () => {
+    if (step === 3) {
+      setItems(prev => prev.slice(0, -1));
+    }
     setStep(prev => prev - 1);
-    window.scrollTo(0, 0);
+    wizardTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const onSubmit = async () => {
@@ -308,6 +312,7 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
 
   return (
     <div
+      ref={wizardTopRef}
       className="devis-wizard-container"
       style={{
         background: '#FFFFFF',
@@ -337,7 +342,7 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
 
             return (
               <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 3, position: 'relative' }}>
-                <div style={{
+                <div className="devis-step-circle" style={{
                   width: '36px', height: '36px', borderRadius: '50%',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '15px',
@@ -351,7 +356,7 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12" /></svg>
                   ) : stepNum}
                 </div>
-                <span style={{
+                <span className="devis-step-label" style={{
                   fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '11px',
                   letterSpacing: '1.5px', textTransform: 'uppercase', marginTop: '8px', marginBottom: '16px',
                   color: isCompleted ? '#81C063' : isActive ? '#1D3E61' : '#B3B3B3',
