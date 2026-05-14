@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { MapPin, Phone, Mail, Clock, MessageSquare, Send, CheckCircle, AlertCircle, ArrowRight } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, MessageSquare, Send, CheckCircle, AlertCircle, ArrowRight, Globe } from 'lucide-react';
 import { useState, useRef } from 'react';
 import emailjs from '@emailjs/browser';
 import PageSEO from '../components/ui/PageSEO';
@@ -179,28 +179,44 @@ const Contact = () => {
             </h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {infoItems.map((item, i) => (
-                <motion.a
-                  key={i}
-                  href={item.href}
-                  target={item.href.startsWith('http') ? '_blank' : undefined}
-                  rel={item.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                  initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 + i * 0.06 }}
-                  style={{ display: 'flex', alignItems: 'flex-start', gap: '14px', background: 'white', borderRadius: '14px', padding: '16px 18px', border: '1px solid #E8EDF5', textDecoration: 'none', boxShadow: '0 1px 6px rgba(29,62,97,0.05)', transition: 'all 0.2s' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = item.color; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; (e.currentTarget as HTMLElement).style.boxShadow = `0 6px 20px rgba(29,62,97,0.10)`; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#E8EDF5'; (e.currentTarget as HTMLElement).style.transform = 'none'; (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 6px rgba(29,62,97,0.05)'; }}
-                >
-                  <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: item.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <item.icon size={18} style={{ color: item.color }} />
-                  </div>
-                  <div>
-                    <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '13px', color: '#7A8FA6', letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: '4px' }}>
-                      {item.title}
+                <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <motion.a
+                    href={item.href}
+                    target={item.href.startsWith('http') ? '_blank' : undefined}
+                    rel={item.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                    initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 + i * 0.06 }}
+                    style={{ display: 'flex', alignItems: 'flex-start', gap: '14px', background: 'white', borderRadius: '14px', padding: '16px 18px', border: '1px solid #E8EDF5', textDecoration: 'none', boxShadow: '0 1px 6px rgba(29,62,97,0.05)', transition: 'all 0.2s' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = item.color; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; (e.currentTarget as HTMLElement).style.boxShadow = `0 6px 20px rgba(29,62,97,0.10)`; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#E8EDF5'; (e.currentTarget as HTMLElement).style.transform = 'none'; (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 6px rgba(29,62,97,0.05)'; }}
+                  >
+                    <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: item.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <item.icon size={18} style={{ color: item.color }} />
                     </div>
-                    {item.lines.map((line, j) => (
-                      <div key={j} style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '14px', color: '#2F2D2C', lineHeight: 1.6 }}>{line}</div>
-                    ))}
-                  </div>
-                </motion.a>
+                    <div>
+                      <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '13px', color: '#7A8FA6', letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: '4px' }}>
+                        {item.title}
+                      </div>
+                      {item.lines.map((line, j) => (
+                        <div key={j} style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '14px', color: '#2F2D2C', lineHeight: 1.6 }}>{line}</div>
+                      ))}
+                    </div>
+                  </motion.a>
+                  {item.icon === Mail && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '4px 18px' }}>
+                      <Globe size={18} style={{ color: '#81C063', flexShrink: 0 }} />
+                      <a 
+                        href="https://aluminiumspace.pro/" 
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: '#1D3E61', textDecoration: 'none', fontFamily: 'DM Sans, sans-serif' }}
+                        onMouseEnter={e => e.currentTarget.style.color = '#81C063'}
+                        onMouseLeave={e => e.currentTarget.style.color = '#1D3E61'}
+                      >
+                        aluminiumspace.pro
+                      </a>
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           </motion.div>

@@ -136,7 +136,7 @@ const Header = () => {
       <div className="container mx-auto px-4 h-full flex items-center justify-between gap-4 relative" style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
 
         {/* Logo */}
-        <Link to="/" style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: '10px', textDecoration: 'none', flexShrink: 0 }} className="group">
+        <a href="https://aluminiumspace.pro/" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: '10px', textDecoration: 'none', flexShrink: 0 }} className="group">
           <img src="/logo-aluminium-space.png" alt="ALU SPACE Logo"
             className="no-rtl-flip"
             style={{ height: '58px', width: 'auto', objectFit: 'contain', transform: 'none', display: 'block' }}
@@ -152,7 +152,7 @@ const Header = () => {
               <img src="https://flagcdn.com/16x12/it.png" alt="Italy" style={{ width: '16px', height: '12px' }} />
             </div>
           </div>
-        </Link>
+        </a>
 
         {/* Desktop: Nav + Actions (center, flex-1) */}
         <div className="hidden md:flex items-center flex-1 justify-center gap-1" style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
