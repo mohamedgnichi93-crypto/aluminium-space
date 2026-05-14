@@ -79,10 +79,10 @@ export const calculatePrice = ({ productId, width, height, meshType, color }: Pr
     }
     case 'elba': {
       if (width > 120 || height > 250) break;
-      const area = Math.max(1, (width / 100) * (height / 100));
-      const rates = { fibre: 143, aluminium: 183, inox: 262 };
-      const rate = rates[meshType || 'fibre'] || 143;
-      basePrice = (area * rate) * 1000;
+      const areaCm = (width / 100) * (height / 100);
+      const billableM2 = Math.ceil(areaCm);
+      const finalM2 = Math.max(1, billableM2);
+      basePrice = finalM2 * 326 * 1000;
       break;
     }
     case 'plisse31': {

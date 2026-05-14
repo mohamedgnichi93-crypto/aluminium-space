@@ -7,7 +7,7 @@ import { getOrderById } from '../store/ordersStore';
 import { generatePDF } from '../utils/pdfGenerator';
 import type { Order } from '../store/ordersStore';
 import PageSEO from '../components/ui/PageSEO';
-import ItalyFlag from '../components/ui/ItalyFlag';
+
 
 type LangKey = 'fr' | 'ar' | 'tn' | 'en' | 'it';
 
@@ -149,7 +149,11 @@ const ClientPortal = () => {
         />
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} style={{ position: 'relative', zIndex: 1 }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(129,192,99,0.12)', border: '1px solid rgba(129,192,99,0.3)', borderRadius: '20px', padding: '6px 16px', marginBottom: '20px' }}>
-            <ItalyFlag />
+            <img 
+              src="https://flagcdn.com/w20/tn.png" 
+              alt="Tunisie" 
+              style={{ width: '20px', height: '14px', objectFit: 'cover', borderRadius: '2px' }} 
+            />
             <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '2.5px', color: '#81C063', textTransform: 'uppercase', fontFamily: 'Rajdhani, sans-serif' }}>ALUMINIUM SPACE</span>
           </div>
           <h1 style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: 'clamp(28px,6vw,48px)', color: '#FFFFFF', letterSpacing: '2px', textTransform: 'uppercase', margin: '0 0 12px' }}>

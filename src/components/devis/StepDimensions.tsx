@@ -884,33 +884,7 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
                 )}
               </div>
 
-              {productId === 'elba' && (
-                <div>
-                  <label style={{ display: 'block', fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#4A5568', marginBottom: '6px' }}>
-                    {t('quote.mesh_type_label', 'Type de Toile')}
-                  </label>
-                  <select
-                    {...register('meshType')}
-                    style={{
-                      border: `1px solid ${errors.meshType ? '#EF4444' : '#E2E8F0'}`,
-                      borderRadius: '10px',
-                      padding: '14px 16px',
-                      fontSize: '15px',
-                      width: '100%',
-                      outline: 'none',
-                      transition: 'all 0.2s ease',
-                      background: 'white',
-                      appearance: 'none'
-                    }}
-                    onFocus={handleFocus}
-                    onBlur={(e) => handleBlur(e, !!errors.meshType)}
-                  >
-                    <option value="fibre">{t('product_detail.elba_glass', 'Fibre de verre')}</option>
-                    <option value="aluminium">{t('product_detail.elba_alu', 'Aluminium')}</option>
-                    <option value="inox">{t('product_detail.elba_inox', 'Acier inox')}</option>
-                  </select>
-                </div>
-              )}
+
             </div>
 
           </div>
@@ -978,10 +952,24 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
                       </div>
                     </div>
                   </div>
-                  {isMinimumPrice && (
+                  {isMinimumPrice && productId !== 'elba' && (
                     <div style={{ background: 'rgba(29,62,97,0.05)', border: '1px solid rgba(29,62,97,0.18)', borderRadius: '10px', padding: '14px', marginBottom: '16px' }}>
                       <p style={{ color: '#1D3E61', fontSize: '14px', fontFamily: 'Inter, sans-serif', display: 'flex', gap: '8px' }}>
                         <span>ℹ️</span> {t('quote.min_price_notice', "Prix calculé pour la dimension minimale disponible.")}
+                      </p>
+                    </div>
+                  )}
+                  {productId === 'elba' && Number(width) > 0 && Number(height) > 0 && !needsCustomQuote && (
+                    <div style={{ background: 'rgba(29,62,97,0.05)', border: '1px solid rgba(29,62,97,0.18)', borderRadius: '10px', padding: '14px', marginBottom: '16px' }}>
+                      <p style={{ color: '#1D3E61', fontSize: '14px', fontFamily: 'Inter, sans-serif', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <span style={{ display: 'flex', gap: '8px' }}>
+                          <span>ℹ️</span> Surface : {((Number(width) / 100) * (Number(height) / 100)).toFixed(2)} m² → Facturé : {Math.max(1, Math.ceil((Number(width) / 100) * (Number(height) / 100)))} m²
+                        </span>
+                        {isMinimumPrice && (
+                          <span style={{ marginLeft: '24px', fontSize: '13px', color: '#64748B' }}>
+                            Minimum 1 m² facturé — Prix: 326 TND
+                          </span>
+                        )}
                       </p>
                     </div>
                   )}

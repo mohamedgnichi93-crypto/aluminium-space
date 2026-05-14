@@ -90,9 +90,7 @@ export const priceTables = {
     }
   },
   elba: {
-    fibre: 143000,
-    aluminium: 183000,
-    inox: 262000
+    base: 326000
   },
   plisse31: {
     125: { '120-180': 1115000, '180-240': 1487000, '240-300': 1859000 },

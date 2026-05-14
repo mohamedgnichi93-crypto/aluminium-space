@@ -10,6 +10,10 @@ export const usePWAInstall = () => {
   const [isInstalled, setIsInstalled] = useState(false);
   const [isInstalling, setIsInstalling] = useState(false);
 
+  // Platform detection
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+  const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+
   useEffect(() => {
     if (
       window.matchMedia('(display-mode: standalone)').matches ||
@@ -43,18 +47,25 @@ export const usePWAInstall = () => {
       await installPrompt.prompt();
       const { outcome } = await installPrompt.userChoice;
       if (outcome === 'accepted') {
-        setInstallPrompt(null);
         setIsInstalled(true);
       }
+    } catch (err) {
+      console.error('PWA Installation failed', err);
     } finally {
+      setInstallPrompt(null);
       setIsInstalling(false);
     }
   };
 
+  // True if we have a native prompt ready, OR if it's iOS (where we show manual guide)
+  const canInstall = (!!installPrompt || isIOS) && !isInstalled;
+
   return {
-    canInstall: !!installPrompt && !isInstalled,
+    canInstall,
     isInstalled,
     isInstalling,
+    isIOS,
+    isChrome,
     install,
   };
 };
