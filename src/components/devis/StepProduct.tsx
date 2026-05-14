@@ -9,7 +9,8 @@ interface Props {
 }
 
 const StepProduct = ({ selectedProductId, onSelect, onNext }: Props) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRTL = ['ar', 'tn'].includes(i18n.language);
 
   return (
     <div className="animate-fade-in">
@@ -118,7 +119,7 @@ const StepProduct = ({ selectedProductId, onSelect, onNext }: Props) => {
           onMouseEnter={e => { if (selectedProductId) { e.currentTarget.style.background = '#81C063'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(129,192,99,0.35)'; } }}
           onMouseLeave={e => { if (selectedProductId) { e.currentTarget.style.background = '#1D3E61'; e.currentTarget.style.boxShadow = 'none'; } }}
         >
-          {t('quote.next')} →
+          {isRTL ? `← ${t('quote.next', 'التالي')}` : `${t('quote.next', 'Suivant')} →`}
         </button>
       </div>
     </div>

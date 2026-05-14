@@ -1,4 +1,12 @@
 {
+  "devis": {
+    "otherColor": "لون آخر",
+    "chooseColor": "اختر لوناً",
+    "colorSelected": "اللون المختار",
+    "confirm": "تأكيد",
+    "standardColors": "الألوان القياسية",
+    "extendedColors": "كتالوج الألوان"
+  },
   "nav": {
     "home": "الرئيسية",
     "products": "منتجاتنا",
@@ -11,22 +19,35 @@
   "hero": {
     "title": "ALUMINIUM SPACE",
     "subtitle": "نجارة الألمنيوم — مغيرة، تونس",
-    "badge": "الموزع الرسمي لـ Grifo Flex",
+    "badge": "الشريك المعتمد لـ Grifo Flex",
     "cta_products": "شاهد منتجاتنا",
     "cta_quote": "اطلب تسعيرة"
   },
   "home": {
-    "quality_badge": "🇮🇹 جودة إيطالية · Grifo Flex",
+    "quality_badge": "جودة إيطالية · Grifo Flex",
     "title_line1": "ناموسيات",
     "title_line2": "عالية الجودة",
     "slogan": "صمِّم. تخيَّل. حقِّق.",
-    "description": "متخصص في نجارة الألومنيوم بمغيرة. الموزع الرسمي لـ Grifo Flex — حماية غير مرئية بجودة إيطالية.",
-    "cta_products": "شاهد منتجاتنا ←",
+    "description": "متخصص في نجارة الألومنيوم بمغيرة. الشريك المعتمد لـ Grifo Flex — حماية غير مرئية بجودة إيطالية.",
+    "cta_products": "شاهد منتجاتنا",
     "cta_quote": "اطلب تسعيرة",
+    "distributeur_officiel": "الشريك المعتمد",
     "trust_custom": "على المقاس",
     "trust_install": "التركيب مشمول",
     "trust_free": "تسعيرة مجانية",
-    "scroll": "اكتشف"
+    "scroll": "اكتشف",
+    "mobile_title": "ناموسيات عالية الجودة",
+    "mobile_cta_products": "شاهد منتجاتنا",
+    "mobile_cta_quote": "اطلب تسعيرة",
+    "products_title": "موديلاتنا من ناموسيات Grifo Flex",
+    "how_it_works_title": "كيف تعمل ناموسيات Grifo Flex",
+    "view_product": "رؤية المنتج",
+    "stats": {
+      "models": "موديلات Grifo Flex",
+      "custom": "على المقاس",
+      "warranty": "سنوات ضمان",
+      "mechanism": "ضمان الميكانيزم"
+    }
   },
   "steps": {
     "title": "كيف يعمل؟",
@@ -62,7 +83,8 @@
     "colibri50_desc": "مستيكار لولبي للنوافذ بعلبة علوية. ميكانيزم نابض صامت. قضبان جانبية بفرشاة مزدوجة. هيكل ألومنيوم أبيض RAL 9010.",
     "sidney50_desc": "مستيكار للأبواب بعلبة جانبية. ميكانيزم نابض. مقبض خارجي قابل للطي. قضبان بفرشاة مزدوجة. هيكل ألومنيوم أبيض.",
     "sidney50ac_desc": "مستيكار بعلبتين جانبيتين للفتحات الكبيرة والشرفات. فتح مركزي ثنائي الاتجاه. ميكانيزم نابض. هيكل ألومنيوم أبيض.",
-    "elba_desc": "مستيكار بلوح ثابت للنوافذ. إطار ألومنيوم أبيض. شبكة فايبرغلاس PVC. تثبيت جداري بالنايلون. بسيط واقتصادي وفعال."
+    "elba_desc": "مستيكار بلوح ثابت للنوافذ. إطار ألومنيوم أبيض. شبكة فايبرغلاس PVC. تثبيت جداري بالنايلون. بسيط واقتصادي وفعال.",
+    "plisse31_desc": "مستيكار مطوية ثنائية الجانب (31 مم). مثالية للفتحات الكبيرة حتى 5000 مم. فتح مغناطيسي وسكة سفلية مسطحة وشبكة سوداء قياسية. مقاومة للرياح من الدرجة 1."
   },
   "products_page": {
     "title": "منتجاتنا",
@@ -74,7 +96,10 @@
     "feat2_title": "تصنيع على المقاس",
     "feat2_desc": "كل ناموسية مُكيَّفة وفق الأبعاد الدقيقة للفتحة.",
     "feat3_title": "تقنية إيطالية",
-    "feat3_desc": "آليات زنبركية دقيقة ومزلقات بفرش مزدوجة."
+    "feat3_desc": "آليات زنبركية دقيقة ومزلقات بفرش مزدوجة.",
+    "view_btn": "عرض",
+    "devis_btn": "تسعيرة",
+    "compare_hint": "اسحب لرؤية الجدول بالكامل"
   },
   "product_detail": {
     "breadcrumb_home": "الرئيسية",
@@ -86,6 +111,7 @@
     "spec_caisson": "أبعاد الصندوق:",
     "spec_size": "الحجم الفعلي:",
     "spec_measures": "الأبعاد (العرض×الارتفاع):",
+    "plisse31_prices": "أسعار بليسي 31 (حسب الأبعاد)",
     "see_price": "مشاهدة التعرفة",
     "price_unit_ht": "السعر الوحدوي (خ.ض.م)",
     "price_per_sqm": "السعر للمتر المربع",
@@ -113,6 +139,63 @@
     "availability_status": "التركيب خلال 3–7 أيام عمل",
     "availability_zone": "تونس وتونس الكبرى"
   },
+  "measureGuide": {
+    "badge": "دليل القياس",
+    "stepOf": "الخطوة {{current}} / {{total}}",
+    "prev": "السابق",
+    "next": "الخطوة التالية",
+    "saved": "💾 تم حفظ القياسات",
+    "inputLabel": "أدخل قياساتك الثلاثة (مم)",
+    "yourDimension": "الـ {{dim}} المطلوب طلبها:",
+    "commander": "طلب {{l}}×{{h}} مم",
+    "accessDevis": "الذهاب إلى استمارة التسعيرة",
+    "downloadMemo": "📄 تحميل مذكرة القياسات الخاصة بي",
+    "noMeasures": "⬅ أدخل قياساتك في الخطوتين 3 و 4 لرؤية الملخص هنا",
+    "steps": {
+      "tools": {
+        "sub": "استعد",
+        "title": "الأدوات اللازمة",
+        "desc": "Pour mesurer correctement votre ouverture, préparez :\n\n• Un mètre ruban (minimum 3 mètres)\n• Un crayon et un carnet de notes\n• Un niveau à bulle (optionnel mais recommandé)"
+      },
+      "embrasure": {
+        "sub": "فهم المساحة",
+        "title": "تحديد فتحة الجدار",
+        "desc": "L'embrasure est l'espace vide entre les deux bords intérieurs du mur — c'est là que la moustiquaire sera fixée."
+      },
+      "mistakes": {
+        "sub": "أخطاء يجب تجنبها",
+        "title": "لا ترتكب هذه الأخطاء",
+        "desc": "❌ Ne mesurez PAS sur le cadre de la fenêtre existante.\n✅ Mesurez TOUJOURS dans l'embrasure.\n⚠️ Une erreur de 2 cm peut rendre la moustiquaire inutilisable."
+      },
+      "largeur": {
+        "sub": "القياس 1/2",
+        "title": "قياس العرض — L",
+        "desc": "Prenez 3 mesures (haut, milieu, bas) et retenez la plus petite.\nExemple pour votre {{type}} : {{example}} mm."
+      },
+      "hauteur": {
+        "sub": "القياس 2/2",
+        "title": "قياس الارتفاع — H",
+        "desc": "Prenez 3 mesures (gauche, centre, droit) et retenez la plus petite.\nExemple : {{example}} mm."
+      },
+      "recap": {
+        "sub": "كل شيء جاهز!",
+        "title": "أبعادك النهائية",
+        "desc": "Votre commande : {{l}} × {{h}} mm\n\nNotre équipe vérifie vos mesures gratuitement après la commande."
+      }
+    },
+    "clientStep": {
+      "sub": "الخطوة الأخيرة",
+      "title": "بياناتك",
+      "desc": "اتركوا لنا بياناتكم لتسجيل طلب القياس.",
+      "nameLabel": "الاسم الكامل",
+      "namePlaceholder": "الاسم واللقب",
+      "phoneLabel": "رقم الهاتف",
+      "phonePlaceholder": "مثال: 55 123 456",
+      "submitBtn": "إرسال الطلب",
+      "successTitle": "تم إرسال الطلب!",
+      "successDesc": "تم إرسال طلبك بنجاح. سيتصل بك فريقنا قريباً."
+    }
+  },
   "contact_page": {
     "description": "لا تتردد في التواصل معنا لأي سؤال أو طلب تسعيرة.",
     "address_title": "العنوان",
@@ -134,8 +217,11 @@
     "step4": "ملخص",
     "width": "العرض",
     "height": "الارتفاع",
+    "width_cm": "العرض (سم)",
+    "height_cm": "الارتفاع (سم)",
     "quantity": "الكمية",
     "mesh_type": "نوع الشبكة",
+    "mesh_type_label": "نوع الشبكة",
     "calculate": "احسب التسعيرة",
     "download_pdf": "تحميل بصيغة PDF",
     "submit_order": "إرسال الطلب",
@@ -149,7 +235,32 @@
     "next": "التالي",
     "prev": "السابق",
     "required": "هذا الحقل مطلوب",
-    "invalid_email": "بريد إلكتروني غير صالح"
+    "invalid_email": "بريد إلكتروني غير صالح",
+    "dimensions_title": "أبعاد الفتحة",
+    "updated_product": "تم تحديث المنتج: {{name}}",
+    "dimensions_notice": "أبعادك تتجاوز 200 سم. سيدني 50 AC يدعم حتى 400×260 سم.",
+    "min_price_notice": "السعر محسوب لأصغر مقاس متاح.",
+    "custom_quote_notice": "اتصل بنا للحصول على تسعيرة مخصصة.",
+    "whatsapp_contact": "تواصل معنا عبر واتساب",
+    "estimation_title": "تقدير السعر",
+    "unit_price_ht": "السعر الوحدوي (خ.ض.م)",
+    "subtotal_ht": "المجموع الفرعي (خ.ض.م)",
+    "remise_label": "خصم {{percent}}%",
+    "net_ht": "السعر بعد الخصم",
+    "fodec": "FODEC ({{percent}}%)",
+    "tva": "TVA ({{percent}}%)",
+    "timbre": "الطابع الجبائي",
+    "total_ttc": "المجموع الشامل",
+    "add_another": "إضافة مادة أخرى",
+    "accept_download": "قبول وتحميل ملف PDF",
+    "summary_title": "ملخص التسعيرة",
+    "validity": "صالح لمدة {{days}} يومًا",
+    "placeholder_wh": "أدخل أبعادك هنا لرؤية تقدير السعر",
+    "client_title": "معلوماتك الشخصية",
+    "summary_banner": "تسعيرتك: {{count}} مادة (مواد) — المجموع: {{total}}",
+    "phone_format": "الصيغة: 8 أرقام",
+    "notes_placeholder": "تفاصيل إضافية، تفضيلات التركيب...",
+    "privacy_note": "بياناتك آمنة ولن يتم استخدامها إلا للاتصال بك بخصوص هذه التسعيرة."
   },
   "devis_steps": {
     "product": "المنتج",
@@ -161,7 +272,8 @@
     "address": "125 حي العروسي، مغيرة، تونس",
     "phone": "(+216) 53 186 611",
     "email": "contact@aluminiumspace.com",
-    "partner": "الموزع الرسمي لـ Grifo Flex تونس",
+    "partner": "الشريك المعتمد لـ Grifo Flex تونس",
+    "brand_subtitle": "نجارة الألمنيوم",
     "copyright": "© 2026 ألومنيوم سبيس",
     "quick_links": "روابط سريعة",
     "slogan": "صمِّم. تخيَّل. حقِّق.",
@@ -170,5 +282,37 @@
     "brand_desc": "متخصص في نجارة الألومنيوم بمغيرة، تونس. نصنع ونركب ناموسيات على المقاس بجودة عالية لراحتكم.",
     "see_maps": "عرض على خرائط جوجل",
     "powered_by": "مدعوم من Grifo Flex"
+  },
+  "common": {
+    "client": "العميل",
+    "phone_short": "هاتف",
+    "email_short": "بريد",
+    "qty_short": "كمية",
+    "color_frame": "لون الإطار",
+    "selected": "مختار",
+    "white": "أبيض",
+    "black": "أسود",
+    "back": "رجوع",
+    "next": "التالي",
+    "close": "إغلاق",
+    "processing": "جاري المعالجة..."
+  },
+  "header": {
+    "installed": "تم التثبيت ✓",
+    "install_app": "تثبيت التطبيق",
+    "install": "تثبيت",
+    "menu": "القائمة",
+    "contact_us_upper": "اتصل بنا",
+    "pwa_chrome_title": "Chrome / Edge",
+    "pwa_chrome_step1": "افتح القائمة ⋮ (3 نقاط في الأعلى)",
+    "pwa_chrome_step2": "انقر على \"تثبيت Aluminium Space\"",
+    "pwa_chrome_step3": "أكد التثبيت",
+    "pwa_safari_title": "Safari (iPhone / iPad)",
+    "pwa_safari_step1": "اضغط على زر المشاركة 📤 في الأسفل",
+    "pwa_safari_step2": "قم بالتمرير ← \"إلى الشاشة الرئيسية\"",
+    "pwa_safari_step3": "اضغط على إضافة"
+  },
+  "portal": {
+    "empty_hint": "أدخل رمزك للوصول إلى طلبك"
   }
 }

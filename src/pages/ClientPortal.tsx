@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { Search, Download, Phone, ChevronRight, Package, Clock, CheckCircle, Wrench, Calendar, Star, XCircle } from 'lucide-react';
+import { Search, Download, Phone, ChevronRight, Package, Clock, CheckCircle, Wrench, Calendar, Star, XCircle, Copy, Check, User, ShoppingBag, MessageCircle } from 'lucide-react';
 import { getOrderById } from '../store/ordersStore';
 import { generatePDF } from '../utils/pdfGenerator';
 import type { Order } from '../store/ordersStore';
 import PageSEO from '../components/ui/PageSEO';
+import ItalyFlag from '../components/ui/ItalyFlag';
 
 type LangKey = 'fr' | 'ar' | 'tn' | 'en' | 'it';
 
@@ -82,14 +83,16 @@ const formatDT = (millimes: number) => (millimes / 1000).toFixed(3) + ' DT';
 const ClientPortal = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const lang = (i18n.language as LangKey) || 'fr';
+  const isRTL = ['ar', 'tn'].includes(i18n.language);
   const loc = (obj: Record<string, string>) => obj[lang] ?? obj.fr;
 
   const [code, setCode] = useState(searchParams.get('code') || '');
   const [order, setOrder] = useState<Order | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [searched, setSearched] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const handleSearch = () => {
     if (!code.trim()) return;
@@ -114,6 +117,12 @@ const ClientPortal = () => {
     }
   }, []);
 
+  const handleCopy = (id: string) => {
+    navigator.clipboard.writeText(id);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   const currentStepIndex = order ? STATUS_STEPS.findIndex(s => s.key === order.status) : -1;
   const isCancelled = order?.status === 'cancelled';
 
@@ -128,17 +137,26 @@ const ClientPortal = () => {
       />
 
       {/* Dark hero banner */}
-      <div style={{ background: '#1D3E61', paddingTop: '80px', paddingBottom: '48px', textAlign: 'center' }}>
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+      <div style={{ position: 'relative', background: 'linear-gradient(135deg, #0F2035 0%, #1D3E61 100%)', paddingTop: '80px', paddingBottom: '48px', textAlign: 'center', overflow: 'hidden' }}>
+        <motion.div 
+          animate={{ backgroundPosition: ['0% 0%', '100% 100%'] }}
+          transition={{ repeat: Infinity, duration: 20, ease: 'linear' }}
+          style={{
+            position: 'absolute', inset: 0, opacity: 0.05,
+            backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
+            backgroundSize: '32px 32px'
+          }}
+        />
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} style={{ position: 'relative', zIndex: 1 }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(129,192,99,0.12)', border: '1px solid rgba(129,192,99,0.3)', borderRadius: '20px', padding: '6px 16px', marginBottom: '20px' }}>
-            <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#81C063' }} />
+            <ItalyFlag />
             <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '2.5px', color: '#81C063', textTransform: 'uppercase', fontFamily: 'Rajdhani, sans-serif' }}>ALUMINIUM SPACE</span>
           </div>
           <h1 style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: 'clamp(28px,6vw,48px)', color: '#FFFFFF', letterSpacing: '2px', textTransform: 'uppercase', margin: '0 0 12px' }}>
             {loc(content.title)}
           </h1>
           <div style={{ width: '48px', height: '3px', background: '#81C063', borderRadius: '2px', margin: '0 auto 16px' }} />
-          <p style={{ fontFamily: 'DM Sans, sans-serif', color: 'rgba(255,255,255,0.65)', fontSize: '15px', maxWidth: '480px', margin: '0 auto' }}>
+          <p style={{ fontFamily: 'DM Sans, sans-serif', color: 'rgba(255,255,255,0.95)', fontSize: '17px', maxWidth: '480px', margin: '0 auto' }}>
             {loc(content.subtitle)}
           </p>
         </motion.div>
@@ -152,35 +170,38 @@ const ClientPortal = () => {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
           style={{ background: 'white', borderRadius: '20px', padding: '28px', boxShadow: '0 4px 24px rgba(0,0,0,0.06)', border: '1px solid #E2E8F0', marginBottom: '24px' }}>
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-            <input
-              value={code}
-              onChange={e => setCode(e.target.value.toUpperCase())}
-              onKeyDown={e => e.key === 'Enter' && handleSearch()}
-              placeholder={loc(content.placeholder)}
-              style={{
-                flex: 1, minWidth: '200px', height: '52px', border: '1.5px solid #E2E8F0', borderRadius: '12px',
-                padding: '0 16px', fontFamily: 'monospace', fontSize: '16px', letterSpacing: '3px', color: '#1A5DA8',
-                background: '#F5F7FA', outline: 'none', fontWeight: 700,
-              }}
-              onFocus={e => { e.currentTarget.style.borderColor = '#1A5DA8'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(26,93,168,0.1)'; }}
-              onBlur={e => { e.currentTarget.style.borderColor = '#E2E8F0'; e.currentTarget.style.boxShadow = 'none'; }}
-            />
+            <div style={{ flex: 1, minWidth: '200px', position: 'relative' }}>
+              <Search size={20} color="#9CA3AF" style={{ position: 'absolute', [isRTL ? 'right' : 'left']: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+              <input
+                value={code}
+                onChange={e => setCode(e.target.value.toUpperCase())}
+                onKeyDown={e => e.key === 'Enter' && handleSearch()}
+                placeholder={loc(content.placeholder)}
+                style={{
+                  width: '100%', height: '52px', border: '2px solid transparent', borderRadius: '12px',
+                  padding: isRTL ? '0 48px 0 16px' : '0 16px 0 48px', fontFamily: 'monospace', fontSize: '16px', color: '#1A5DA8',
+                  background: '#F5F7FA', outline: 'none', fontWeight: 700, transition: 'all 0.3s'
+                }}
+                onFocus={e => { e.currentTarget.style.borderColor = '#1A5DA8'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(26,93,168,0.1)'; e.currentTarget.style.background = '#FFFFFF'; }}
+                onBlur={e => { e.currentTarget.style.borderColor = 'transparent'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.background = '#F5F7FA'; }}
+              />
+            </div>
             <button
               onClick={handleSearch}
               style={{
-                height: '52px', padding: '0 28px', background: '#1A5DA8', color: 'white', border: 'none', borderRadius: '12px',
+                height: '52px', padding: '0 28px', background: 'linear-gradient(135deg, #1D3E61, #1A5DA8)', color: 'white', border: 'none', borderRadius: '12px',
                 fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '15px', letterSpacing: '1px', textTransform: 'uppercase',
                 cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', transition: 'all 0.2s',
                 boxShadow: '0 4px 12px rgba(26,93,168,0.3)',
               }}
-              onMouseEnter={e => { e.currentTarget.style.background = '#0F3F78'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = '#1A5DA8'; e.currentTarget.style.transform = 'translateY(0)'; }}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(26,93,168,0.4)'; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(26,93,168,0.3)'; }}
             >
               <Search size={16} />
               {loc(content.search_btn)}
             </button>
           </div>
-          <p style={{ fontSize: '12px', color: '#9CA3AF', fontFamily: 'DM Sans, sans-serif', marginTop: '12px' }}>
+          <p style={{ fontSize: '12px', color: '#6B7280', fontFamily: 'DM Sans, sans-serif', marginTop: '12px' }}>
             💡 {loc(content.hint)}
           </p>
         </motion.div>
@@ -209,13 +230,26 @@ const ClientPortal = () => {
               )}
 
               {/* Order header card */}
-              <div style={{ background: 'white', borderRadius: '20px', padding: '28px', boxShadow: '0 4px 24px rgba(0,0,0,0.06)', border: '1px solid #E2E8F0', marginBottom: '20px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
+              <div style={{ position: 'relative', background: 'white', borderRadius: '20px', padding: '28px', boxShadow: '0 4px 24px rgba(0,0,0,0.06)', border: '1px solid #E2E8F0', borderLeft: '4px solid #1A5DA8', marginBottom: '20px' }}>
+                
+                {/* Status Badge */}
+                {currentStepIndex >= 0 && (
+                  <div style={{ position: 'absolute', top: '20px', [isRTL ? 'left' : 'right']: '20px', background: `${STATUS_STEPS[currentStepIndex].color}15`, color: STATUS_STEPS[currentStepIndex].color, padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 700, fontFamily: 'Rajdhani, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    {loc(STATUS_STEPS[currentStepIndex].label)}
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px', marginBottom: '24px', paddingRight: isRTL ? '0' : '100px', paddingLeft: isRTL ? '100px' : '0' }}>
                   <div>
                     <p style={{ fontSize: '12px', color: '#818181', fontFamily: 'Rajdhani, sans-serif', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '4px' }}>{loc(content.order_ref)}</p>
-                    <div style={{ fontFamily: 'monospace', fontSize: '22px', fontWeight: 700, letterSpacing: '4px', color: '#1A5DA8' }}>#{order.id}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div style={{ fontFamily: 'monospace', fontSize: '15px', fontWeight: 600, letterSpacing: '0.5px', color: '#1A5DA8', wordBreak: 'break-all' }}>#{order.id}</div>
+                      <button onClick={() => handleCopy(order.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: copied ? '#27AE60' : '#9CA3AF', transition: 'color 0.2s' }} title="Copier">
+                        {copied ? <Check size={16} /> : <Copy size={16} />}
+                      </button>
+                    </div>
                   </div>
-                  <div style={{ textAlign: 'right' }}>
+                  <div style={{ textAlign: isRTL ? 'left' : 'right' }}>
                     <p style={{ fontSize: '12px', color: '#818181', fontFamily: 'Rajdhani, sans-serif', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '4px' }}>{loc(content.order_date)}</p>
                     <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '15px', fontWeight: 600, color: '#2F2D2C' }}>{formatDate(order.date)}</div>
                   </div>
@@ -229,16 +263,16 @@ const ClientPortal = () => {
                     </p>
                     <div style={{ position: 'relative' }}>
                       {/* Progress line background */}
-                      <div style={{ position: 'absolute', top: '20px', left: '20px', right: '20px', height: '3px', background: '#E2E8F0', borderRadius: '4px' }} />
+                      <div style={{ position: 'absolute', top: '24px', left: '20px', right: '20px', height: '3px', background: '#E2E8F0', borderRadius: '4px' }} />
                       {/* Progress line filled */}
                       <div style={{
-                        position: 'absolute', top: '20px', left: '20px', height: '3px', borderRadius: '4px',
-                        background: 'linear-gradient(90deg, #1A5DA8, #81C063)',
+                        position: 'absolute', top: '24px', [isRTL ? 'right' : 'left']: '20px', height: '3px', borderRadius: '4px',
+                        background: isRTL ? 'linear-gradient(270deg, #1A5DA8, #81C063)' : 'linear-gradient(90deg, #1A5DA8, #81C063)',
                         width: currentStepIndex < 0 ? '0%' : `${(currentStepIndex / (STATUS_STEPS.length - 1)) * 100}%`,
                         transition: 'width 0.8s ease',
                       }} />
 
-                      <div style={{ display: 'flex', justifyContent: 'space-between', position: 'relative', overflowX: 'auto', WebkitOverflowScrolling: 'touch', paddingBottom: '8px' }}>
+                      <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', position: 'relative', overflowX: 'auto', WebkitOverflowScrolling: 'touch', paddingBottom: '8px' }}>
                         {STATUS_STEPS.map((step, i) => {
                           const isCompleted = i <= currentStepIndex;
                           const isActive = i === currentStepIndex;
@@ -246,19 +280,23 @@ const ClientPortal = () => {
                           return (
                             <div key={step.key} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '56px', flex: 1 }}>
                               <div style={{
-                                width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                width: isActive ? '48px' : '40px', height: isActive ? '48px' : '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
                                 background: isCompleted ? step.color : '#F5F7FA',
                                 border: isActive ? `3px solid ${step.color}` : isCompleted ? 'none' : '2px solid #E2E8F0',
-                                boxShadow: isActive ? `0 0 0 4px ${step.color}22` : 'none',
+                                boxShadow: isActive ? `0 0 0 8px ${step.color}33` : 'none',
                                 transition: 'all 0.3s',
                                 zIndex: 1, position: 'relative',
                               }}>
-                                <Icon size={18} color={isCompleted ? 'white' : '#9CA3AF'} />
+                                {isCompleted && !isActive ? (
+                                  <Check size={18} color="white" />
+                                ) : (
+                                  <Icon size={isActive ? 22 : 18} color={isCompleted ? 'white' : '#9CA3AF'} />
+                                )}
                               </div>
                               <span style={{
                                 fontSize: '10px', fontWeight: 700, textAlign: 'center', marginTop: '8px', fontFamily: 'Rajdhani, sans-serif',
                                 letterSpacing: '0.5px', textTransform: 'uppercase',
-                                color: isCompleted ? step.color : '#9CA3AF',
+                                color: isCompleted ? step.color : '#6B7280',
                                 lineHeight: 1.2,
                               }}>
                                 {loc(step.label)}
@@ -271,7 +309,7 @@ const ClientPortal = () => {
 
                     {/* Current status description */}
                     {currentStepIndex >= 0 && (
-                      <div style={{ marginTop: '20px', background: `${STATUS_STEPS[currentStepIndex].color}10`, border: `1px solid ${STATUS_STEPS[currentStepIndex].color}30`, borderRadius: '12px', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div style={{ marginTop: '20px', background: `${STATUS_STEPS[currentStepIndex].color}10`, border: `1px solid ${STATUS_STEPS[currentStepIndex].color}30`, borderRadius: '12px', padding: '14px 16px', display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: '12px' }}>
                         <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: STATUS_STEPS[currentStepIndex].color, flexShrink: 0, boxShadow: `0 0 0 3px ${STATUS_STEPS[currentStepIndex].color}30` }} />
                         <span style={{ fontSize: '14px', color: '#2F2D2C', fontFamily: 'DM Sans, sans-serif', fontWeight: 500 }}>
                           {loc(STATUS_STEPS[currentStepIndex].desc)}
@@ -285,9 +323,12 @@ const ClientPortal = () => {
               {/* Client info + items */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '20px' }}>
                 {/* Client info */}
-                <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)', border: '1px solid #E2E8F0' }}>
-                  <h3 style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '14px', letterSpacing: '1.5px', textTransform: 'uppercase', color: '#0D1B2A', marginBottom: '16px' }}>{loc(content.client_info)}</h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ background: 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)', border: '1px solid #E2E8F0', textAlign: isRTL ? 'right' : 'left', overflow: 'hidden' }}>
+                  <div style={{ background: 'linear-gradient(135deg, #1D3E61, #1A5DA8)', color: 'white', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <User size={18} />
+                    <h3 style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '14px', letterSpacing: '1.5px', textTransform: 'uppercase', margin: 0 }}>{loc(content.client_info)}</h3>
+                  </div>
+                  <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                     {[
                       { label: '👤', value: order.clientInfo.fullName },
                       { label: '📱', value: order.clientInfo.phone },
@@ -295,7 +336,10 @@ const ClientPortal = () => {
                       ...(order.clientInfo.email ? [{ label: '✉️', value: order.clientInfo.email }] : []),
                       ...(order.clientInfo.notes ? [{ label: '📝', value: order.clientInfo.notes }] : []),
                     ].map((item, i) => (
-                      <div key={i} style={{ display: 'flex', gap: '10px', fontSize: '14px', color: '#2F2D2C', fontFamily: 'DM Sans, sans-serif' }}>
+                      <div key={i} style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', gap: '10px', fontSize: '14px', color: '#2F2D2C', fontFamily: 'DM Sans, sans-serif', padding: '8px', borderRadius: '8px', transition: 'background 0.2s' }}
+                        onMouseEnter={e => e.currentTarget.style.background = '#F8FAFC'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                      >
                         <span style={{ flexShrink: 0 }}>{item.label}</span>
                         <span style={{ color: '#4B5563' }}>{item.value}</span>
                       </div>
@@ -304,75 +348,107 @@ const ClientPortal = () => {
                 </div>
 
                 {/* Items */}
-                <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)', border: '1px solid #E2E8F0' }}>
-                  <h3 style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '14px', letterSpacing: '1.5px', textTransform: 'uppercase', color: '#0D1B2A', marginBottom: '16px' }}>{loc(content.order_detail)}</h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    {order.items.map((item, i) => (
-                      <div key={i} style={{ padding: '12px', background: '#F5F7FA', borderRadius: '10px', border: '1px solid #E2E8F0' }}>
-                        <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '14px', color: '#1A5DA8', letterSpacing: '0.5px', marginBottom: '4px' }}>
-                          {item.productName}
-                        </div>
-                        <div style={{ fontSize: '12px', color: '#6B7280', fontFamily: 'DM Sans, sans-serif' }}>
-                          {item.width} × {item.height} cm — ×{item.quantity}
-                          {item.meshType && ` — ${item.meshType}`}
-                        </div>
-                        <div style={{ fontSize: '13px', fontWeight: 700, color: '#27AE60', marginTop: '4px' }}>
-                          {formatDT(item.totalPrice)}
-                        </div>
-                      </div>
-                    ))}
+                <div style={{ background: 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)', border: '1px solid #E2E8F0', textAlign: isRTL ? 'right' : 'left', overflow: 'hidden' }}>
+                  <div style={{ background: 'linear-gradient(135deg, #1D3E61, #1A5DA8)', color: 'white', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <ShoppingBag size={18} />
+                    <h3 style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '14px', letterSpacing: '1.5px', textTransform: 'uppercase', margin: 0 }}>{loc(content.order_detail)}</h3>
                   </div>
+                  <div style={{ padding: '24px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      {order.items.map((item, i) => (
+                        <div key={i} style={{ padding: '12px', background: 'linear-gradient(135deg, #F0FDF4, #F5F7FA)', borderRadius: '10px', border: '1px solid #E2E8F0', borderLeft: '4px solid #81C063' }}>
+                          <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '14px', color: '#1A5DA8', letterSpacing: '0.5px', marginBottom: '4px' }}>
+                            {item.productName}
+                          </div>
+                          <div style={{ fontSize: '12px', color: '#6B7280', fontFamily: 'DM Sans, sans-serif' }}>
+                            {item.width} × {item.height} cm — ×{item.quantity}
+                            {item.meshType && ` — ${item.meshType}`}
+                          </div>
+                          <div style={{ fontSize: '13px', fontWeight: 700, color: '#27AE60', marginTop: '4px', textAlign: isRTL ? 'left' : 'right' }}>
+                            {formatDT(item.totalPrice)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
 
-                  {/* Totals */}
-                  <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #E2E8F0' }}>
-                    {[
-                      { label: 'Sous-total HT', value: formatDT(order.totalHT) },
-                      { label: 'FODEC (1%)', value: formatDT(order.fodec) },
-                      { label: 'TVA (19%)', value: formatDT(order.tva) },
-                      { label: 'Timbre fiscal', value: formatDT(order.timbre) },
-                    ].map((row, i) => (
-                      <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#6B7280', fontFamily: 'DM Sans, sans-serif', marginBottom: '4px' }}>
-                        <span>{row.label}</span><span>{row.value}</span>
+                    {/* Totals */}
+                    <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #E2E8F0' }}>
+                      {(() => {
+                        const brutHT = order.totalHT + order.remise;
+                        const remisePct = brutHT > 0 ? Math.round((order.remise / brutHT) * 100) : 0;
+                        
+                        return (
+                          <>
+                            <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', fontSize: '12px', color: '#6B7280', fontFamily: 'DM Sans, sans-serif', marginBottom: '4px' }}>
+                              <span>Total brut HT</span><span>{formatDT(brutHT)}</span>
+                            </div>
+                            
+                            {order.remise > 0 && (
+                              <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', fontSize: '12px', color: '#EF4444', fontFamily: 'DM Sans, sans-serif', marginBottom: '4px' }}>
+                                <span>Remise ({remisePct}%)</span><span>-{formatDT(order.remise)}</span>
+                              </div>
+                            )}
+
+                            <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', fontSize: '12px', color: '#6B7280', fontFamily: 'DM Sans, sans-serif', marginBottom: '4px' }}>
+                              <span>Total net HT</span><span>{formatDT(order.totalHT)}</span>
+                            </div>
+
+                            <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', fontSize: '12px', color: '#6B7280', fontFamily: 'DM Sans, sans-serif', marginBottom: '4px' }}>
+                              <span>FODEC (1%)</span><span>{formatDT(order.fodec)}</span>
+                            </div>
+
+                            <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', fontSize: '12px', color: '#6B7280', fontFamily: 'DM Sans, sans-serif', marginBottom: '4px' }}>
+                              <span>TVA (19%)</span><span>{formatDT(order.tva)}</span>
+                            </div>
+
+                            {order.timbre > 0 && (
+                              <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', fontSize: '12px', color: '#6B7280', fontFamily: 'DM Sans, sans-serif', marginBottom: '4px' }}>
+                                <span>Timbre fiscal</span><span>{formatDT(order.timbre)}</span>
+                              </div>
+                            )}
+                          </>
+                        );
+                      })()}
+                      
+                      <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', fontSize: '16px', fontWeight: 700, color: 'white', fontFamily: 'Rajdhani, sans-serif', marginTop: '16px', background: 'linear-gradient(135deg, #1D3E61, #1A5DA8)', borderRadius: '12px', padding: '16px 20px' }}>
+                        <span>TOTAL TTC</span>
+                        <span>{formatDT(order.totalTTC)}</span>
                       </div>
-                    ))}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', fontWeight: 700, color: '#0D1B2A', fontFamily: 'Rajdhani, sans-serif', marginTop: '8px', paddingTop: '8px', borderTop: '2px solid #E2E8F0' }}>
-                      <span>TOTAL TTC</span>
-                      <span style={{ color: '#1A5DA8' }}>{formatDT(order.totalTTC)}</span>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Action buttons */}
-              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                <button
+              <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', gap: '12px', flexWrap: 'wrap' }}>
+                <motion.button
                   onClick={() => generatePDF(order)}
-                  style={{ flex: 1, minWidth: '140px', height: '52px', background: '#1A5DA8', color: 'white', border: 'none', borderRadius: '12px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '14px', letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'all 0.2s', boxShadow: '0 4px 16px rgba(26,93,168,0.3)' }}
-                  onMouseEnter={e => { e.currentTarget.style.background = '#0F3F78'; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = '#1A5DA8'; }}
+                  animate={{ scale: [1, 1.02, 1] }}
+                  transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                  style={{ flex: 1, minWidth: '140px', height: '52px', background: 'linear-gradient(135deg, #1D3E61, #1A5DA8)', color: 'white', border: 'none', borderRadius: '12px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '14px', letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer', display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'box-shadow 0.2s', boxShadow: '0 4px 16px rgba(26,93,168,0.3)' }}
                 >
                   <Download size={18} />
                   {loc(content.download_pdf)}
-                </button>
+                </motion.button>
                 <a
                   href={`https://wa.me/21657099070?text=${encodeURIComponent(`Bonjour, je veux des informations sur ma commande #${order.id}`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ flex: 1, minWidth: '140px', height: '52px', background: '#25D366', color: 'white', border: 'none', borderRadius: '12px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '14px', letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', textDecoration: 'none', transition: 'all 0.2s', boxShadow: '0 4px 16px rgba(37,211,102,0.3)' }}
+                  style={{ flex: 1, minWidth: '140px', height: '52px', background: '#25D366', color: 'white', border: 'none', borderRadius: '12px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '14px', letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer', display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'center', gap: '8px', textDecoration: 'none', transition: 'all 0.2s', boxShadow: '0 4px 16px rgba(37,211,102,0.3)' }}
                   onMouseEnter={e => { e.currentTarget.style.background = '#1EA352'; }}
                   onMouseLeave={e => { e.currentTarget.style.background = '#25D366'; }}
                 >
-                  <Phone size={18} />
+                  <MessageCircle size={18} />
                   {loc(content.contact_us)}
                 </a>
                 <button
                   onClick={() => navigate('/produits')}
-                  style={{ flex: 1, minWidth: '140px', height: '52px', background: 'white', color: '#1A5DA8', border: '1.5px solid #1A5DA8', borderRadius: '12px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '14px', letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'all 0.2s' }}
-                  onMouseEnter={e => { e.currentTarget.style.background = '#F0F6FF'; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = 'white'; }}
+                  style={{ flex: 1, minWidth: '140px', height: '52px', background: 'transparent', color: '#1A5DA8', border: '2px solid #1A5DA8', borderRadius: '12px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '14px', letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer', display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'all 0.2s' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = '#1A5DA8'; e.currentTarget.style.color = 'white'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#1A5DA8'; }}
                 >
-                  <ChevronRight size={18} />
-                  Voir nos produits
+                  <ChevronRight size={18} className="no-rtl-flip" style={{ transform: isRTL ? 'scaleX(-1)' : 'none' }} />
+                  {t('hero.cta_products', 'Voir nos produits')}
                 </button>
               </div>
 
@@ -382,15 +458,25 @@ const ClientPortal = () => {
 
         {/* Empty state (before search) */}
         {!searched && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} style={{ textAlign: 'center', padding: '40px 20px', color: '#9CA3AF' }}>
-            <div style={{ fontSize: '60px', marginBottom: '16px' }}>📦</div>
-            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '15px' }}>
-              {lang === 'fr' && 'Entrez votre code pour accéder à votre commande'}
-              {lang === 'ar' && 'أدخل رمزك للوصول إلى طلبك'}
-              {lang === 'tn' && 'دخل الكود متاعك باش تشوف طلبيتك'}
-              {lang === 'en' && 'Enter your code to access your order'}
-              {lang === 'it' && 'Inserisci il codice per accedere al tuo ordine'}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} style={{ textAlign: 'center', padding: '40px 20px', color: '#6B7280' }}>
+            <motion.div 
+              animate={{ y: [0, -10, 0] }} 
+              transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
+              style={{ display: 'inline-block', marginBottom: '24px' }}
+            >
+              <Package size={80} color="#1A5DA8" opacity={0.8} />
+            </motion.div>
+            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '16px', color: '#4B5563', marginBottom: '24px' }}>
+              {t('portal.empty_hint', 'Entrez votre code pour accéder à votre commande')}
             </p>
+            <button
+              onClick={() => navigate('/produits')}
+              style={{ background: 'white', color: '#1A5DA8', border: '1.5px solid #1A5DA8', borderRadius: '12px', padding: '12px 24px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '14px', letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer', transition: 'all 0.2s' }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#F0F6FF'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'white'; }}
+            >
+              {t('hero.cta_products', 'Voir nos produits')}
+            </button>
           </motion.div>
         )}
       </div>

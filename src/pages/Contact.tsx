@@ -126,22 +126,16 @@ const Contact = () => {
 
       {/* ── HERO ───────────────────────────────────────────────────────────── */}
       <section style={{ background: 'linear-gradient(135deg, #1D3E61 0%, #0F2444 100%)', padding: 'clamp(56px, 10vw, 96px) 0 clamp(48px, 8vw, 80px)', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: '-20%', right: '-5%', width: '500px', height: '500px', borderRadius: '50%', background: '#81C063', filter: 'blur(100px)', opacity: 0.05 }} />
-        <div style={{ position: 'absolute', bottom: '-15%', left: '-8%', width: '400px', height: '400px', borderRadius: '50%', background: '#296788', filter: 'blur(90px)', opacity: 0.08 }} />
+        <div style={{ position: 'absolute', top: '-20%', right: '-5%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(ellipse at center, rgba(129,192,99,0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: '-15%', left: '-8%', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(ellipse at center, rgba(41,103,136,0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
         <div className="container mx-auto px-4 relative z-10 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(129,192,99,0.12)', border: '1px solid rgba(129,192,99,0.25)', borderRadius: '20px', padding: '6px 18px', marginBottom: '20px' }}>
-              <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#81C063', display: 'inline-block' }} />
-              <span style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: '11px', letterSpacing: '2.5px', textTransform: 'uppercase', color: '#81C063' }}>
-                {loc({ fr: 'Disponibles 6j/7', ar: 'متوفرون 6 أيام/7', tn: 'متوفرين 6 أيام/7', en: 'Available 6d/7', it: 'Disponibili 6gg/7' })}
-              </span>
-            </div>
             <h1 style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: 'clamp(32px, 7vw, 60px)', color: '#FFFFFF', letterSpacing: '4px', textTransform: 'uppercase', marginBottom: '16px', lineHeight: 1.05 }}>
               {loc({ fr: 'Contactez-Nous', ar: 'تواصلوا معنا', tn: 'تواصلوا معنا', en: 'Contact Us', it: 'Contattateci' })}
             </h1>
             <div style={{ width: '52px', height: '3px', background: '#81C063', borderRadius: '2px', margin: '0 auto 20px' }} />
-            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 'clamp(14px, 2.5vw, 17px)', color: 'rgba(255,255,255,0.65)', lineHeight: 1.75, maxWidth: '520px', margin: '0 auto 32px' }}>
+            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 'clamp(14px, 2.5vw, 17px)', color: 'rgba(255,255,255,0.85)', lineHeight: 1.75, maxWidth: '520px', margin: '0 auto 32px' }}>
               {loc({ fr: 'Une question, un devis ou besoin d\'infos ? Notre équipe vous répond rapidement.', ar: 'سؤال، عرض سعر أو تحتاج معلومات؟ فريقنا يرد عليكم بسرعة.', tn: 'سؤال، دوفيس أو محتاج معلومات؟ الفريق يرد عليكم بسرعة.', en: 'A question, quote or need info? Our team replies quickly.', it: 'Una domanda, un preventivo o info? Il nostro team risponde rapidamente.' })}
             </p>
             <div className="flex flex-col sm:flex-row" style={{ gap: '12px', justifyContent: 'center' }}>

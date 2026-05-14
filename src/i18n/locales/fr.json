@@ -1,4 +1,12 @@
 {
+  "devis": {
+    "otherColor": "Autre couleur",
+    "chooseColor": "Choisir une couleur",
+    "colorSelected": "Couleur sélectionnée",
+    "confirm": "Confirmer",
+    "standardColors": "Couleurs Standards",
+    "extendedColors": "Catalogue Couleurs"
+  },
   "nav": {
     "home": "Accueil",
     "products": "Produits",
@@ -11,22 +19,35 @@
   "hero": {
     "title": "ALUMINIUM SPACE",
     "subtitle": "Menuiserie Aluminium — Mghira, Tunis",
-    "badge": "Distributeur officiel Grifo Flex",
+    "badge": "Partenaire agréé Grifo Flex",
     "cta_products": "Voir nos produits",
     "cta_quote": "Demander un devis"
   },
   "home": {
-    "quality_badge": "🇮🇹 Qualité Italienne · Grifo Flex",
+    "quality_badge": "Qualité Italienne · Grifo Flex",
     "title_line1": "Moustiquaires",
     "title_line2": "de Qualité",
     "slogan": "Projetez. Visualisez. Réalisez.",
-    "description": "Spécialiste menuiserie aluminium à Mghira. Distributeur officiel Grifo Flex — protection invisible, qualité italienne.",
-    "cta_products": "Voir nos produits →",
+    "description": "Spécialiste menuiserie aluminium à Mghira. Partenaire agréé Grifo Flex — protection invisible, qualité italienne.",
+    "cta_products": "Voir nos produits",
     "cta_quote": "Demander un devis",
+    "distributeur_officiel": "Partenaire agréé",
     "trust_custom": "Sur mesure",
     "trust_install": "Installation incluse",
     "trust_free": "Devis gratuit",
-    "scroll": "Découvrir"
+    "scroll": "Découvrir",
+    "mobile_title": "MOUSTIQUAIRES DE QUALITÉ",
+    "mobile_cta_products": "VOIR NOS PRODUITS",
+    "mobile_cta_quote": "DEMANDER UN DEVIS",
+    "products_title": "Nos Modèles de Moustiquaires Grifo Flex",
+    "how_it_works_title": "Comment ça marche — Moustiquaires Grifo Flex",
+    "view_product": "Voir le produit",
+    "stats": {
+      "models": "Modèles Grifo Flex",
+      "custom": "Sur mesure",
+      "warranty": "Ans de garantie",
+      "mechanism": "Garantie mécanisme"
+    }
   },
   "steps": {
     "title": "Comment ça marche ?",
@@ -62,7 +83,8 @@
     "colibri50_desc": "Moustiquaire enroulable pour fenêtre à caisson supérieur. Mécanisme à ressort silencieux. Coulisses latérales à doubles joints-brosses. Structure en aluminium blanc RAL 9010.",
     "sidney50_desc": "Moustiquaire pour porte à caisson latéral. Mécanisme à ressort. Poignée externe pliante. Coulisses à doubles joints-brosses. Structure en aluminium blanc.",
     "sidney50ac_desc": "Moustiquaire à deux caissons pour grandes ouvertures et terrasses. Ouverture centrale bidirectionnelle. Mécanisme à ressort. Structure en aluminium blanc.",
-    "elba_desc": "Moustiquaire à panneau fixe pour fenêtre. Châssis en aluminium blanc. Fibre de verre PVC. Fixations murales en nylon. Simple, économique et efficace."
+    "elba_desc": "Moustiquaire à panneau fixe pour fenêtre. Châssis en aluminium blanc. Fibre de verre PVC. Fixations murales en nylon. Simple, économique et efficace.",
+    "plisse31_desc": "Moustiquaire plissée bilatérale (31mm). Idéale pour grandes ouvertures jusqu'à 5000mm. Déverrouillage à aimant, rail extra plat et maille noire de série. Résistance au vent Classe 1."
   },
   "products_page": {
     "title": "Nos Produits",
@@ -72,9 +94,12 @@
     "feat1_title": "Matériaux Premium",
     "feat1_desc": "Fibre de verre recouverte de PVC, cadre aluminium blanc résistant.",
     "feat2_title": "Fabrication Sur Mesure",
-    "feat2_desc": "Chaque moustiquaire est adaptée aux dimensions exactes de votre ouverture.",
+    "feat2_desc": "Chaque moustiquaire est adaptée aux dimensions réelles de l'ouverture.",
     "feat3_title": "Technologie Italienne",
-    "feat3_desc": "Mécanismes à ressort de précision, coulisses à doubles joints-brosses."
+    "feat3_desc": "Mécanismes à ressort de précision et coulisses à double brosse.",
+    "view_btn": "Voir",
+    "devis_btn": "Devis",
+    "compare_hint": "Faites glisser pour voir tout le tableau"
   },
   "product_detail": {
     "breadcrumb_home": "Accueil",
@@ -86,13 +111,14 @@
     "spec_caisson": "Dimensions caisson :",
     "spec_size": "Taille effective :",
     "spec_measures": "Mesures (L×H) :",
+    "plisse31_prices": "Tarifs Plissé 31 (par dimensions)",
     "see_price": "Voir le tarif",
     "price_unit_ht": "Prix unitaire HT",
     "price_per_sqm": "Prix au m²",
-    "colibri_h170": "Pour fenêtres hauteur 170 cm",
-    "colibri_h250": "Pour fenêtres hauteur 170,1 cm à 250 cm",
-    "sidney_w160": "Portes largeur ≤ 160 cm",
-    "sidney_w200": "Portes largeur 160,1 à 200 cm",
+    "colibri_h170": "Pour hauteur 170 cm",
+    "colibri_h250": "Pour hauteur 170,1 cm à 250 cm",
+    "sidney_w160": "Pour largeur ≤ 160 cm",
+    "sidney_w200": "Pour largeur 160,1 à 200 cm",
     "sidney_ac_w320": "Largeur jusqu'à 320 cm",
     "sidney_ac_w400": "Largeur jusqu'à 400 cm",
     "large_openings_title": "Pour les grandes ouvertures (> 200cm de largeur)",
@@ -112,6 +138,63 @@
     "availability_label": "Disponibilité",
     "availability_status": "Installation sous 3–7 jours ouvrables",
     "availability_zone": "Tunis & Grand Tunis"
+  },
+  "measureGuide": {
+    "badge": "GUIDE DE MESURE",
+    "stepOf": "Étape {{current}} / {{total}}",
+    "prev": "Précédent",
+    "next": "Étape suivante",
+    "saved": "💾 Mesures sauvegardées",
+    "inputLabel": "Entrez vos 3 mesures (mm)",
+    "yourDimension": "Votre {{dim}} à commander :",
+    "commander": "Commander {{l}}×{{h}} mm",
+    "accessDevis": "Accéder au formulaire de devis",
+    "downloadMemo": "📄 Télécharger mon mémo de mesures",
+    "noMeasures": "⬅ Entrez vos mesures aux étapes 3 et 4 pour voir votre récapitulatif ici",
+    "steps": {
+      "tools": {
+        "sub": "Préparez-vous",
+        "title": "Les outils nécessaires",
+        "desc": "Pour mesurer correctement votre ouverture, préparez :\n\n• Un mètre ruban (minimum 3 mètres)\n• Un crayon et un carnet de notes\n• Un niveau à bulle (optionnel mais recommandé)"
+      },
+      "embrasure": {
+        "sub": "Comprendre l'espace",
+        "title": "Identifier l'embrasure",
+        "desc": "L'embrasure est l'espace vide entre les deux bords intérieurs du mur — c'est là que la moustiquaire sera fixée."
+      },
+      "mistakes": {
+        "sub": "Erreurs à éviter",
+        "title": "Ne faites PAS ces erreurs",
+        "desc": "❌ Ne mesurez PAS sur le cadre de la fenêtre existante.\n✅ Mesurez TOUJOURS dans l'embrasure.\n⚠️ Une erreur de 2 cm peut rendre la moustiquaire inutilisable."
+      },
+      "largeur": {
+        "sub": "Mesure 1/2",
+        "title": "Mesurer la Largeur — L",
+        "desc": "Prenez 3 mesures (haut, milieu, bas) et retenez la plus petite.\nExemple pour votre {{type}} : {{example}} mm."
+      },
+      "hauteur": {
+        "sub": "Mesure 2/2",
+        "title": "Mesurer la Hauteur — H",
+        "desc": "Prenez 3 mesures (gauche, centre, droit) et retenez la plus petite.\nExemple : {{example}} mm."
+      },
+      "recap": {
+        "sub": "Tout est prêt !",
+        "title": "Vos dimensions finales",
+        "desc": "Votre commande : {{l}} × {{h}} mm\n\nNotre équipe vérifie vos mesures gratuitement après la commande."
+      }
+    },
+    "clientStep": {
+      "sub": "Dernière étape",
+      "title": "Vos coordonnées",
+      "desc": "Laissez-nous vos coordonnées pour enregistrer votre demande de mesure.",
+      "nameLabel": "Nom complet",
+      "namePlaceholder": "Votre prénom et nom",
+      "phoneLabel": "Numéro de téléphone",
+      "phonePlaceholder": "Ex: 55 123 456",
+      "submitBtn": "Envoyer ma demande",
+      "successTitle": "Demande envoyée !",
+      "successDesc": "Votre demande a été envoyée avec succès. Notre équipe vous contactera bientôt."
+    }
   },
   "contact_page": {
     "description": "N'hésitez pas à nous contacter pour toute question ou demande de devis.",
@@ -134,8 +217,11 @@
     "step4": "Récapitulatif",
     "width": "Largeur",
     "height": "Hauteur",
+    "width_cm": "Largeur (cm)",
+    "height_cm": "Hauteur (cm)",
     "quantity": "Quantité",
     "mesh_type": "Type de filet",
+    "mesh_type_label": "Type de Toile",
     "calculate": "Calculer mon devis",
     "download_pdf": "Télécharger PDF",
     "submit_order": "Envoyer la commande",
@@ -149,7 +235,32 @@
     "next": "Suivant",
     "prev": "Précédent",
     "required": "Ce champ est requis",
-    "invalid_email": "Email invalide"
+    "invalid_email": "Email invalide",
+    "dimensions_title": "Dimensions de votre ouverture",
+    "updated_product": "Produit mis à jour : {{name}}",
+    "dimensions_notice": "Vos dimensions dépassent 200cm. Le Sidney 50 AC prend en charge jusqu'à 400×260 cm.",
+    "min_price_notice": "Prix calculé pour la dimension minimale disponible.",
+    "custom_quote_notice": "Contactez-nous pour un devis personnalisé.",
+    "whatsapp_contact": "Contacter sur WhatsApp",
+    "estimation_title": "Estimation du Prix",
+    "unit_price_ht": "Prix unitaire (HT)",
+    "subtotal_ht": "Sous-total HT",
+    "remise_label": "Remise {{percent}}%",
+    "net_ht": "Prix après remise",
+    "fodec": "FODEC ({{percent}}%)",
+    "tva": "TVA ({{percent}}%)",
+    "timbre": "Timbre fiscal",
+    "total_ttc": "TOTAL TTC",
+    "add_another": "Ajouter un autre article",
+    "accept_download": "Accepter et télécharger le PDF",
+    "summary_title": "Résumé de votre devis",
+    "validity": "Valable {{days}} jours",
+    "placeholder_wh": "Entrez vos dimensions ci-contre pour voir l'estimation du prix",
+    "client_title": "Vos Coordonnées",
+    "summary_banner": "Votre devis : {{count}} article(s) — Total HT : {{total}}",
+    "phone_format": "Format: 8 chiffres",
+    "notes_placeholder": "Détails supplémentaires, préférences d'installation...",
+    "privacy_note": "Vos données sont sécurisées et ne seront utilisées que pour vous recontacter concernant ce devis."
   },
   "devis_steps": {
     "product": "PRODUIT",
@@ -161,14 +272,47 @@
     "address": "125 lot Laaroussi, Mghira, Tunis",
     "phone": "(+216) 53 186 611",
     "email": "contact@aluminiumspace.com",
-    "partner": "Distributeur officiel Grifo Flex Tunisie",
+    "partner": "Partenaire agréé Grifo Flex Tunisie",
     "copyright": "© 2026 Aluminium Space",
     "quick_links": "Liens Rapides",
     "slogan": "Projetez. Visualisez. Réalisez.",
     "vr_sub": "Vivez vos fenêtres en réalité virtuelle",
     "motto": "Être parmi les meilleurs avec une touche qui sort de l'ordinaire.",
-    "brand_desc": "Spécialiste de la menuiserie aluminium à Mghira, Tunis. Nous fabriquons et installons des moustiquaires sur mesure de haute qualité pour votre confort.",
+    "brand_desc": "Spécialiste de la menuiserie aluminium et des solutions de moustiquaires premium en Tunisie.",
+    "brand_subtitle": "MENUISERIE ALUMINIUM",
     "see_maps": "Voir sur Google Maps",
     "powered_by": "Powered by Grifo Flex"
+  },
+  "common": {
+    "client": "Client",
+    "phone_short": "Tél",
+    "email_short": "Email",
+    "qty_short": "Qté",
+    "color_frame": "Couleur du cadre",
+    "selected": "Sélectionné",
+    "white": "Blanc",
+    "black": "Noir",
+    "back": "Retour",
+    "next": "Suivant",
+    "close": "Fermer",
+    "processing": "Traitement..."
+  },
+  "header": {
+    "installed": "Installée ✓",
+    "install_app": "Installer l'application",
+    "install": "Installer",
+    "menu": "Menu",
+    "contact_us_upper": "NOUS CONTACTER",
+    "pwa_chrome_title": "Chrome / Edge",
+    "pwa_chrome_step1": "Ouvrez le menu ⋮ (3 points en haut à droite)",
+    "pwa_chrome_step2": "Cliquez \"Installer Aluminium Space\"",
+    "pwa_chrome_step3": "Confirmez l'installation",
+    "pwa_safari_title": "Safari (iPhone / iPad)",
+    "pwa_safari_step1": "Appuyez sur le bouton Partager 📤 en bas",
+    "pwa_safari_step2": "Faites défiler → \"Sur l'écran d'accueil\"",
+    "pwa_safari_step3": "Appuyez sur Ajouter"
+  },
+  "portal": {
+    "empty_hint": "Entrez votre code pour accéder à votre commande"
   }
 }

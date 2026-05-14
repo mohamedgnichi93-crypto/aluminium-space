@@ -27,6 +27,8 @@ const LOADING_MESSAGES: Record<Lang, string[]> = {
   it: ['Pensando...', 'Cercando...', 'Calcolando...', 'Preparando...'],
 };
 
+const MESSAGE_COOLDOWN = 1500;
+
 export function useAIAgentLogic(
   language: Lang,
   pendingMessage: string | null,
@@ -38,19 +40,23 @@ export function useAIAgentLogic(
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('');
+  const [streamingMessage, setStreamingMessage] = useState('');
   const isInitialized = useRef(false);
   const messagesRef = useRef<Message[]>([]);
+  const lastMessageTimeRef = useRef(0);
   const loadingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const loadingIndexRef = useRef(0);
 
-  const { isListening, transcript, interimTranscript, startListening, stopListening, isSupported: voiceSupported } =
-    useSpeechRecognition();
+  const { 
+    isListening, transcript, interimTranscript, 
+    startListening, stopListening, isSupported: voiceSupported,
+    sttError 
+  } = useSpeechRecognition();
 
   const { i18n } = useTranslation();
 
   useEffect(() => { messagesRef.current = messages; }, [messages]);
 
-  // ── Loading message cycling ─────────────────────────────────────
   useEffect(() => {
     if (isLoading) {
       const msgs = LOADING_MESSAGES[language] || LOADING_MESSAGES.fr;
@@ -72,7 +78,6 @@ export function useAIAgentLogic(
     };
   }, [isLoading, language]);
 
-  // ── Welcome message / restore from session ────────────────────
   useEffect(() => {
     if (isInitialized.current) return;
     isInitialized.current = true;
@@ -97,31 +102,21 @@ export function useAIAgentLogic(
       content: welcomeContent,
       timestamp: new Date(),
     }]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ── Persist messages ──────────────────────────────────────────
   useEffect(() => {
     if (messages.length > 0) {
       sessionStorage.setItem('alu_chat_history', JSON.stringify(messages.slice(-50)));
     }
   }, [messages]);
 
-  // ── Execute site actions ──────────────────────────────────────
   const executeAction = useCallback(
     (action: AgentAction) => {
       switch (action.type) {
         case 'navigate_to_page':
           if (action.params?.path) navigate(String(action.params.path));
           break;
-        case 'open_3d_viewer':
-          if (action.params?.productId) {
-            navigate(`/produits/${action.params.productId}`);
-            setTimeout(() => {
-              (document.querySelector('[data-action="open-3d"]') as HTMLButtonElement | null)?.click();
-            }, 800);
-          }
-          break;
+
         case 'open_devis_wizard':
           navigate('/devis');
           if (action.params?.productId) {
@@ -140,11 +135,13 @@ export function useAIAgentLogic(
     [navigate]
   );
 
-  // ── Send message ──────────────────────────────────────────────
   const sendMessage = useCallback(
     async (userText: string, base64Image?: string | null) => {
+      const now = Date.now();
+      if (now - lastMessageTimeRef.current < MESSAGE_COOLDOWN) return;
       if (!userText.trim() || isLoading) return;
 
+      lastMessageTimeRef.current = now;
       const userMsg: Message = {
         id: Date.now().toString(),
         role: 'user',
@@ -154,9 +151,17 @@ export function useAIAgentLogic(
 
       setMessages(prev => [...prev, userMsg]);
       setIsLoading(true);
+      setStreamingMessage('');
 
       try {
-        const response = await processLocalMessage(userText, messagesRef.current, language, base64Image);
+        const response = await processLocalMessage(
+          userText, 
+          messagesRef.current, 
+          (chunk) => setStreamingMessage(prev => prev + chunk),
+          language, 
+          base64Image
+        );
+        
         const { text, action, actionLabel, suggestions, navigating, detectedLang, productImage, devisButton, comparisonTable } = response;
 
         const assistantMsg: Message = {
@@ -175,6 +180,7 @@ export function useAIAgentLogic(
         };
 
         setMessages(prev => [...prev, assistantMsg]);
+        setStreamingMessage('');
 
         if (detectedLang && onLanguageDetected) onLanguageDetected(detectedLang);
 
@@ -195,12 +201,12 @@ export function useAIAgentLogic(
         }]);
       } finally {
         setIsLoading(false);
+        setStreamingMessage('');
       }
     },
     [isLoading, language, executeAction, onLanguageDetected, onAutoNavigate]
   );
 
-  // ── Handle pending message ────────────────────────────────────
   useEffect(() => {
     if (pendingMessage) {
       clearPendingMessage();
@@ -208,7 +214,6 @@ export function useAIAgentLogic(
     }
   }, [pendingMessage, clearPendingMessage, sendMessage]);
 
-  // ── Voice input ──────────────────────────────────────────────
   const handleVoiceInput = useCallback(() => {
     if (isListening) {
       stopListening();
@@ -217,12 +222,29 @@ export function useAIAgentLogic(
     }
   }, [isListening, language, startListening, stopListening]);
 
-  // ── Rate message ──────────────────────────────────────────────
-  const rateMessage = useCallback((id: string, rating: 'up' | 'down') => {
+  const rateMessage = useCallback(async (id: string, rating: 'up' | 'down') => {
     setMessages(prev => prev.map(m => m.id === id ? { ...m, rating } : m));
-  }, []);
+    
+    const message = messagesRef.current.find(m => m.id === id);
+    if (!message) return;
 
-  // ── Reset ─────────────────────────────────────────────────────
+    try {
+      await fetch('/.netlify/functions/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messageId: id,
+          feedback: rating === 'up' ? 'positive' : 'negative',
+          messageText: message.content.slice(0, 100),
+          timestamp: new Date().toISOString(),
+          language: language
+        })
+      });
+    } catch (err) {
+      console.warn('Failed to save feedback', err);
+    }
+  }, [language]);
+
   const clearHistory = useCallback(() => {
     sessionStorage.removeItem('alu_chat_history');
     resetSessionCount(language);
@@ -241,11 +263,13 @@ export function useAIAgentLogic(
     messages,
     isLoading,
     loadingMessage,
+    streamingMessage,
     sendMessage,
     handleVoiceInput,
     isListening,
     interimTranscript,
     voiceSupported,
+    sttError,
     clearHistory,
     executeAction,
     transcript,

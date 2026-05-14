@@ -67,7 +67,7 @@ function App() {
 
   useEffect(() => {
     const dir = ['ar', 'tn'].includes(i18n.language) ? 'rtl' : 'ltr';
-    document.documentElement.dir  = dir;
+    document.documentElement.dir = dir;
     document.documentElement.lang = i18n.language;
   }, [i18n.language]);
 

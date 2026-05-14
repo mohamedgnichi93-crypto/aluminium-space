@@ -30,6 +30,7 @@ const DevisModal = ({ isOpen, onClose, productId }: DevisModalProps) => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
+          className="modal-viewport-height"
           style={{
             position: 'fixed',
             inset: 0,

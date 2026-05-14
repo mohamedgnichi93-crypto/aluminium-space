@@ -1,6 +1,8 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import type { Order } from '../store/ordersStore';
+import { ALL_COLORS } from '../data/colors';
+import { formatPrice as formatPriceUtil, formatPriceDT } from './formatPrice';
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
 const COLORS = {
@@ -21,11 +23,20 @@ const PAGE_H = 297;
 const CONTENT_W = PAGE_W - MARGIN.left - MARGIN.right; // 182mm
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
+function resolveAssetUrl(path: string): string {
+  if (path.startsWith('http')) return path;
+  
+  // Vite exposes BASE_URL (defaults to "/")
+  const base = import.meta.env.BASE_URL || '/';
+  const absoluteBase = base.startsWith('http') ? base : `${window.location.origin}${base}`;
+  
+  const cleanBase = absoluteBase.endsWith('/') ? absoluteBase.slice(0, -1) : absoluteBase;
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  return `${cleanBase}${cleanPath}`;
+}
+
 function formatDT(millimes: number): string {
-  const dt = millimes / 1000;
-  const [int, dec] = dt.toFixed(3).split('.');
-  const formatted = int.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  return `${formatted},${dec}`;
+  return formatPriceUtil(millimes / 1000);
 }
 
 function formatDTWithUnit(millimes: number): string {
@@ -47,7 +58,7 @@ function drawHeader(doc: jsPDF, orderId?: string): void {
 
   // Logo area (left) — enlarged, no text below
   try {
-    const logoUrl = `${window.location.origin}/logo-aluminium-space.png`;
+    const logoUrl = resolveAssetUrl('/logo-aluminium-space.png');
     doc.addImage(logoUrl, 'PNG', MARGIN.left, 6, 38, 28);
   } catch {
     // Logo fallback: text
@@ -68,7 +79,7 @@ function drawHeader(doc: jsPDF, orderId?: string): void {
   doc.setFontSize(8.5);
   doc.setTextColor(...COLORS.darkGray);
   doc.text(`Date : ${todayFR()}`, PAGE_W - MARGIN.right, 25, { align: 'right' });
-  doc.text('Validité : 30 jours', PAGE_W - MARGIN.right, 30, { align: 'right' });
+  doc.text('Validité : 10 jours', PAGE_W - MARGIN.right, 30, { align: 'right' });
   if (orderId) {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(8.5);
@@ -158,20 +169,26 @@ async function drawItemsTable(doc: jsPDF, order: Order, startY: number): Promise
   // Desc(58) + Dims(30) + Qty(12) + PU(28) + Rem(26) + Net(28) = 182 ✅
   const COL_WIDTHS = [58, 30, 12, 28, 26, 28];
 
+  const brutHTForPct = order.items.reduce((sum, it) => sum + it.unitPrice * (it.quantity || 1), 0);
+  const remisePct = brutHTForPct > 0 ? Math.round((order.remise / brutHTForPct) * 100) : 0;
+
   const tableData = order.items.map(item => [
-    item.productName + 
+    item.productName +
+    (item.openingType === 'fenetre' ? ' — Fenêtre' : item.openingType === 'porte' ? ' — Porte' : '') +
     (item.meshType ? '\nFilet ' + item.meshType.toUpperCase() : '') +
-    (item.color ? '\nCouleur : ' + item.color : ''),
+    (item.color ? '\nCouleur :    ' + item.color + ((item.colorSurchargePct ?? 0) > 0 ? ` (+${item.colorSurchargePct}%)` : '') : ''),
     `${item.width}\u00A0×\u00A0${item.height}\u00A0cm`,
     String(item.quantity || 1),
     formatDTWithUnit(item.unitPrice),
-    formatDTWithUnit(item.unitPrice * (item.quantity || 1) * 0.20),
-    formatDTWithUnit(item.unitPrice * (item.quantity || 1) * 0.80),
+    formatDTWithUnit(item.unitPrice * (item.quantity || 1) * (remisePct / 100)),
+    formatDTWithUnit(item.unitPrice * (item.quantity || 1) * (1 - remisePct / 100)),
   ]);
 
-  const colibriImg = await getBase64Image('/images/colibri-50.png');
-  const sidneyImg = await getBase64Image('/images/colibri-hero.png');
-  const elbaImg = await getBase64Image('/images/elba.png');
+  const colibriImg = await getBase64Image(resolveAssetUrl('/images/colibri-50.png'));
+  const sidneyImg = await getBase64Image(resolveAssetUrl('/images/sidney-50.png'));
+  const sidneyAcImg = await getBase64Image(resolveAssetUrl('/images/sidney-50-ac.png'));
+  const elbaImg = await getBase64Image(resolveAssetUrl('/images/elba.png'));
+  const plisseImg = await getBase64Image(resolveAssetUrl('/images/plisse31.png'));
 
   autoTable(doc, {
     startY,
@@ -180,7 +197,7 @@ async function drawItemsTable(doc: jsPDF, order: Order, startY: number): Promise
       'Dimensions',
       'Qté',
       'P.U\u00A0HT',
-      'Remise\u00A020%',
+      `Remise\u00A0${remisePct}%`,
       'Net\u00A0HT',
     ]],
     body: tableData,
@@ -220,23 +237,87 @@ async function drawItemsTable(doc: jsPDF, order: Order, startY: number): Promise
       if (data.section === 'body' && data.column.index === 0 && data.row.index >= 0) {
         const item = order.items[data.row.index];
         if (!item) return;
-        
+
+        // 1. Draw Color Circle (Independent of Image)
+        if (item.color) {
+          const colorObj = ALL_COLORS.find(c => c.name === item.color) ?? { name: 'Blanc', hex: '#FFFFFF' };
+          if (colorObj) {
+            doc.saveGraphicsState();
+
+            // Use the cell's actual font size, not doc's potentially stale state
+            const styles = data.cell.styles as any;
+            const fontSize = styles.fontSize || 8.5;
+            const lineHeightFactor = 1.15;
+            const lineHeightMM = fontSize * lineHeightFactor * 0.3527;
+
+            // Reliable padding lookup
+            const paddingTop =
+              styles.cellPadding?.top ??
+              (typeof styles.cellPadding === 'number' ? styles.cellPadding : null) ??
+              (typeof data.cell.padding === 'function' ? data.cell.padding('top') : null) ??
+              4;
+            const paddingBottom =
+              styles.cellPadding?.bottom ??
+              (typeof styles.cellPadding === 'number' ? styles.cellPadding : null) ??
+              paddingTop;
+            const paddingLeft =
+              styles.cellPadding?.left ??
+              (typeof styles.cellPadding === 'number' ? styles.cellPadding : null) ??
+              3;
+
+            const cellLines: string[] = data.cell.text || [];
+            const colorLineIdx = cellLines.findIndex(l => l.toLowerCase().includes('couleur'));
+
+            if (colorLineIdx !== -1) {
+              // Account for valign:'middle' — autoTable centers the text block vertically
+              const totalTextHeight = cellLines.length * lineHeightMM;
+              const cellContentHeight = data.cell.height - paddingTop - paddingBottom;
+              const vAlignOffset = Math.max(0, (cellContentHeight - totalTextHeight) / 2);
+
+              // Actual Y where autoTable starts rendering text
+              const textStartY = data.cell.y + paddingTop + vAlignOffset;
+
+              // Circle Y = actual text start + skip N lines + center on current line
+              const circleY = textStartY + (colorLineIdx * lineHeightMM) + (lineHeightMM * 0.5);
+
+              // Set correct font size before measuring text width
+              doc.setFontSize(fontSize);
+              const fullLabelWidth = doc.getTextWidth('Couleur :    ');
+              const circleRadius = 0.9;
+              const circleX = data.cell.x + paddingLeft + fullLabelWidth - circleRadius - 1.0;
+
+              doc.setFillColor(colorObj.hex);
+              doc.circle(circleX, circleY, circleRadius, 'F');
+              const isLight = colorObj.hex === '#F5F5F5' || colorObj.hex === '#FFFFFF' ||
+                colorObj.hex?.toLowerCase() === '#fff' || colorObj.hex?.toLowerCase() === '#fafafa';
+              doc.setDrawColor(isLight ? 100 : 180, isLight ? 100 : 180, isLight ? 100 : 180);
+              doc.setLineWidth(0.2);
+              doc.circle(circleX, circleY, circleRadius, 'S');
+            }
+
+            doc.restoreGraphicsState();
+          }
+        }
+
+        // 2. Draw Product Image
         const imageMap: Record<string, string> = {
           'colibri-50': colibriImg,
           'sidney-50': sidneyImg,
-          'sidney-50-ac': sidneyImg,
+          'sidney-50-ac': sidneyAcImg,
           'elba': elbaImg,
+          'plisse31': plisseImg,
         };
-        
+
         const imgPath = imageMap[item.productId];
-        if (!imgPath) return;
-        
-        try {
-          const cellX = data.cell.x + data.cell.width - 22;
-          const cellY = data.cell.y + 2;
-          doc.addImage(imgPath, 'PNG', cellX, cellY, 18, 18);
-        } catch (e) {
-          // Image not available, skip silently
+        if (imgPath) {
+          try {
+            const imgSize = 18;
+            const cellX = data.cell.x + data.cell.width - imgSize - 4; // 4mm from right
+            const cellY = data.cell.y + (data.cell.height / 2) - (imgSize / 2);
+            doc.addImage(imgPath, 'PNG', cellX, cellY, imgSize, imgSize);
+          } catch (e) {
+            // Image skip
+          }
         }
       }
     },
@@ -245,6 +326,8 @@ async function drawItemsTable(doc: jsPDF, order: Order, startY: number): Promise
       if (data.column.index === 0 && data.row.section === 'body') {
         data.cell.styles.fontSize = 8.5;
         data.cell.styles.minCellHeight = 22;
+        // Reserve space for the image (18mm + gap)
+        data.cell.styles.cellPadding = { top: 4, bottom: 4, left: 3, right: 24 };
       }
     },
   });
@@ -261,23 +344,37 @@ function drawTotals(doc: jsPDF, order: Order, startY: number): number {
     sum + (item.unitPrice * (item.quantity || 1)), 0
   );
 
-  const remise = brutHT * 0.20;
-  const netHT = brutHT * 0.80;
-  const fodec = netHT * 0.01;
-  const baseTVA = netHT + fodec;
-  const tva = baseTVA * 0.19;
-  const timbre = 1000; // 1.000 DT in millimes
-  const totalTTC = baseTVA + tva + timbre;
+  const remise = order.remise;
+  const netHT = order.totalHT - remise;
+  
+  // Use pre-calculated amounts if available, otherwise fallback to standard formula
+  const fodecAmount = order.fodecAmount ?? (netHT * 0.01);
+  const baseTVA = netHT + fodecAmount;
+  const tvaAmount = order.tvaAmount ?? (baseTVA * 0.19);
+  const timbre = order.timbre;
+  const totalTTC = order.totalTTC;
+
+  const remisePct = brutHT > 0 ? Math.round((remise / brutHT) * 100) : 0;
+
+  const totalSurcharge = order.items.reduce((sum, item) => sum + ((item.colorSurchargeAmount ?? 0) * (item.quantity || 1)), 0);
+  const baseBrutHT = brutHT - totalSurcharge;
 
   const rows: [string, string, boolean, boolean][] = [
-    ['Total brut HT :', formatDTWithUnit(brutHT), false, false],
-    ['Remise (20%) :', `- ${formatDTWithUnit(remise)}`, false, true],
-    ['Total net HT :', formatDTWithUnit(netHT), true, false],
-    ['FODEC (1%) :', formatDTWithUnit(fodec), false, false],
-    ['Base TVA :', formatDTWithUnit(baseTVA), false, false],
-    ['TVA (19%) :', formatDTWithUnit(tva), false, false],
-    ['Timbre fiscal :', formatDTWithUnit(timbre), false, false],
+    ['Total brut HT :', formatDTWithUnit(baseBrutHT), false, false],
   ];
+
+  if (totalSurcharge > 0) {
+    rows.push(['Supplément couleur :', `+ ${formatDTWithUnit(totalSurcharge)}`, false, false]);
+  }
+
+  rows.push(
+    [`Remise (${remisePct}%) :`, `- ${formatDTWithUnit(remise)}`, false, true],
+    ['Total net HT :', formatDTWithUnit(netHT), true, false],
+    ['FODEC (1%) :', formatDTWithUnit(fodecAmount), false, false],
+    ['Base TVA :', formatDTWithUnit(baseTVA), false, false],
+    ['TVA (19%) :', formatDTWithUnit(tvaAmount), false, false],
+    ['Timbre fiscal :', formatDTWithUnit(timbre), false, false],
+  );
 
   // Separator line
   doc.setDrawColor(...COLORS.lightGray as [number, number, number]);
@@ -343,7 +440,7 @@ function drawConditions(doc: jsPDF, y: number): void {
   doc.setTextColor(55, 65, 81); // EXPLICIT dark gray — NOT white
 
   const conditions = [
-    '• Ce devis est valable 30 jours à compter de la date d\'émission.',
+    '• Ce devis est valable 10 jours à compter de la date d\'émission.',
     '• Livraison et installation incluses dans toute la Tunisie.',
     '• Prix en hors taxes (HT) — TVA 19% et FODEC 1% inclus dans le total TTC.',
   ];
@@ -431,5 +528,5 @@ export { generatePDF as generateQuotePDF };
 export { generatePDF as default };
 
 export function formatPrice(dt: number): string {
-  return formatDTWithUnit(dt * 1000);
+  return formatPriceDT(dt);
 }

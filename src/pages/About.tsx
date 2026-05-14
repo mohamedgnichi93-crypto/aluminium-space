@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Shield, Award, Wrench, Users, CheckCircle } from 'lucide-react';
 import PageSEO from '../components/ui/PageSEO';
+import ItalyFlag from '../components/ui/ItalyFlag';
 
 const fadeUp = { initial: { opacity: 0, y: 30 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true } };
 
@@ -42,22 +43,22 @@ const About = () => {
       icon: Users,
       title: { fr: 'Proximité client', ar: 'قرب العميل', tn: 'قرب العميل', en: 'Customer closeness', it: 'Vicinanza al cliente' },
       desc: {
-        fr: 'Une équipe à l\'écoute, disponible 6j/7 pour répondre à toutes vos questions et assurer votre satisfaction.',
-        ar: 'فريق مستمع، متاح 6 أيام في الأسبوع للإجابة على جميع أسئلتك وضمان رضاك.',
-        tn: 'فريق يسمعك، متوفر 6 أيام في الأسبوع يجاوبك على كل أسئلتك ويضمن رضاك.',
-        en: 'A responsive team, available 6 days a week to answer all your questions.',
-        it: 'Un team disponibile 6 giorni su 7 per rispondere a tutte le tue domande e garantire la tua soddisfazione.',
+        fr: 'Une équipe à l\'écoute pour répondre à toutes vos questions et assurer votre satisfaction.',
+        ar: 'فريق مستمع للإجابة على جميع أسئلتك وضمان رضاك.',
+        tn: 'فريق يسمعك يجاوبك على كل أسئلتك ويضمن رضاك.',
+        en: 'A responsive team to answer all your questions and ensure your satisfaction.',
+        it: 'Un team disponibile per rispondere a tutte le tue domande e garantire la tua soddisfazione.',
       },
     },
     {
       icon: Award,
       title: { fr: 'Expertise reconnue', ar: 'خبرة معترف بها', tn: 'خبرة معترف بها', en: 'Recognized expertise', it: 'Competenza riconosciuta' },
       desc: {
-        fr: 'Distributeur officiel Grifo Flex en Tunisie — nous maîtrisons chaque détail de nos produits pour vous garantir la meilleure installation.',
-        ar: 'الموزع الرسمي لـ Grifo Flex في تونس — نتقن كل تفاصيل منتجاتنا لضمان أفضل تركيب لكم.',
-        tn: 'الموزع الرسمي لـ Grifo Flex في تونس — نتقن كل تفاصيل منتاجاتنا باش نضمنلكم أحسن تركيب.',
-        en: 'Official Grifo Flex distributor in Tunisia — we master every detail for the best installation.',
-        it: 'Distributore ufficiale Grifo Flex in Tunisia — padroneggiamo ogni dettaglio dei nostri prodotti per garantirvi la migliore installazione.',
+        fr: 'Partenaire agréé Grifo Flex en Tunisie — nous maîtrisons chaque détail de nos produits pour vous garantir la meilleure installation.',
+        ar: 'الشريك المعتمد لـ Grifo Flex في تونس — نتقن كل تفاصيل منتجاتنا لضمان أفضل تركيب لكم.',
+        tn: 'الشريك المعتمد لـ Grifo Flex في تونس — نتقن كل تفاصيل منتاجاتنا باش نضمنلكم أحسن تركيب.',
+        en: 'Certified Grifo Flex partner in Tunisia — we master every detail for the best installation.',
+        it: 'Partner certificato Grifo Flex in Tunisia — padroneggiamo ogni dettaglio dei nostri prodotti per garantirvi la migliore installazione.',
       },
     },
   ];
@@ -95,11 +96,11 @@ const About = () => {
       year: '2020',
       title: { fr: 'Partenariat Grifo Flex', ar: 'شراكة Grifo Flex', tn: 'شراكة Grifo Flex', en: 'Grifo Flex Partnership', it: 'Partnership Grifo Flex' },
       desc: {
-        fr: 'Aluminium Space devient le **distributeur officiel de Grifo Flex** 🇮🇹 en Tunisie. Une marque italienne de référence mondiale en moustiquaires rétractables, fabriquée à Fano.',
-        ar: 'أصبح Aluminium Space **الموزع الرسمي لـ Grifo Flex** 🇮🇹 في تونس. علامة إيطالية مرجعية عالمياً في المستيكارات القابلة للطي، مصنوعة في فانو.',
-        tn: 'Aluminium Space يصبح **الموزع الرسمي لـ Grifo Flex** 🇮🇹 في تونس. علامة إيطالية مرجعية عالمياً في الموستيكار، مصنوعة في فانو.',
-        en: 'Aluminium Space becomes the **official Grifo Flex distributor** 🇮🇹 in Tunisia. A world-reference Italian brand in retractable screens, made in Fano.',
-        it: 'Aluminium Space diventa il **distributore ufficiale Grifo Flex** 🇮🇹 in Tunisia. Un marchio italiano di riferimento mondiale nelle zanzariere avvolgibili, prodotto a Fano.',
+        fr: 'Aluminium Space devient le **partenaire agréé de Grifo Flex** en Tunisie. Une marque italienne de référence mondiale en moustiquaires rétractables, fabriquée à Fano.',
+        ar: 'أصبح Aluminium Space **الشريك المعتمد لـ Grifo Flex** في تونس. علامة إيطالية مرجعية عالمياً في المستيكارات القابلة للطي، مصنوعة في فانو.',
+        tn: 'Aluminium Space يصبح **الشريك المعتمد لـ Grifo Flex** في تونس. علامة إيطالية مرجعية عالمياً في الموستيكار، مصنوعة في فانو.',
+        en: 'Aluminium Space becomes the **certified Grifo Flex partner** in Tunisia. A world-reference Italian brand in retractable screens, made in Fano.',
+        it: 'Aluminium Space diventa il **partner certificato Grifo Flex** in Tunisia. Un marchio italiano di riferimento mondiale nelle zanzariere avvolgibili, prodotto a Fano.',
       },
     },
     {
@@ -136,12 +137,12 @@ const About = () => {
     <div className="pb-24" style={{ background: '#F5F7FA', minHeight: '100vh' }}>
       <PageSEO
         path="/about"
-        titleFr="À Propos — Aluminium Space | Distributeur Grifo Flex Tunisie"
-        titleAr="من نحن — Aluminium Space | الموزع الرسمي Grifo Flex تونس"
-        titleEn="About Us — Aluminium Space | Official Grifo Flex Distributor Tunisia"
-        descFr="Aluminium Space, distributeur officiel Grifo Flex en Tunisie depuis 2018. Moustiquaires sur mesure, installation professionnelle, garantie 3 ans."
-        descAr="Aluminium Space، الموزع الرسمي لـ Grifo Flex في تونس منذ 2018. مستيكارات على المقاس، تركيب احترافي، ضمان 3 سنوات."
-        descEn="Aluminium Space, official Grifo Flex distributor in Tunisia since 2018. Custom screens, professional installation, 3-year warranty."
+        titleFr="À Propos — Aluminium Space | Partenaire agréé Grifo Flex Tunisie"
+        titleAr="من نحن — Aluminium Space | الشريك المعتمد Grifo Flex تونس"
+        titleEn="About Us — Aluminium Space | Certified Grifo Flex Partner Tunisia"
+        descFr="Aluminium Space, partenaire agréé Grifo Flex en Tunisie depuis 2018. Moustiquaires sur mesure, installation professionnelle, garantie 3 ans."
+        descAr="Aluminium Space، الشريك المعتمد لـ Grifo Flex في تونس منذ 2018. مستيكارات على المقاس، تركيب احترافي، ضمان 3 سنوات."
+        descEn="Aluminium Space, certified Grifo Flex partner in Tunisia since 2018. Custom screens, professional installation, 3-year warranty."
       />
 
       {/* ── Hero banner ──────────────────────────────────────────────────────── */}
@@ -161,7 +162,7 @@ const About = () => {
               fontFamily: 'Rajdhani, sans-serif',
               marginBottom: '16px',
             }}>
-              🇮🇹 Distributeur Officiel Grifo Flex · Mghira, Tunisie
+              <ItalyFlag /> Partenaire agréé Grifo Flex · Mghira, Tunisie
             </div>
             <h1 style={{
               fontFamily: 'Rajdhani, sans-serif',
@@ -177,7 +178,7 @@ const About = () => {
             <p style={{
               fontFamily: 'DM Sans, sans-serif',
               fontSize: 'clamp(15px, 3vw, 18px)',
-              color: 'rgba(255,255,255,0.65)',
+              color: 'rgba(255,255,255,0.85)',
               maxWidth: '560px',
               margin: '0 auto',
               lineHeight: 1.7,
@@ -252,10 +253,10 @@ const About = () => {
                 lineHeight: 1.8,
               }}>
                 {loc({
-                  fr: 'En tant que **distributeur officiel Grifo Flex** en Tunisie, nous proposons des moustiquaires de haute technologie italiennes — mesurées, fabriquées sur mesure et installées par nos techniciens qualifiés.',
-                  ar: 'بوصفنا **الموزع الرسمي لـ Grifo Flex** في تونس، نقدم مستيكارات إيطالية عالية التقنية — مقاسة، مصنعة على المقاس ومركبة من قبل تقنيينا المؤهلين.',
-                  tn: 'بوصفنا **الموزع الرسمي لـ Grifo Flex** في تونس، نقدموا موستيكار إيطالية عالية التقنية — تُقاس، تُصنع على المقاس وتُركب من طرف تقنيين متخصصين.',
-                  en: 'As the **official Grifo Flex distributor** in Tunisia, we offer high-tech Italian mosquito screens — measured, custom-made and installed by our qualified technicians.',
+                  fr: 'En tant que **partenaire agréé Grifo Flex** en Tunisie, nous proposons des moustiquaires de haute technologie italiennes — mesurées, fabriquées sur mesure et installées par nos techniciens qualifiés.',
+                  ar: 'بوصفنا **الشريك المعتمد لـ Grifo Flex** في تونس، نقدم مستيكارات إيطالية عالية التقنية — مقاسة، مصنعة على المقاس ومركبة من قبل تقنيينا المؤهلين.',
+                  tn: 'بوصفنا **الشريك المعتمد لـ Grifo Flex** في تونس، نقدموا موستيكار إيطالية عالية التقنية — تُقاس، تُصنع على المقاس وتُركب من طرف تقنيين متخصصين.',
+                  en: 'As the **certified Grifo Flex partner** in Tunisia, we offer high-tech Italian mosquito screens — measured, custom-made and installed by our qualified technicians.',
                 })}
               </p>
             </motion.div>
@@ -268,7 +269,7 @@ const About = () => {
                 padding: 'clamp(24px, 4vw, 40px)',
                 color: 'white',
               }}>
-                <div style={{ fontSize: '32px', marginBottom: '16px' }}>🇮🇹</div>
+                <div style={{ fontSize: '32px', marginBottom: '16px' }}><ItalyFlag size={32} /></div>
                 <h3 style={{
                   fontFamily: 'Rajdhani, sans-serif',
                   fontWeight: 700,
@@ -280,7 +281,7 @@ const About = () => {
                 }}>
                   Grifo Flex
                 </h3>
-                <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '14px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginBottom: '20px' }}>
+                <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '14px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.7, marginBottom: '20px' }}>
                   {loc({
                     fr: 'Marque italienne leader mondial des moustiquaires rétractables. Fabriquée depuis des décennies à Fano (Marche, Italie) — reconnue pour sa qualité, sa durabilité et son design élégant.',
                     ar: 'العلامة الإيطالية الرائدة عالمياً في المستيكارات القابلة للطي. مصنوعة منذ عقود في فانو (ماركيه، إيطاليا) — معروفة بجودتها ومتانتها وتصميمها الأنيق.',

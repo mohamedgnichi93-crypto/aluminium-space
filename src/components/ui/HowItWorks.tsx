@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { Ruler, MessageSquare, Wrench, CheckCircle } from 'lucide-react';
 
 const HowItWorks = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRTL = ['ar', 'tn'].includes(i18n.language);
 
   const steps = [
     { step: '01', labelKey: 'steps.measure', icon: Ruler },
@@ -37,7 +38,7 @@ const HowItWorks = () => {
           />
 
           {/* Steps grid: vertical list on mobile, horizontal on lg */}
-          <div className="flex flex-col lg:grid lg:grid-cols-4 gap-5 sm:gap-8 lg:gap-8 relative z-10">
+          <div className={`flex flex-col lg:grid lg:grid-cols-4 gap-5 sm:gap-8 lg:gap-8 relative z-10 ${isRTL ? 'rtl' : 'ltr'}`} style={{ direction: isRTL ? 'rtl' : 'ltr' }}>
             {steps.map((item, index) => (
               <motion.div
                 key={index}
@@ -65,7 +66,7 @@ const HowItWorks = () => {
 
                 {/* Label */}
                 <h3
-                  className="font-display font-semibold text-[14px] lg:mt-4 text-left lg:text-center"
+                  className={`font-display font-semibold text-[14px] lg:mt-4 ${isRTL ? 'text-right' : 'text-left'} lg:text-center`}
                   style={{ color: '#2F2D2C', letterSpacing: '2px' }}
                 >
                   {t(item.labelKey)}

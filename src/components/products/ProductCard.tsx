@@ -2,9 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Calculator } from 'lucide-react';
 import type { Product } from '../../data/products';
-import DevisModal from '../devis/DevisModal';
 
 interface ProductCardProps {
   product: Product;
@@ -16,7 +14,7 @@ const ProductCard = ({ product, index }: ProductCardProps) => {
   const [showDevis, setShowDevis] = useState(false);
 
   return (
-    <>
+    <Link to={`/produits/${product.id}`} style={{ textDecoration: 'none', display: 'block', height: '100%' }}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -26,6 +24,7 @@ const ProductCard = ({ product, index }: ProductCardProps) => {
         style={{
           border: '1px solid #DBDADA',
           boxShadow: '0 1px 4px rgba(47,45,44,0.06)',
+          cursor: 'pointer',
         }}
         whileHover={{
           y: -4,
@@ -84,54 +83,9 @@ const ProductCard = ({ product, index }: ProductCardProps) => {
             </p>
           </div>
 
-          {/* Buttons */}
-          <div style={{ borderTop: '1px solid #DBDADA' }}>
-            <Link
-              to={`/produits/${product.id}`}
-              className="block w-full text-center font-display font-semibold text-[13px] transition-all duration-200"
-              style={{
-                background: '#1D3E61',
-                color: 'white',
-                padding: '10px 16px',
-                fontFamily: 'Rajdhani, sans-serif',
-                letterSpacing: '1.5px',
-                textTransform: 'uppercase',
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = '#0F2444'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = '#1D3E61'; }}
-            >
-              {t('products.view_details')} →
-            </Link>
-            <button
-              onClick={() => setShowDevis(true)}
-              className="flex items-center justify-center gap-2 w-full text-[13px] font-semibold transition-all duration-200"
-              style={{
-                background: '#81C063',
-                color: 'white',
-                padding: '10px 16px',
-                borderRadius: '0 0 16px 16px',
-                fontFamily: 'Rajdhani, sans-serif',
-                letterSpacing: '1.5px',
-                textTransform: 'uppercase',
-                border: 'none',
-                cursor: 'pointer',
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = '#5e9a43'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = '#81C063'; }}
-            >
-              <Calculator size={14} />
-              {t('product_detail.cta_quote')}
-            </button>
-          </div>
         </div>
       </motion.div>
-
-      <DevisModal
-        isOpen={showDevis}
-        onClose={() => setShowDevis(false)}
-        productId={product.id}
-      />
-    </>
+    </Link>
   );
 };
 

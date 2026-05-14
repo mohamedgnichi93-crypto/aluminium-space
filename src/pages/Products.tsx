@@ -8,6 +8,7 @@ import ProductCard from '../components/products/ProductCard';
 import HowItWorks from '../components/ui/HowItWorks';
 import PageSEO from '../components/ui/PageSEO';
 import DevisWizard from '../components/devis/DevisWizard';
+import ItalyFlag from '../components/ui/ItalyFlag';
 
 type FilterType = 'all' | 'plisse' | 'enroulable' | 'panneau';
 type LangKey = 'fr' | 'ar' | 'tn' | 'en' | 'it';
@@ -18,7 +19,7 @@ const comparisonData = [
     name: 'COLIBRÌ 50',
     image: '/images/colibri-50.png',
     type: { fr: 'Plissé enroulable', ar: 'قابل للطي', tn: 'قابل للطي', en: 'Roller pleated', it: 'Avvolgibile pieghevole' },
-    usage: { fr: 'Fenêtre', ar: 'نافذة', tn: 'شباك', en: 'Window', it: 'Finestra' },
+    usage: { fr: 'Fenêtre / Porte', ar: 'نافذة / باب', tn: 'شباك / بيب', en: 'Window / Door', it: 'Finestra / Porta' },
     maxW: '200 cm',
     maxH: '250 cm',
     priceFrom: '263',
@@ -29,7 +30,7 @@ const comparisonData = [
     name: 'SIDNEY 50',
     image: '/images/sidney-50.png',
     type: { fr: 'Enroulable latéral', ar: 'لفافي جانبي', tn: 'رولو جانبي', en: 'Side roller', it: 'Avvolgibile laterale' },
-    usage: { fr: 'Porte', ar: 'باب', tn: 'بيب', en: 'Door', it: 'Porta' },
+    usage: { fr: 'Fenêtre / Porte', ar: 'نافذة / باب', tn: 'شباك / بيب', en: 'Window / Door', it: 'Finestra / Porta' },
     maxW: '200 cm',
     maxH: '260 cm',
     priceFrom: '611',
@@ -57,10 +58,22 @@ const comparisonData = [
     priceFrom: '143',
     features: { cassette: false, poignee: false, doubleVantail: false, fixe: true },
   },
+  {
+    id: 'plisse31',
+    name: 'PLISSÉ 31',
+    image: '/images/plisse31.png',
+    type: { fr: 'Plissé bilatéral', ar: 'مطوية ثنائية', tn: 'مطوية ثنائية', en: 'Bilateral pleated', it: 'Plissettata bilaterale' },
+    usage: { fr: 'Fenêtre / Porte', ar: 'نافذة / باب', tn: 'شباك / باب', en: 'Window / Door', it: 'Finestra / Porta' },
+    maxW: '500 cm',
+    maxH: '300 cm',
+    priceFrom: '1115',
+    features: { cassette: false, poignee: false, doubleVantail: true, fixe: false },
+  },
 ];
 
 const Products = () => {
   const { t, i18n } = useTranslation();
+  const isRTL = ['ar', 'tn'].includes(i18n.language);
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
   const [showDevis, setShowDevis] = useState(false);
   const [devisProductId, setDevisProductId] = useState<string | undefined>(undefined);
@@ -112,9 +125,9 @@ const Products = () => {
         titleFr="Produits — Moustiquaires Grifo Flex | Aluminium Space Tunisie"
         titleAr="المنتجات — مستيكارات Grifo Flex | Aluminium Space تونس"
         titleEn="Products — Grifo Flex Screens | Aluminium Space Tunisia"
-        descFr="Découvrez les 4 modèles Grifo Flex : Colibrì 50, Sidney 50, Sidney 50 AC, ELBA. Moustiquaires sur mesure installées par Aluminium Space à Mghira."
-        descAr="اكتشف 4 موديلات Grifo Flex : Colibrì 50، Sidney 50، Sidney 50 AC، ELBA. مستيكارات على المقاس تُركّب من قبل Aluminium Space."
-        descEn="Discover 4 Grifo Flex models: Colibrì 50, Sidney 50, Sidney 50 AC, ELBA. Custom screens installed by Aluminium Space in Mghira."
+        descFr="Découvrez les 5 modèles Grifo Flex : Colibrì 50, Sidney 50, Sidney 50 AC, ELBA, Plissé 31. Moustiquaires sur mesure installées par Aluminium Space à Mghira."
+        descAr="اكتشف 5 موديلات Grifo Flex : Colibrì 50، Sidney 50، Sidney 50 AC، ELBA، بليسي 31. مستيكارات على المقاس تُركّب من قبل Aluminium Space."
+        descEn="Discover 5 Grifo Flex models: Colibrì 50, Sidney 50, Sidney 50 AC, ELBA, Plissé 31. Custom screens installed by Aluminium Space in Mghira."
       />
 
       {/* Hero banner */}
@@ -122,13 +135,13 @@ const Products = () => {
         <div className="container mx-auto px-4 text-center">
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
             <div style={{ display: 'inline-block', background: 'rgba(129,192,99,0.15)', color: '#81C063', borderRadius: '20px', padding: '5px 16px', fontSize: '12px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', fontFamily: 'Rajdhani, sans-serif', marginBottom: '14px' }}>
-              🇮🇹 Grifo Flex — 4 {loc({ fr: 'modèles disponibles', ar: 'موديلات متوفرة', tn: 'موديلات متوفرة', en: 'models available', it: 'modelli disponibili' })}
+              <ItalyFlag /> Grifo Flex — 5 {loc({ fr: 'modèles disponibles', ar: 'موديلات متوفرة', tn: 'موديلات متوفرة', en: 'models available', it: 'modelli disponibili' })}
             </div>
             <h1 style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: 'clamp(28px, 7vw, 48px)', color: '#FFFFFF', letterSpacing: '4px', textTransform: 'uppercase', marginBottom: '14px' }}>
               {t('products_page.title')}
             </h1>
             <div style={{ width: '52px', height: '3px', background: '#81C063', margin: '0 auto 16px auto', borderRadius: '2px' }} />
-            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 'clamp(14px, 2.5vw, 17px)', color: 'rgba(255,255,255,0.60)', maxWidth: '520px', margin: '0 auto 24px', lineHeight: 1.7 }}>
+            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 'clamp(14px, 2.5vw, 17px)', color: 'rgba(255,255,255,0.85)', maxWidth: '520px', margin: '0 auto 24px', lineHeight: 1.7 }}>
               {t('products_page.why_desc')}
             </p>
             <button
@@ -185,35 +198,45 @@ const Products = () => {
         </motion.div>
 
         {/* Grille produits Desktop */}
-        <div className={`hidden md:grid gap-5 max-w-[1200px] mx-auto ${filteredProducts.length === 4 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' : filteredProducts.length === 3 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : filteredProducts.length === 2 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 max-w-[320px]'}`}>
+        <div className={`hidden md:grid gap-5 max-w-[1200px] mx-auto ${
+          filteredProducts.length === 5 ? 'grid-cols-2 lg:grid-cols-6' :
+          filteredProducts.length === 4 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' :
+          filteredProducts.length === 3 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' :
+          filteredProducts.length === 2 ? 'grid-cols-1 sm:grid-cols-2' :
+          'grid-cols-1 sm:grid-cols-2 max-w-[320px]'
+        }`}>
           {filteredProducts.map((product, index) => (
-            <ProductCard key={product.id} product={product} index={index} />
+            <div
+              key={product.id}
+              className={filteredProducts.length === 5
+                ? index < 3
+                  ? 'lg:col-span-2'
+                  : index === 3
+                    ? 'lg:col-span-2 lg:col-start-2'
+                    : 'lg:col-span-2 lg:col-start-4'
+                : ''
+              }
+            >
+              <ProductCard product={product} index={index} />
+            </div>
           ))}
         </div>
 
         {/* Liste produits Mobile */}
         <div className="flex flex-col gap-4 md:hidden">
           {filteredProducts.map((p) => (
-            <div key={p.id} className="mobile-card" style={{ display: 'flex', height: '160px', background: '#FFFFFF', borderRadius: '16px', border: '1px solid #DBDADA', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
-              <div style={{ width: '35%', background: '#F5F7FA', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '12px', borderRight: '1px solid #DBDADA' }}>
-                <img src={p.imageUrl} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+            <Link to={`/produits/${p.id}`} key={p.id} className="mobile-card" style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', height: '160px', background: '#FFFFFF', borderRadius: '16px', border: '1px solid #DBDADA', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}>
+              <div style={{ width: '35%', background: '#F5F7FA', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '12px', [isRTL ? 'borderLeft' : 'borderRight']: '1px solid #DBDADA' }}>
+                <img src={p.imageUrl} alt={p.name} className="no-rtl-flip" style={{ width: '100%', height: '100%', objectFit: 'contain', transform: 'none' }} />
               </div>
-              <div style={{ width: '65%', padding: '16px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div style={{ width: '65%', padding: '16px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', textAlign: isRTL ? 'right' : 'left' }}>
                 <div>
                   <div style={{ fontSize: '10px', color: '#296788', fontWeight: 700, fontFamily: 'Rajdhani, sans-serif', textTransform: 'uppercase', marginBottom: '4px' }}>{t(`products.category_${p.category}`)}</div>
                   <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#2F2D2C', fontFamily: 'Rajdhani, sans-serif', marginBottom: '2px' }}>{p.name}</h3>
                   <p style={{ fontSize: '11px', color: '#818181', fontFamily: 'DM Sans, sans-serif', lineHeight: 1.3, margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{t(p.descriptionKey)}</p>
                 </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <Link to={`/produits/${p.id}`} style={{ flex: 1, background: '#1D3E61', color: 'white', height: '36px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '12px', textTransform: 'uppercase', textDecoration: 'none' }}>
-                    Voir
-                  </Link>
-                  <Link to={`/produits/${p.id}`} style={{ flex: 1, background: '#81C063', color: 'white', height: '36px', borderRadius: '8px', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '12px', textTransform: 'uppercase', textDecoration: 'none' }}>
-                    Devis
-                  </Link>
-                </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 
@@ -230,8 +253,8 @@ const Products = () => {
           </motion.div>
 
           <div className="table-scroll-hint">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-            Faites glisser pour voir tout le tableau
+            {isRTL ? <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'rotate(180deg)' }}><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg> : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>}
+            {t('products_page.compare_hint', 'Faites glisser pour voir tout le tableau')}
           </div>
           <motion.div
             initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
@@ -240,27 +263,27 @@ const Products = () => {
             <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '700px' }}>
               <thead>
                 <tr style={{ background: '#0D1B2A' }}>
-                  <th style={{ padding: '16px 20px', textAlign: 'left', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '13px', color: 'rgba(255,255,255,0.6)', letterSpacing: '1px', textTransform: 'uppercase', width: '180px' }}>
+                  <th style={{ padding: '16px 20px', textAlign: isRTL ? 'right' : 'left', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '13px', color: 'rgba(255,255,255,0.85)', letterSpacing: '1px', textTransform: 'uppercase', width: '180px' }}>
                     {loc({ fr: 'Modèle', ar: 'الموديل', tn: 'الموديل', en: 'Model', it: 'Modello' })}
                   </th>
-                  <th style={{ padding: '16px 20px', textAlign: 'left', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '13px', color: 'rgba(255,255,255,0.6)', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '16px 20px', textAlign: isRTL ? 'right' : 'left', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '13px', color: 'rgba(255,255,255,0.85)', letterSpacing: '1px', textTransform: 'uppercase' }}>
                     {loc({ fr: 'Type', ar: 'النوع', tn: 'النوع', en: 'Type', it: 'Tipo' })}
                   </th>
-                  <th style={{ padding: '16px 20px', textAlign: 'left', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '13px', color: 'rgba(255,255,255,0.6)', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '16px 20px', textAlign: isRTL ? 'right' : 'left', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '13px', color: 'rgba(255,255,255,0.85)', letterSpacing: '1px', textTransform: 'uppercase' }}>
                     {loc({ fr: 'Usage', ar: 'الاستخدام', tn: 'الاستخدام', en: 'Usage', it: 'Uso' })}
                   </th>
-                  <th style={{ padding: '16px 20px', textAlign: 'center', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '13px', color: 'rgba(255,255,255,0.6)', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '16px 20px', textAlign: 'center', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '13px', color: 'rgba(255,255,255,0.85)', letterSpacing: '1px', textTransform: 'uppercase' }}>
                     {loc({ fr: 'Larg. max', ar: 'أقصى عرض', tn: 'أقصى عرض', en: 'Max width', it: 'Largh. max' })}
                   </th>
-                  <th style={{ padding: '16px 20px', textAlign: 'center', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '13px', color: 'rgba(255,255,255,0.6)', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '16px 20px', textAlign: 'center', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '13px', color: 'rgba(255,255,255,0.85)', letterSpacing: '1px', textTransform: 'uppercase' }}>
                     {loc({ fr: 'Haut. max', ar: 'أقصى ارتفاع', tn: 'أقصى ارتفاع', en: 'Max height', it: 'Alt. max' })}
                   </th>
                   {Object.keys(featureLabels).map(fk => (
-                    <th key={fk} style={{ padding: '16px 12px', textAlign: 'center', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '12px', color: 'rgba(255,255,255,0.6)', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                    <th key={fk} style={{ padding: '16px 12px', textAlign: 'center', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '12px', color: 'rgba(255,255,255,0.85)', letterSpacing: '1px', textTransform: 'uppercase' }}>
                       {loc(featureLabels[fk])}
                     </th>
                   ))}
-                  <th style={{ padding: '16px 20px', textAlign: 'center', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '13px', color: 'rgba(255,255,255,0.6)', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '16px 20px', textAlign: 'center', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '13px', color: 'rgba(255,255,255,0.85)', letterSpacing: '1px', textTransform: 'uppercase' }}>
                     {loc({ fr: 'À partir de', ar: 'ابتداءً من', tn: 'ابتداءً من', en: 'From', it: 'Da' })}
                   </th>
                 </tr>
@@ -269,13 +292,13 @@ const Products = () => {
                 {comparisonData.map((item, i) => (
                   <tr key={item.id} style={{ borderBottom: i < comparisonData.length - 1 ? '1px solid #E8EDF5' : 'none', background: i % 2 === 0 ? 'white' : '#F8FAFD' }}>
                     <td style={{ padding: '16px 20px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <img src={item.image} alt={item.name} style={{ width: '44px', height: '44px', objectFit: 'contain', background: '#F5F7FA', borderRadius: '8px', padding: '4px' }} />
+                      <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: '12px' }}>
+                        <img src={item.image} alt={item.name} className="no-rtl-flip" style={{ width: '44px', height: '44px', objectFit: 'contain', background: '#F5F7FA', borderRadius: '8px', padding: '4px', transform: 'none' }} />
                         <Link to={`/produits/${item.id}`} style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '15px', color: '#1A5DA8', textDecoration: 'none', letterSpacing: '1px', display: 'flex', alignItems: 'center', gap: '4px' }}
                           onMouseEnter={(e) => e.currentTarget.style.color = '#81C063'}
                           onMouseLeave={(e) => e.currentTarget.style.color = '#1A5DA8'}
                         >
-                          {item.name} <LinkIcon size={12} />
+                          {item.name} <LinkIcon size={12} className="no-rtl-flip" style={{ transform: isRTL ? 'scaleX(-1)' : 'none' }} />
                         </Link>
                       </div>
                     </td>
@@ -293,7 +316,7 @@ const Products = () => {
                     ))}
                     <td style={{ padding: '16px 20px', textAlign: 'center' }}>
                       <span style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '15px', color: '#27AE60' }}>{item.priceFrom}</span>
-                      <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '11px', color: '#818181', marginLeft: '3px' }}>DT HT</span>
+                      <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '11px', color: '#818181', [isRTL ? 'marginRight' : 'marginLeft']: '3px' }}>DT HT</span>
                     </td>
                   </tr>
                 ))}
@@ -302,6 +325,15 @@ const Products = () => {
           </motion.div>
           <p style={{ textAlign: 'center', fontFamily: 'DM Sans, sans-serif', fontSize: '12px', color: '#818181', marginTop: '12px' }}>
             {loc({ fr: '* Prix indicatifs HT. TVA 19% + remise commerciale selon volume.', ar: '* أسعار تقريبية قبل الضريبة. ض.ق.م 19% + خصم تجاري حسب الكمية.', tn: '* أسعار تقريبية قبل الأداء. ض.ق.م 19% + خصم تجاري حسب الكمية.', en: '* Indicative prices excl. tax. 19% VAT + commercial discount by volume.', it: '* Prezzi indicativi IVA esclusa. IVA 19% + sconto commerciale in base al volume.' })}
+          </p>
+          <p style={{ textAlign: 'center', fontFamily: 'DM Sans, sans-serif', fontSize: '11px', color: '#818181', marginTop: '4px' }}>
+            {loc({ 
+              fr: '** Colibrì 50 : largeur max 200 cm pour H ≤ 170 cm, 160 cm pour H > 170 cm.', 
+              ar: '** Colibrì 50: أقصى عرض 200 سم للارتفاع ≤ 170 سم، و160 سم للارتفاع > 170 سم.',
+              tn: '** Colibrì 50: 200 cm max width lil toul ≤ 170 cm, 160 cm lil toul > 170 cm.',
+              en: '** Colibrì 50: max width 200 cm for H ≤ 170 cm, 160 cm for H > 170 cm.',
+              it: '** Colibrì 50: larghezza max 200 cm per H ≤ 170 cm, 160 cm per H > 170 cm.'
+            })}
           </p>
         </section>
 
@@ -329,7 +361,7 @@ const Products = () => {
             letterSpacing: '1px',
             textTransform: 'uppercase',
           }}>
-            🇮🇹 {t('products_page.quality_badge')}
+            <ItalyFlag /> {t('products_page.quality_badge')}
           </div>
           <h2 style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: 'clamp(20px, 5vw, 30px)', color: '#2F2D2C', margin: '0 0 16px 0', letterSpacing: '2px', textTransform: 'uppercase' }}>
             {t('products_page.why_title')}
@@ -344,7 +376,7 @@ const Products = () => {
               { icon: Ruler, titleKey: 'products_page.feat2_title', descKey: 'products_page.feat2_desc' },
               { icon: Award, titleKey: 'products_page.feat3_title', descKey: 'products_page.feat3_desc' },
             ].map((item, i) => (
-              <div key={i} style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+              <div key={i} style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', gap: '14px', alignItems: 'flex-start', textAlign: isRTL ? 'right' : 'left' }}>
                 <div style={{ background: 'rgba(41,103,136,0.08)', padding: '10px', borderRadius: '10px', flexShrink: 0 }}>
                   <item.icon color="#296788" size={28} />
                 </div>
@@ -383,8 +415,8 @@ const Products = () => {
             >
               <button
                 onClick={() => setShowDevis(false)}
-                style={{ position: 'absolute', top: '8px', right: '8px', zIndex: 10, width: '40px', height: '40px', borderRadius: '50%', background: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}
-                aria-label="Fermer"
+                style={{ position: 'absolute', top: '8px', [isRTL ? 'left' : 'right']: '8px', zIndex: 10, width: '40px', height: '40px', borderRadius: '50%', background: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}
+                aria-label={t('common.close', 'Fermer')}
               >
                 <XIcon size={18} color="#1D3E61" />
               </button>

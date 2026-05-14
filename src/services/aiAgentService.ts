@@ -4,7 +4,8 @@
 // ═══════════════════════════════════════════════════════════════
 
 import { calculatePrice } from '../utils/priceCalculator';
-import { BUSINESS_CONFIG } from '../config/businessConfig';
+import { BUSINESS_CONFIG } from '../data/businessConfig';
+import { getSettings } from '../store/settingsStore';
 
 export type Lang = 'fr' | 'ar' | 'tn' | 'en' | 'it';
 
@@ -38,12 +39,12 @@ export interface Message {
 
 export interface AgentAction {
   type:
-    | 'navigate_to_page'
-    | 'open_3d_viewer'
-    | 'open_devis_wizard'
-    | 'calculate_price'
-    | 'show_product_comparison'
-    | 'scroll_to_section';
+  | 'navigate_to_page'
+
+  | 'open_devis_wizard'
+  | 'calculate_price'
+  | 'show_product_comparison'
+  | 'scroll_to_section';
   params?: Record<string, string | number>;
   closeAfter?: boolean;
 }
@@ -75,16 +76,15 @@ export interface AIResponse {
   action?: AgentAction;
   actionLabel?: string;
   suggestions?: string[];
-  navigating?: boolean;
-  detectedLang?: Lang;
   productImage?: string;
-  devisButton?: DevisButton;
   comparisonTable?: ComparisonTable;
-  loadingType?: 'search' | 'calculate' | 'think';
+  detectedLang?: Lang;
+  navigating?: boolean;
+  devisButton?: DevisButton;
+  loadingType?: 'calculate' | 'search' | 'compare';
 }
 
-// ─── PRODUCTS ────────────────────────────────────────────────────
-const PRODUCTS: Record<string, {
+export const PRODUCTS: Record<string, {
   name: string; category: string; type: string; description: string;
   features: string[]; caisson: string | null; tailleEffective: string;
   minW: number; maxW: number; minH: number; maxH: number;
@@ -95,14 +95,13 @@ const PRODUCTS: Record<string, {
     name: 'COLIBRÌ 50',
     category: 'Moustiquaires Enroulables',
     type: 'fenetre',
-    description: 'Moustiquaire enroulable pour fenêtre à caisson supérieur',
+    description: 'Moustiquaire enroulable pour FENÊTRE. Idéal pour fenêtres standard et appartements. Installation en 30 minutes par vissage mural.',
     features: [
-      'Mécanisme à ressort', 'Coulisses latérales à doubles joints-brosses',
+      'Mécanisme à ressort silencieux', 'Coulisses latérales à doubles joints-brosses',
       'Barre de charge avec cordon de tirage',
-      'Panneau en fibre de verre recouverte de PVC', 'Structure en aluminium blanc',
     ],
-    caisson: '45mm', tailleEffective: '52mm',
-    minW: 35, maxW: 200, minH: 50, maxH: 170,
+    caisson: 'supérieur (en haut) 50mm', tailleEffective: '44mm',
+    minW: 60, maxW: 200, minH: 60, maxH: 250, // maxW is 160 if H > 170
     startPrice: 263,
     image: '/images/colibri-50.png', path: '/produits/colibri-50',
   },
@@ -110,14 +109,13 @@ const PRODUCTS: Record<string, {
     name: 'SIDNEY 50',
     category: 'Moustiquaires Enroulables',
     type: 'porte',
-    description: 'Moustiquaire pour portes à caisson latéral',
+    description: "Moustiquaire enroulable pour PORTE. Idéal pour portes d'entrée et portes-fenêtres avec poignée pliante discrète.",
     features: [
       'Mécanisme à ressort', 'Coulisses latérales à doubles joints-brosses',
       'Barre de charge à poignée externe pliante',
-      'Panneau en fibre de verre recouverte de PVC', 'Structure en aluminium blanc',
     ],
-    caisson: '45mm', tailleEffective: '58mm',
-    minW: 35, maxW: 200, minH: 70, maxH: 260,
+    caisson: 'latéral (sur le côté) 50mm', tailleEffective: '44mm',
+    minW: 60, maxW: 200, minH: 150, maxH: 260,
     startPrice: 611,
     image: '/images/sidney-50.png', path: '/produits/sidney-50',
   },
@@ -125,14 +123,13 @@ const PRODUCTS: Record<string, {
     name: 'SIDNEY 50 AC',
     category: 'Moustiquaires Enroulables',
     type: 'grande-porte',
-    description: 'Moustiquaire pour portes à double caisson latéral (grandes ouvertures)',
+    description: 'Moustiquaire double caisson pour GRANDE OUVERTURE. Ouverture centrale bidirectionnelle, s\'ouvre des deux côtés, idéal pour grandes baies vitrées et terrasses.',
     features: [
-      'Système à deux caissons pour grandes ouvertures', 'Mécanisme à ressort double',
-      'Coulisses à doubles joints-brosses',
-      'Barre de charge à poignées externes pliantes', 'Structure en aluminium blanc',
+      'Système 2 caissons latéraux', 'Ouverture centrale bidirectionnelle',
+      'Mécanisme à ressort', 'Coulisses doubles joints-brosses',
     ],
-    caisson: '45mm', tailleEffective: '58mm',
-    minW: 70, maxW: 400, minH: 70, maxH: 260,
+    caisson: '50mm', tailleEffective: '44mm',
+    minW: 100, maxW: 400, minH: 150, maxH: 260,
     startPrice: 1224,
     image: '/images/sidney-50-ac.png', path: '/produits/sidney-50-ac',
   },
@@ -140,30 +137,50 @@ const PRODUCTS: Record<string, {
     name: 'ELBA',
     category: 'Moustiquaires à Panneau Fixe',
     type: 'fixe',
-    description: 'Moustiquaire à panneau fixe pour fenêtre',
+    description: 'Moustiquaire à PANNEAU FIXE pour fenêtre. Très économique et durable (pas de mécanisme).',
     features: [
       'Châssis fixe en aluminium blanc',
       'Panneau en fibre de verre recouverte de PVC',
-      'Fixations murales en nylon', 'Joint-brosse périmétral',
-      'Options: aluminium ou acier inox',
+      'Fixations murales en nylon', 'Joint brosse périmétral',
     ],
     caisson: null, tailleEffective: '10mm',
-    minW: 30, maxW: 120, minH: 30, maxH: 250,
-    pricePerM2: { fibre: 143, aluminium: 183, inox: 262 },
+    minW: 40, maxW: 120, minH: 40, maxH: 250,
+    startPrice: 143,
     image: '/images/elba.png', path: '/produits/elba',
+  },
+  'plisse31': {
+    name: 'PLISSÉ 31 BILATÉRALE',
+    category: 'Moustiquaires Plissées',
+    type: 'plisse',
+    description: 'Moustiquaire plissée bilatérale (31mm). Idéale pour grandes ouvertures jusqu\'à 5000mm. Déverrouillage à aimant, rail extra plat et maille noire de série.',
+    features: [
+      'Déverrouillage à aimant',
+      'Rail extra plat',
+      'Maille noire de série'
+    ],
+    caisson: '31mm', tailleEffective: '31mm',
+    minW: 100, maxW: 500, minH: 100, maxH: 300,
+    startPrice: 1115,
+    image: '/images/plisse31.webp', path: '/produits/plisse31',
   },
 };
 
 // ─── COMPANY ─────────────────────────────────────────────────────
+const settings = getSettings();
 const COMPANY = {
-  name: BUSINESS_CONFIG.COMPANY_NAME,
-  address: BUSINESS_CONFIG.COMPANY_ADDRESS + ', Tunisie',
-  phone1: BUSINESS_CONFIG.COMPANY_PHONE1,
-  phone2: BUSINESS_CONFIG.COMPANY_PHONE2,
-  whatsapp: BUSINESS_CONFIG.WHATSAPP,
-  email: BUSINESS_CONFIG.COMPANY_EMAIL,
+  name: 'ALUMINIUM SPACE',
+  description: 'Spécialiste menuiserie aluminium à Mghira, Tunis. Partenaire agréé Grifo Flex Tunisie.',
+  address: `${settings.address}, ${settings.city}`,
+  phone1: settings.phone1,
+  phone2: settings.phone2,
+  whatsapp: settings.whatsapp,
+  email: settings.email,
   hours: 'Lundi–Samedi, 8h00–17h00',
+  installation: 'Installation sous 3-7 jours ouvrables. Zone de service: Tunis et Grand Tunis.',
+  garantie: '3 ans sur toutes les moustiquaires Grifo Flex.',
+  paiement: 'Paiement: espèces, virement bancaire. RIB: 11 05500 01215002788 56 - Agence BOUMHEL',
   mapUrl: 'https://maps.google.com/?q=125+lot+Laaroussi+Mghira',
+  grifoFlex: 'Marque italienne fondée en Italie (Grifoflex® Spa). Présente en Tunisie depuis 2012. Grifo Flex Tunisie: succursale italienne à Mégrine, Ben Arous. 1200 m² de surface de production, 15 employés. 3 ans de garantie sur tous les produits. +200 km parcourus chaque mois pour livraisons. SAV: 71 434 209. Matériaux: aluminium + fibre de verre recouverte de PVC. Couleurs: Blanc RAL 9010, Noir mat. Qualité certifiée italienne.',
 };
 
 // ─── FORMAT PRICE ─────────────────────────────────────────────────
@@ -183,15 +200,15 @@ interface PriceBreakdown {
 }
 
 function calcPriceBreakdown(productId: string, w: number, h: number, qty = 1): PriceBreakdown | null {
-  const raw = calculatePrice({ productId, width: w, height: h });
-  if (!raw) return null;
-  const unitPrice = raw / 1000; // convert millimes to DT
+  const result = calculatePrice({ productId, width: w, height: h, color: 'Blanc' });
+  if (!result) return null;
+  const unitPrice = result.unitPrice / 1000; // convert millimes to DT
   const totalBrut = unitPrice * qty;
-  const remise = totalBrut * 0.20;
+  const remise = totalBrut * (BUSINESS_CONFIG.remisePct / 100);
   const netHT = totalBrut - remise;
-  const fodec = netHT * 0.01;
+  const fodec = netHT * (BUSINESS_CONFIG.fodecPct / 100);
   const baseTVA = netHT + fodec;
-  const tva = baseTVA * 0.19;
+  const tva = baseTVA * (BUSINESS_CONFIG.tvaPct / 100);
   const timbre = 1.000;
   const totalTTC = baseTVA + tva + timbre;
   return { unitPrice, totalBrut, remise, netHT, fodec, baseTVA, tva, timbre, totalTTC };
@@ -298,6 +315,7 @@ function buildMemory(history: Message[]): ConvMemory {
       if (/(colibri|fenetre|window|finestra|chbek|chbabek)/.test(mn)) mem.lastProduct = 'colibri-50';
       else if (/(sidney.?ac|grande.*porte|porte.*double|double.*porte)/.test(mn)) mem.lastProduct = 'sidney-50-ac';
       else if (/(sidney|porte\b|door|bibia)/.test(mn)) mem.lastProduct = 'sidney-50';
+      else if (/(plisse|plissé|plisse31|مطوية|بليسي)/.test(mn)) mem.lastProduct = 'plisse31';
       else if (/(elba|fixe|fixed|panneau)/.test(mn)) mem.lastProduct = 'elba';
     }
     if (!mem.lastWidth || !mem.lastHeight) {
@@ -308,7 +326,7 @@ function buildMemory(history: Message[]): ConvMemory {
       mem.clientName = extractClientName(msg.content);
     }
     if (msg.role === 'assistant' && /(rappel|téléphone|phone|رقم)/i.test(msg.content)) {
-       mem.awaitingPhone = true;
+      mem.awaitingPhone = true;
     }
   }
   return mem;
@@ -320,16 +338,16 @@ function detectIntent(msg: string): string {
 
   if (/(je m[''']appelle|mon nom est|my name is|mi chiamo|ismi\b|esmi\b|smiti\b|اسمي|ana ismi)/.test(m)) return 'name_provided';
   if (/(parle.*arabe|b arbi|a7ki.*arbi|en arabe|speak.*arabic|parle.*tounsi|b tounsi|speak.*tunisian|in english|speak.*english|in italiano|parla.*italiano|en français|parle.*français|speak.*french)/.test(m)) return 'switch_language';
-  // casual_howru must come BEFORE greeting (labes 3lik starts with "labes" which is also in greeting)
   if (/(kif 7alek|kifech|comment.*vas|ca va\??|how are you|come stai|كيف حالك|لاباس|labes 3lik|labess\??|labas\??|labes\??|7alek|kifeha|kif enti|kif nta|kifentom|shnowa\??|chnowa\??|wesh\b|esh 5barak|ach 5bark)/.test(m)) return 'casual_howru';
   if (/^(salut|bonjour|bonsoir|hello|hi\b|hey\b|ciao|salve|buongiorno|salam|ahla|labas|labes|wesh|slt|bjr|marhba|مرحبا|السلام|اهلا|صباح|كيف|واش|yesslm|aslema|aslama|alsema)/.test(m)) return 'greeting';
   if (/(au revoir|bye|goodbye|arrivederci|بسلامة|مع السلامة|bslama|besslema|ciao\b|tchao|ma3assalama)/.test(m)) return 'goodbye';
   if (/(merci|shukran|grazie|شكرا|barak|thanks|thank|يسلمو|y3tik|tislam|yikhlik)/.test(m)) return 'thanks';
-  if (/(compare|comparaison|comparer|difference|versus|vs\b|mieux|better|quale|meglio|ahsen|قارن|مقارنة|فرق|احسن|far9\b)/.test(m)) return 'comparison';
-  if (/(tous.*produit|liste.*produit|gamme|catalogue|show.*all|list.*product|tutti.*prodott|kol.*produit|tous.*modele|منتجات.*كل|كل.*منتجاتك)/.test(m) && !/(fenetre|porte|fixe|colibri|sidney|elba)/.test(m)) return 'product_list';
+  if (/(compare|comparaison|comparer|difference|versus|vs\b|mieux|better|quale|meglio|ahsen|قارن|مقارنة|فرق|احسن|far9\b|différence entre|quel produit choisir)/.test(m)) return 'comparison';
+  if (/(tous.*produit|liste.*produit|gamme|catalogue|show.*all|list.*product|tutti.*prodott|kol.*produit|tous.*modele|منتجات.*كل|كل.*منتجاتك)/.test(m) && !/(fenetre|porte|fixe|colibri|sidney|elba|plisse|plissé|plisse31|مطوية|بليسي)/.test(m)) return 'product_list';
   if (/(colibri|colibrì|fenetre|window|finestra|chbek|chbabek|للشباك|للنافذة|شباك|نافذة|شبابيك)/.test(m)) return 'product_colibri';
   if (/(grande.*porte|porte.*double|double.*porte|sidney.?ac|bibian.*kbira|باب.*كبير|porta.*doppia|400\b|terrasse)/.test(m)) return 'product_sidneyAC';
   if (/(porte\b|door\b|porta\b|باب|بيبان|sidney|bibia|للباب)/.test(m) && !/(ac\b|double|grande|400)/.test(m)) return 'product_sidney';
+  if (/(plisse|plissé|plisse31|مطوية|بليسي)/.test(m)) return 'product_plisse31';
   if (/(fixe|fixed|elba|panneau|panel|pannello|ثابت|لوح|إلبا)/.test(m)) return 'product_elba';
   if (extractAllDimensions(msg).length > 0) return 'dimensions_provided';
   if (/(devis|preventivo|quote|estimation|estimer|calcul|عرض.*سعر|تقدير|ديفيس|yehsibli|ahsibli|namel.*devis|n7eb.*devis|3ardh)/.test(m)) return 'devis_request';
@@ -339,20 +357,23 @@ function detectIntent(msg: string): string {
   if (/(adresse|address|localisation|ou\b|où|fouchana|indirizzo|dove|وين|فين|فوشانة|عنوان|maps|win nla9akom|winfin ntom)/.test(m)) return 'location';
   if (/(horaire|heure|ouvert|ferme|fermé|orario|aperto|متى|ساعة|وقت|wa9t|9adeh.*se3a|quand.*ouvr)/.test(m)) return 'hours';
   if (/(installation|installer|montage|pose|installazione|تركيب|نصب|nrakkeb|yrakbouha)/.test(m)) return 'installation';
-  if (/(livraison|livrer|delivery|consegna|delai|délai|توصيل|أجل|9adech.*wa9t|wa9teh|waktha)/.test(m)) return 'delivery';
-  if (/(garantie|warranty|garanzia|daman|ضمان|combien.*garanti|how long.*warranty)/.test(m)) return 'warranty';
+  if (/(delai|délai|delivery|consegna|أجل|9adech.*wa9t|wa9teh|waktha|mta twasselna|متى التسليم)/.test(m)) return 'delivery';
+  if (/(zone|livraison|livrer|wilayet|vous livrez ou|توصيل|مناطق|où livrez-vous)/.test(m)) return 'zone';
+  if (/(garantie|warranty|garanzia|daman|dhamen|ضمان|combien.*garanti|how long.*warranty)/.test(m)) return 'warranty';
   if (/(nettoyer|nettoyage|entretien|maintenance|clean|pulizia|تنظيف|نظافة|ndhafa)/.test(m)) return 'maintenance';
   if (/(couleur|color|colore|blanc|noir|gris|white|black|grey|bianco|nero|لون|أبيض|أسود|loun)/.test(m)) return 'colors';
-  if (/(paiement|payer|payment|pay\b|virement|cheque|espece|cash|carte|kif nkhales|khlas|دفع|pagamento|nkhales|3arboun|عربون)/.test(m)) return 'payment';
+  if (/(paiement|payer|payment|pay\b|virement|cheque|espece|cash|carte|kif nkhales|khlas|دفع|pagamento|nkhales|3arboun|عربون|comment payer)/.test(m)) return 'payment';
   if (/(showroom|visite|visiter|venir|boutique|magasin|niji|nayek|معرض|زيارة|sala.*mostra|visitare)/.test(m)) return 'showroom';
   if (/(propos|about|histoire|fondation|societe|company|entreprise|qui.*(vous|etes|siamo)|tarikh|متى.*بدأ|kima ta3melou|chnya ta3melou)/.test(m)) return 'about';
   if (/(recommendation|conseille|conseil|ansahni|recommend|consigliami|توصية|tansahni|ahsen.*produit)/.test(m)) return 'recommendation';
   if (/(promo|promotion|remise|reduction|offre.*special|discount|sconto|تخفيض|عرض.*خاص|ريميز)/.test(m)) return 'promo';
   if (/(ton nom|t'appelles|qui es.tu|who are you|come ti chiami|اسمك|شكون انت|comment tu t'appelles)/.test(m)) return 'casual_name';
-  if (/(kif 7alek|kifech|comment.*vas|ca va|how are you|come stai|كيف حالك|لاباس|labes 3lik)/.test(m)) return 'casual_howru';
   if (/(aide|help|aiuto|3awenni|mساعدة|comment.*fonctionne|how.*work|come.*funziona)/.test(m)) return 'help';
   if (/(oui|yes|si\b|aya|na3am|ok\b|bien|d'accord|mrigla|nchallah|nheb|nwafaq|exactement)/.test(m)) return 'affirmation';
   if (/(non|no\b|la\b|moch|naya|maynhebch|je.*veux.*pas|i don't|no grazie)/.test(m)) return 'negation';
+  if (/(origine|source|d'ou viennent|provenance|مصدر|أين منتجاتكم|italie|grifo flex|maroc|tunisie|made in|من أين|d'où viennent)/.test(m)) return 'origin';
+  if (/(specs|technique|caracteristiques|details|معلومات تقنية)/.test(m)) return 'specs';
+  if (/(mesurer|comment mesurer|kif n9is|قياس|كيف أقيس|كيفاش نقيس)/.test(m)) return 'measure';
   return 'not_understood';
 }
 
@@ -381,11 +402,11 @@ function priceResponse(
   const greet = clientName ? clientName + ', ' : '';
 
   const lines = {
-    fr: `Pour un **${productName}** en ${w}×${h} cm${qtyStr} :\n• Prix HT : ${fmt(b.unitPrice)}\n• Remise 20% : -${fmt(b.remise)}\n• Total TTC : ${fmt(b.totalTTC)}\n\n${greet}Voulez-vous passer au devis ?`,
-    tn: `Lel **${productName}** f ${w}×${h} cm${qtyStr} :\n• Prix HT : ${fmt(b.unitPrice)}\n• Remise 20% : -${fmt(b.remise)}\n• Total TTC : ${fmt(b.totalTTC)}\n\n${greet}T7eb namel devis ?`,
-    ar: `لـ **${productName}** بـ ${w}×${h} سم${qtyStr} :\n• السعر بدون TVA : ${fmt(b.unitPrice)}\n• خصم 20% : -${fmt(b.remise)}\n• الإجمالي مع TVA : ${fmt(b.totalTTC)}\n\n${greet}هل تريد إعداد عرض الأسعار؟`,
-    en: `For a **${productName}** in ${w}×${h} cm${qtyStr}:\n• Price excl. VAT: ${fmt(b.unitPrice)}\n• Discount 20%: -${fmt(b.remise)}\n• Total incl. VAT: ${fmt(b.totalTTC)}\n\n${greet}Would you like to proceed with a quote?`,
-    it: `Per una **${productName}** in ${w}×${h} cm${qtyStr}:\n• Prezzo IVA escl.: ${fmt(b.unitPrice)}\n• Sconto 20%: -${fmt(b.remise)}\n• Totale IVA incl.: ${fmt(b.totalTTC)}\n\n${greet}Vuoi procedere con un preventivo?`,
+    fr: `Pour un **${productName}** en ${w}×${h} cm${qtyStr} :\n• Prix HT : ${fmt(b.unitPrice)}\n• Remise ${BUSINESS_CONFIG.remisePct}% : -${fmt(b.remise)}\n• Total TTC : ${fmt(b.totalTTC)}\n\n${greet}Voulez-vous passer au devis ?`,
+    tn: `Lel **${productName}** f ${w}×${h} cm${qtyStr} :\n• Prix HT : ${fmt(b.unitPrice)}\n• Remise ${BUSINESS_CONFIG.remisePct}% : -${fmt(b.remise)}\n• Total TTC : ${fmt(b.totalTTC)}\n\n${greet}T7eb namel devis ?`,
+    ar: `لـ **${productName}** بـ ${w}×${h} سم${qtyStr} :\n• السعر بدون TVA : ${fmt(b.unitPrice)}\n• خصم ${BUSINESS_CONFIG.remisePct}% : -${fmt(b.remise)}\n• الإجمالي مع TVA : ${fmt(b.totalTTC)}\n\n${greet}هل تريد إعداد عرض الأسعار؟`,
+    en: `For a **${productName}** in ${w}×${h} cm${qtyStr}:\n• Price excl. VAT: ${fmt(b.unitPrice)}\n• Discount ${BUSINESS_CONFIG.remisePct}%: -${fmt(b.remise)}\n• Total incl. VAT: ${fmt(b.totalTTC)}\n\n${greet}Would you like to proceed with a quote?`,
+    it: `Per una **${productName}** in ${w}×${h} cm${qtyStr}:\n• Prezzo IVA escl.: ${fmt(b.unitPrice)}\n• Sconto ${BUSINESS_CONFIG.remisePct}%: -${fmt(b.remise)}\n• Totale IVA incl.: ${fmt(b.totalTTC)}\n\n${greet}Vuoi procedere con un preventivo?`,
   };
   return lines[lang] || lines.fr;
 }
@@ -435,13 +456,13 @@ function buildComparisonTable(lang: Lang): ComparisonTable {
   };
   const l = labels[lang] || labels.fr;
   return {
-    headers: ['', 'COLIBRÌ 50', 'SIDNEY 50', 'SIDNEY 50 AC', 'ELBA'],
+    headers: ['', 'COLIBRÌ 50', 'SIDNEY 50', 'SIDNEY 50 AC', 'ELBA', 'PLISSÉ 31'],
     rows: [
-      { label: l.type, colibri: '🪟 Fenêtre', sidney: '🚪 Porte', sidneyAC: '🚪🚪 Grande porte', elba: '🪟 Fixe' },
-      { label: l.maxW, colibri: '200 cm', sidney: '200 cm', sidneyAC: '400 cm', elba: '120 cm' },
-      { label: l.maxH, colibri: '170 cm', sidney: '260 cm', sidneyAC: '260 cm', elba: '250 cm' },
-      { label: l.price, colibri: 'dès 263 DT', sidney: 'dès 611 DT', sidneyAC: 'dès 1224 DT', elba: '143 DT/m²' },
-      { label: l.caisson, colibri: '45mm', sidney: '45mm', sidneyAC: '2×45mm', elba: 'Aucun' },
+      { label: l.type, colibri: '🪟 Fenêtre', sidney: '🚪 Porte', sidneyAC: '🚪🚪 Grande porte', elba: '🪟 Fixe', plisse31: '🪟 Plissé' },
+      { label: l.maxW, colibri: '200 cm', sidney: '200 cm', sidneyAC: '400 cm', elba: '120 cm', plisse31: '500 cm' },
+      { label: l.maxH, colibri: '250 cm', sidney: '260 cm', sidneyAC: '260 cm', elba: '250 cm', plisse31: '300 cm' },
+      { label: l.price, colibri: 'dès 263 DT', sidney: 'dès 611 DT', sidneyAC: 'dès 1224 DT', elba: 'dès 143 DT', plisse31: 'dès 1115 DT' },
+      { label: l.caisson, colibri: '50mm', sidney: '50mm', sidneyAC: '50mm', elba: 'Aucun', plisse31: 'Aucun' },
     ],
   };
 }
@@ -466,28 +487,28 @@ function productInfoResponse(lang: Lang, productId: string, clientName: string |
   return texts[lang] || texts.fr;
 }
 
-// ─── SUGGESTIONS ─────────────────────────────────────────────────
+// ─── SUGGESTIONS ───────────────────────────────────────────────
 const SUGGESTIONS: Record<string, Record<Lang, string[]>> = {
   greeting: {
-    fr: ['Calculer un prix', 'Voir les produits', 'Faire un devis'],
-    tn: ['N9der el thmen', 'Chouf les produits', 'Namel devis'],
-    ar: ['احسب السعر', 'أرى المنتجات', 'أطلب عرض أسعار'],
-    en: ['Calculate a price', 'View products', 'Get a quote'],
+    fr: ['Calculer un prix', 'Voir les produits', 'Demander un devis'],
+    tn: ['A7seb thmen', 'Chouf les produits', 'Nheb devis'],
+    ar: ['احسب السعر', 'عرض المنتجات', 'طلب عرض أسعار'],
+    en: ['Calculate price', 'View products', 'Request a quote'],
     it: ['Calcola prezzo', 'Vedi prodotti', 'Richiedi preventivo'],
   },
-  price: {
-    fr: ['Voir le devis complet', 'Calculer une autre dimension', 'Contacter le showroom'],
-    tn: ['Chouf el devis complet', '7seb dimensions 5rin', 'Attasil bel showroom'],
-    ar: ['عرض الأسعار الكامل', 'احسب أبعاداً أخرى', 'اتصل بالمعرض'],
-    en: ['View full quote', 'Calculate another size', 'Contact showroom'],
-    it: ['Vedi preventivo completo', 'Calcola altra dimensione', 'Contatta showroom'],
-  },
   product: {
-    fr: ['Calculer le prix', 'Voir les autres produits', 'Prendre rendez-vous'],
-    tn: ['N9der el thmen', 'Chouf 3tini produits', 'Kheth rendez-vous'],
-    ar: ['احسب السعر', 'أرى المنتجات الأخرى', 'حدد موعداً'],
-    en: ['Calculate price', 'See other products', 'Book appointment'],
-    it: ['Calcola prezzo', 'Vedi altri prodotti', 'Prenota appuntamento'],
+    fr: ['Demander ce devis', 'Calculer un prix', 'Voir un autre modèle'],
+    tn: ['A3mel devis hetha', 'A7seb thmen', 'Chouf modèle e5er'],
+    ar: ['طلب هذا العرض', 'احسب السعر', 'رؤية موديل آخر'],
+    en: ['Request this quote', 'Calculate price', 'See another model'],
+    it: ['Richiedi questo preventivo', 'Calcola prezzo', 'Vedi altro modello'],
+  },
+  price: {
+    fr: ['Ouvrir le devis', 'Voir les produits', 'Prendre rendez-vous'],
+    tn: ['Iftah devis', 'Chouf les produits', 'Khoudh rendez-vous'],
+    ar: ['فتح عرض الأسعار', 'عرض المنتجات', 'احجز موعداً'],
+    en: ['Open quote', 'View products', 'Book appointment'],
+    it: ['Apri preventivo', 'Vedi prodotti', 'Prenota appuntamento'],
   },
   contact: {
     fr: ['Appeler maintenant', 'WhatsApp', 'Voir sur la carte'],
@@ -500,7 +521,7 @@ const SUGGESTIONS: Record<string, Record<Lang, string[]>> = {
 
 function getSuggestions(intent: string, lang: Lang): string[] {
   if (SUGGESTIONS[intent]) return SUGGESTIONS[intent][lang] || SUGGESTIONS[intent].fr;
-  if (['product_colibri', 'product_sidney', 'product_sidneyAC', 'product_elba'].includes(intent)) return SUGGESTIONS.product[lang] || SUGGESTIONS.product.fr;
+  if (['product_colibri', 'product_sidney', 'product_sidneyAC', 'product_elba', 'product_plisse31'].includes(intent)) return SUGGESTIONS.product[lang] || SUGGESTIONS.product.fr;
   if (['price_inquiry', 'dimensions_provided'].includes(intent)) return SUGGESTIONS.price[lang] || SUGGESTIONS.price.fr;
   return SUGGESTIONS.greeting[lang] || SUGGESTIONS.greeting.fr;
 }
@@ -510,42 +531,51 @@ async function processWithOpenAI(
   userText: string,
   history: Message[],
   lang: Lang,
+  onChunk: (chunk: string) => void,
   base64Image?: string | null,
 ): Promise<string | null> {
-  const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
-  if (!apiKey) return null;
+  const systemPrompt = `Tu es ALU, l'assistant commercial expert d'Aluminium Space, partenaire agréé de moustiquaires Grifo Flex (Italie) à Tunis, Tunisie.
 
-  const langInstruction: Record<string, string> = {
-    fr: 'CRITICAL: Respond ONLY in French. Never mix languages. Every single word must be French.',
-    ar: 'CRITICAL: Respond ONLY in Modern Standard Arabic (العربية الفصحى). Never mix languages. Every single word must be Arabic.',
-    tn: 'CRITICAL: Respond ONLY in Tunisian Arabic dialect (تونسي). Use Tunisian words and expressions only. Never mix with French.',
-    en: 'CRITICAL: Respond ONLY in English. Never mix languages. Every single word must be English.',
-    it: 'CRITICAL: Respond ONLY in Italian. Never mix languages. Every single word must be Italian.',
-  };
+TON OBJECTIF UNIQUE : Convertir chaque visiteur en client. Chaque réponse doit rapprocher l'utilisateur d'une commande.
 
-  const systemPrompt = `Tu es ALU, l'assistant virtuel d'Aluminium Space — entreprise tunisienne spécialisée dans la fabrication et l'installation de moustiquaires de qualité italienne Grifo Flex.
+IDENTITÉ :
+- Prénom : ALU
+- Ton : Chaleureux, expert, direct. Comme un ami qui connaît le produit.
+- Langue : Tu détectes automatiquement la langue du message et tu réponds DANS LA MÊME LANGUE.
+  → Darija tunisienne → réponds en Darija (ex: "Ahla bik! Kifech n3awnek?")
+  → Arabe classique → réponds en Arabe classique
+  → Français → réponds en Français
+  → Mélange → utilise le mélange de l'utilisateur
+- Tu ne parles JAMAIS d'autre chose que de moustiquaires, Aluminium Space, et Grifo Flex.
+- Si quelqu'un demande hors-sujet → "Je suis spécialisé uniquement dans les moustiquaires 😊 Puis-je vous aider à protéger votre maison ?"
 
-PRODUITS:
-• COLIBRÌ 50 — Moustiquaire enroulable fenêtre. Max 200×170 cm. Dès 263 DT HT.
-• SIDNEY 50 — Moustiquaire enroulable porte. Max 200×260 cm. Dès 611 DT HT.
-• SIDNEY 50 AC — Moustiquaire grande porte double. Max 400×260 cm. Dès 1224 DT HT.
-• ELBA — Panneau fixe. Max 120×250 cm. 143 DT/m² (fibre), 183 DT/m² (alu), 262 DT/m² (inox).
+PRODUITS (mémorise tout) :
+1. Colibrì 50 → Pour FENÊTRES. Coulissante. Cadre alu 50mm. Bestseller.
+2. Sidney 50 → Pour PORTES. Battante ou coulissante. Idéale entrées.
+3. Sidney 50 AC → Pour BAIES VITRÉES et grandes ouvertures. Robuste.
+4. Elba → Fixe sur mesure. Pour ouvertures fixes. Discret et solide.
+Toutes garanties 3 ans. Fabriquées en Italie. Certifiées Grifo Flex.
 
-COULEURS: Blanc (standard) et Noir.
-ADRESSE: 125 lot Laaroussi Mghira, Tunis, Tunisie.
-TÉLÉPHONE: +216 53 186 611 / +216 57 099 070. WhatsApp: +216 57 099 070.
-HORAIRES: Lundi–Samedi 8h00–17h00. Fermé dimanche.
-GARANTIE: 2 ans structure aluminium, 1 an grille.
-REMISE: 20% incluse dans tous les devis. TVA 19%, FODEC 1%.
-DÉLAIS: 7 à 14 jours ouvrables après commande.
-PAIEMENT: Cash, virement, chèque certifié, acompte 30%.
+RÈGLES PRIX (CRITIQUE) :
+- Ne JAMAIS donner un prix fixe sans dimensions.
+- Toujours demander: "Donnez-moi vos dimensions (Largeur x Hauteur en cm) pour un prix précis."
+- Si l'utilisateur insiste: "Les prix varient selon dimensions. Pour 100x120cm, la Colibrì commence à partir de 180 DT. Donnez-moi vos mesures exactes!"
 
-RÈGLES:
-- ${langInstruction[lang]}
-- Sois chaleureux, concis (2-4 phrases max).
-- Pour un prix précis: demande les dimensions format LargeurXHauteur (ex: 150×120).
-- Ne fabrique pas de prix exacts toi-même — l'outil de calcul le fera.
-- Pour naviguer, suggère à l'utilisateur de cliquer sur le bouton ou le menu.`;
+ZONE DE LIVRAISON :
+- Tunis et Grand Tunis uniquement.
+- Délai installation : 3 à 7 jours ouvrables.
+- Si hors zone: "Actuellement nous couvrons Tunis et le Grand Tunis. Laissez-nous votre contact et nous vous informons dès l'extension de notre zone."
+
+STRATÉGIE DE CONVERSION :
+- Si l'utilisateur hésite → "Je vous conseille de commencer par la Colibrì pour vos fenêtres, c'est notre bestseller et la plus rapide à installer."
+- Si l'utilisateur demande un devis → "Parfait ! Cliquez sur 'Faire un Devis' en haut de la page pour un prix instantané en 2 minutes."
+- Si l'utilisateur veut appeler → "Vous pouvez nous joindre directement sur WhatsApp : +216 57 099 070"
+- Si l'utilisateur dit "je réfléchis" → "Je comprends. Sachez que l'été arrive vite et les délais d'installation sont de 3-7 jours. Voulez-vous qu'on calcule le prix maintenant ?"
+
+FORMAT RÉPONSE :
+- Maximum 3 phrases. Sois percutant.
+- Termine TOUJOURS par une question ou un appel à l'action.
+- N'utilise jamais de listes à puces dans la réponse, parle naturellement.`;
 
   try {
     const recentHistory = history.slice(-10).map(m => ({
@@ -553,71 +583,53 @@ RÈGLES:
       content: m.content,
     }));
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
+    const messages = [
+      ...recentHistory,
+      {
+        role: 'user',
+        content: base64Image ? [
+          { type: 'text', text: `[User language: ${lang}] ${userText}\nAnalyze this image. If it shows a window or door opening, suggest the most appropriate Grifo Flex mosquito screen model and explain why.` },
+          { type: 'image_url', image_url: { url: base64Image } }
+        ] : `[User language: ${lang}] ${userText}`
       },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          {
-            role: 'system',
-            content: `REMINDER: You must respond in ${lang === 'fr' ? 'French' : lang === 'ar' ? 'Arabic' : lang === 'tn' ? 'Tunisian Arabic' : lang === 'en' ? 'English' : 'Italian'} ONLY. Do not switch languages under any circumstances.`
-          },
-          ...recentHistory,
-          {
-            role: 'user',
-            content: base64Image ? [
-              { type: 'text', text: `[User language: ${lang}] ${userText}\nAnalyze this image. If it shows a window or door opening, suggest the most appropriate Grifo Flex mosquito screen model and explain why.` },
-              { type: 'image_url', image_url: { url: base64Image } }
-            ] : `[User language: ${lang}] ${userText}`
-          },
-        ],
-        max_tokens: 350,
-        temperature: 0.7,
-      }),
+    ];
+
+    const response = await fetch('/.netlify/functions/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages, systemPrompt }),
     });
 
-    if (!response.ok) return null;
-    const data = await response.json();
-    let aiText = (data.choices?.[0]?.message?.content as string) || '';
+    if (!response.ok || !response.body) return null;
 
-    // Fix 4: Validation and Retry
-    const isArabicScript = /[\u0600-\u06FF]/.test(aiText);
-    const needsArabic = lang === 'ar' || lang === 'tn';
-    const needsFrench = lang === 'fr';
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let fullText = '';
 
-    if ((needsArabic && !isArabicScript) || (needsFrench && isArabicScript)) {
-      // Retry once
-      const retryResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'system', content: lang === 'fr' ? 'RÉPONDS EN FRANÇAIS UNIQUEMENT. PAS D\'ARABE.' : 'أجب بالعربية فقط. لا تستخدم أي لغة أخرى.' },
-            ...recentHistory,
-            { role: 'user', content: `[RETRY - Language Violation] ${userText}` },
-          ],
-          max_tokens: 350,
-          temperature: 0.3, // Lower temperature for more strict adherence
-        }),
-      });
-      if (retryResponse.ok) {
-        const retryData = await retryResponse.json();
-        aiText = retryData.choices?.[0]?.message?.content || aiText;
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value);
+      const lines = chunk.split('\n').filter(l => l.startsWith('data: '));
+      for (const line of lines) {
+        const data = line.replace('data: ', '').trim();
+        if (data === '[DONE]') break;
+        try {
+          const parsed = JSON.parse(data);
+          const token = parsed.choices[0]?.delta?.content || '';
+          if (token) {
+            fullText += token;
+            onChunk(token);
+          }
+        } catch (e) {
+          console.warn('Chunk parse error', e);
+        }
       }
     }
 
-    return aiText || null;
-  } catch {
+    return fullText || null;
+  } catch (error) {
+    console.error('AI Error:', error);
     return null;
   }
 }
@@ -626,12 +638,13 @@ RÈGLES:
 export async function processLocalMessage(
   userText: string,
   history: Message[],
+  onChunk: (chunk: string) => void,
   preferredLang?: Lang,
   base64Image?: string | null,
 ): Promise<AIResponse> {
   // Image handling forces OpenAI fallback immediately
   if (base64Image) {
-    const aiText = await processWithOpenAI(userText, history, preferredLang || 'fr', base64Image);
+    const aiText = await processWithOpenAI(userText, history, preferredLang || 'fr', onChunk, base64Image);
     return { text: aiText || 'Erreur image', detectedLang: preferredLang || 'fr' };
   }
   // Seed session language from site language on first message
@@ -724,12 +737,17 @@ export async function processLocalMessage(
     const breakdown = calcPriceBreakdown(productId, w, h);
 
     if (!breakdown) {
+      let limitStr = `${product.maxW}×${product.maxH}`;
+      if (productId === 'colibri-50') {
+        limitStr = h > 170 ? '160×250' : '200×250';
+      }
+
       const texts: Record<Lang, string> = {
-        fr: `⚠️ Les dimensions ${w}×${h} cm dépassent les limites du **${product.name}** (max ${product.maxW}×${product.maxH} cm). Vérifiez vos mesures ou contactez-nous.`,
-        tn: `⚠️ El dimensions ${w}×${h} cm kbar 3al **${product.name}** (max ${product.maxW}×${product.maxH} cm). 3awedha tnajem walla atslna.`,
-        ar: `⚠️ الأبعاد ${w}×${h} سم تتجاوز حدود **${product.name}** (الحد الأقصى ${product.maxW}×${product.maxH} سم). تحقق من قياساتك.`,
-        en: `⚠️ Dimensions ${w}×${h} cm exceed **${product.name}** limits (max ${product.maxW}×${product.maxH} cm). Check your measurements.`,
-        it: `⚠️ Le dimensioni ${w}×${h} cm superano i limiti di **${product.name}** (max ${product.maxW}×${product.maxH} cm). Verifica le misure.`,
+        fr: `⚠️ Les dimensions ${w}×${h} cm dépassent les limites du **${product.name}** (max ${limitStr} cm). Vérifiez vos mesures ou contactez-nous.`,
+        tn: `⚠️ El dimensions ${w}×${h} cm kbar 3al **${product.name}** (max ${limitStr} cm). 3awedha tnajem walla atslna.`,
+        ar: `⚠️ الأبعاد ${w}×${h} سم تتجاوز حدود **${product.name}** (الحد الأقصى ${limitStr} سم). تحقق من قياساتك.`,
+        en: `⚠️ Dimensions ${w}×${h} cm exceed **${product.name}** limits (max ${limitStr} cm). Check your measurements.`,
+        it: `⚠️ Le dimensioni ${w}×${h} cm superano i limiti di **${product.name}** (max ${limitStr} cm). Verifica le misure.`,
       };
       return { text: texts[lang] || texts.fr, detectedLang: lang, suggestions: getSuggestions('price', lang) };
     }
@@ -803,100 +821,20 @@ export async function processLocalMessage(
     };
   }
 
-  // DEVIS REQUEST (Guided Flow)
-  if (intent === 'devis_request') {
-    if (!mem.lastWidth || !mem.lastHeight) {
-      return {
-        text: {
-          fr: "Quelle largeur × hauteur (en cm) souhaitez-vous pour ce devis ?",
-          tn: "A3tini el 3ardh × toul (b cm) lel devis hetha ?",
-          ar: "ما هو العرض × الارتفاع (بالسم) الذي تريده لعرض الأسعار هذا؟",
-          en: "What width × height (in cm) would you like for this quote?",
-          it: "Che larghezza × altezza (in cm) desideri per questo preventivo?",
-        }[lang] || "Dimensions?",
-        detectedLang: lang,
-      };
-    }
-    if (!mem.lastProduct) {
-      return {
-        text: {
-          fr: "Quel produit souhaitez-vous ? (Colibrì 50, Sidney 50, Elba...)",
-          tn: "Asch produit t7eb ? (Colibrì 50, Sidney 50, Elba...)",
-          ar: "أي منتج تريد؟ (Colibrì 50, Sidney 50, Elba...)",
-          en: "Which product would you like? (Colibrì 50, Sidney 50, Elba...)",
-          it: "Quale prodotto desideri? (Colibrì 50, Sidney 50, Elba...)",
-        }[lang] || "Product?",
-        detectedLang: lang,
-      };
-    }
-    
-    // Have both: calculate and show button
-    const b = calcPriceBreakdown(mem.lastProduct, mem.lastWidth, mem.lastHeight);
-    if (b) {
-      return {
-        text: priceResponse(lang, PRODUCTS[mem.lastProduct].name, mem.lastWidth, mem.lastHeight, 1, b, clientName),
-        action: { type: 'open_devis_wizard', params: { productId: mem.lastProduct, width: mem.lastWidth, height: mem.lastHeight } },
-        actionLabel: { fr: '📋 Ouvrir le Devis Wizard', tn: '📋 Iftah el Devis', ar: '📋 فتح الديفيس', en: '📋 Open Quote Wizard', it: '📋 Apri Preventivo' }[lang] || '📋 Ouvrir le Devis Wizard',
-        detectedLang: lang,
-      };
-    }
-  }
-
-  // PRODUCT INTENTS
-  if (intent === 'product_colibri') {
-    return {
-      text: productInfoResponse(lang, 'colibri-50', clientName),
-      detectedLang: lang,
-      suggestions: getSuggestions('product', lang),
-      productImage: PRODUCTS['colibri-50'].image,
-      action: { type: 'navigate_to_page', params: { path: PRODUCTS['colibri-50'].path } },
-      actionLabel: { fr: '🔍 Voir COLIBRÌ 50', tn: '🔍 Chouf COLIBRÌ 50', ar: '🔍 رؤية COLIBRÌ 50', en: '🔍 View COLIBRÌ 50', it: '🔍 Vedi COLIBRÌ 50' }[lang] || '🔍 Voir COLIBRÌ 50',
-    };
-  }
-  if (intent === 'product_sidney') {
-    return {
-      text: productInfoResponse(lang, 'sidney-50', clientName),
-      detectedLang: lang,
-      suggestions: getSuggestions('product', lang),
-      productImage: PRODUCTS['sidney-50'].image,
-      action: { type: 'navigate_to_page', params: { path: PRODUCTS['sidney-50'].path } },
-      actionLabel: { fr: '🔍 Voir SIDNEY 50', tn: '🔍 Chouf SIDNEY 50', ar: '🔍 رؤية SIDNEY 50', en: '🔍 View SIDNEY 50', it: '🔍 Vedi SIDNEY 50' }[lang] || '🔍 Voir SIDNEY 50',
-    };
-  }
-  if (intent === 'product_sidneyAC') {
-    return {
-      text: productInfoResponse(lang, 'sidney-50-ac', clientName),
-      detectedLang: lang,
-      suggestions: getSuggestions('product', lang),
-      productImage: PRODUCTS['sidney-50-ac'].image,
-      action: { type: 'navigate_to_page', params: { path: PRODUCTS['sidney-50-ac'].path } },
-      actionLabel: { fr: '🔍 Voir SIDNEY 50 AC', tn: '🔍 Chouf SIDNEY 50 AC', ar: '🔍 رؤية SIDNEY 50 AC', en: '🔍 View SIDNEY 50 AC', it: '🔍 Vedi SIDNEY 50 AC' }[lang] || '🔍 Voir SIDNEY 50 AC',
-    };
-  }
-  if (intent === 'product_elba') {
-    return {
-      text: productInfoResponse(lang, 'elba', clientName),
-      detectedLang: lang,
-      suggestions: getSuggestions('product', lang),
-      productImage: PRODUCTS['elba'].image,
-      action: { type: 'navigate_to_page', params: { path: PRODUCTS['elba'].path } },
-      actionLabel: { fr: '🔍 Voir ELBA', tn: '🔍 Chouf ELBA', ar: '🔍 رؤية ELBA', en: '🔍 View ELBA', it: '🔍 Vedi ELBA' }[lang] || '🔍 Voir ELBA',
-    };
-  }
-
-  // COMPARISON
-  if (intent === 'comparison') {
+  //   // COMPARISON / CHOICE
+  if (intent === 'comparison' || intent === 'choosing') {
     const texts: Record<Lang, string> = {
-      fr: `⚖️ **Comparatif des moustiquaires :**\n\n🪟 **Colibrì 50** : Fenêtre (Enroulable)\n💰 Dès 263 DT | Idéal pour chambres.\n\n🚪 **Sidney 50** : Porte (Enroulable latérale)\n💰 Dès 611 DT | Idéal pour balcons.\n\n🚪🚪 **Sidney 50 AC** : Grande Porte (Double)\n💰 Dès 1224 DT | Pour grandes ouvertures.\n\n🖼️ **Elba** : Panneau Fixe\n💰 143 DT/m² | Fixation permanente.\n\nLequel vous intéresse ?`,
-      tn: `⚖️ **Mokarana mte3 el moustiquaires :**\n\n🪟 **Colibrì 50** : Chbek (Yatlawa)\n💰 Min 263 DT | Behi lel byout.\n\n🚪 **Sidney 50** : Bab (Yatlawa)\n💰 Min 611 DT | Behi lel balcon.\n\n🚪🚪 **Sidney 50 AC** : Bab Kbir (Double)\n💰 Min 1224 DT | Lel biban lekbar.\n\n🖼️ **Elba** : Fixe\n💰 143 DT/m² | Fixe dima.\n\nAsch t7eb ?`,
-      ar: `⚖️ **مقارنة الناموسيات :**\n\n🪟 **Colibrì 50** : نافذة (قابلة للطي)\n💰 من 263 DT | مثالية للغرف.\n\n🚪 **Sidney 50** : باب (طي جانبي)\n💰 من 611 DT | مثالية للشرفات.\n\n🚪🚪 **Sidney 50 AC** : باب كبير (مزدوج)\n💰 من 1224 DT | للفتحات الكبيرة.\n\n🖼️ **Elba** : لوح ثابت\n💰 143 DT/m² | تثبيت دائم.\n\nما الذي يهمك؟`,
-      en: `⚖️ **Mosquito Screen Comparison:**\n\n🪟 **Colibrì 50**: Window (Roller)\n💰 From 263 DT | Ideal for bedrooms.\n\n🚪 **Sidney 50**: Door (Side Roller)\n💰 From 611 DT | Ideal for balconies.\n\n🚪🚪 **Sidney 50 AC**: Large Door (Double)\n💰 From 1224 DT | For large openings.\n\n🖼️ **Elba**: Fixed Panel\n💰 143 DT/m² | Permanent fixing.\n\nWhich one interests you?`,
-      it: `⚖️ **Confronto Zanzariere:**\n\n🪟 **Colibrì 50**: Finestra (Avvolgibile)\n💰 Da 263 DT | Ideale per camere.\n\n🚪 **Sidney 50**: Porta (Avvolgibile laterale)\n💰 Da 611 DT | Ideale per balconi.\n\n🚪🚪 **Sidney 50 AC**: Porta Grande (Doppia)\n💰 Da 1224 DT | Per grandi aperture.\n\n🖼️ **Elba**: Pannello Fisso\n💰 143 DT/m² | Fissaggio permanente.\n\nQuale ti interessa?`,
+      fr: `⚖️ **Quel produit choisir :**\n\n• Fenêtre normale → **COLIBRÌ 50**\n• Porte simple → **SIDNEY 50**\n• Grande baie / terrasse → **SIDNEY 50 AC**\n• Budget serré / fenêtre fixe → **ELBA**\n\nLequel vous intéresse ?`,
+      tn: `⚖️ **Asch ta5tar :**\n\n• Chbek 3adi → **COLIBRÌ 50**\n• Beb 3adi → **SIDNEY 50**\n• Baie vitrée kbira → **SIDNEY 50 AC**\n• Budget sghir walla chbek fixe → **ELBA**\n\nAsch t7eb ?`,
+      ar: `⚖️ **أي منتج تختار :**\n\n• نافذة عادية → **COLIBRÌ 50**\n• باب بسيط → **SIDNEY 50**\n• نافذة كبيرة → **SIDNEY 50 AC**\n• ميزانية محدودة / نافذة ثابتة → **ELBA**\n\nما الذي يهمك؟`,
+      en: `⚖️ **Which product to choose:**\n\n• Standard window → **COLIBRÌ 50**\n• Single door → **SIDNEY 50**\n• Large opening → **SIDNEY 50 AC**\n• Budget/Fixed → **ELBA**\n\nWhich one interests you?`,
+      it: `⚖️ **Quale prodotto scegliere:**\n\n• Finestra standard → **COLIBRÌ 50**\n• Porta singola → **SIDNEY 50**\n• Grande apertura → **SIDNEY 50 AC**\n• Economica/Fissa → **ELBA**\n\nQuale ti interessa?`,
     };
     return {
       text: texts[lang] || texts.fr,
       suggestions: ['Voir Colibrì 50', 'Voir Sidney 50', 'Voir Elba'],
       detectedLang: lang,
+      comparisonTable: buildComparisonTable(lang),
     };
   }
 
@@ -909,11 +847,11 @@ export async function processLocalMessage(
       const waUrl = `https://wa.me/${BUSINESS_CONFIG.WHATSAPP.replace(/\D/g, '')}?text=${encodeURIComponent(`Nouveau rappel demandé: ${clientName} - ${extractedPhone}`)}`;
       return {
         text: {
-           fr: `Merci ${clientName}. J'ai noté votre numéro ${extractedPhone}. Je transmets la demande !`,
-           tn: `Ayshek ${clientName}. 9ayedt numrourek ${extractedPhone}. Taw nkalmok!`,
-           ar: `شكراً ${clientName}. لقد سجلت رقمك ${extractedPhone}. سأنقل طلبك!`,
-           en: `Thank you ${clientName}. I have noted your number ${extractedPhone}. I'm forwarding the request!`,
-           it: `Grazie ${clientName}. Ho annotato il tuo numero ${extractedPhone}. Inoltro la richiesta!`,
+          fr: `Merci ${clientName}. J'ai noté votre numéro ${extractedPhone}. Je transmets la demande !`,
+          tn: `Ayshek ${clientName}. 9ayedt numrourek ${extractedPhone}. Taw nkalmok!`,
+          ar: `شكراً ${clientName}. لقد سجلت رقمك ${extractedPhone}. سأنقل طلبك!`,
+          en: `Thank you ${clientName}. I have noted your number ${extractedPhone}. I'm forwarding the request!`,
+          it: `Grazie ${clientName}. Ho annotato il tuo numero ${extractedPhone}. Inoltro la richiesta!`,
         }[lang] || `Merci.`,
         action: { type: 'navigate_to_page', params: { path: waUrl } },
         actionLabel: '💬 Ouvrir WhatsApp',
@@ -947,11 +885,11 @@ export async function processLocalMessage(
   // PRODUCT LIST
   if (intent === 'product_list') {
     const texts: Record<Lang, string> = {
-      fr: `🪟 **Nos 4 modèles de moustiquaires** :\n\n**1. COLIBRÌ 50** — Fenêtres enroulables\nDimensions max : 200×170 cm | Dès 263 DT\n\n**2. SIDNEY 50** — Portes enroulables\nDimensions max : 200×260 cm | Dès 611 DT\n\n**3. SIDNEY 50 AC** — Grandes portes (double)\nDimensions max : 400×260 cm | Dès 1224 DT\n\n**4. ELBA** — Panneau fixe\nDimensions max : 120×250 cm | Dès 143 DT/m²\n\nQuel modèle vous intéresse ?`,
-      tn: `🪟 **4 modèles mte3 moustika** :\n\n**1. COLIBRÌ 50** — Chbabek enroulables\nMax : 200×170 cm | Min 263 DT\n\n**2. SIDNEY 50** — Biban enroulables\nMax : 200×260 cm | Min 611 DT\n\n**3. SIDNEY 50 AC** — Biban kbar (double)\nMax : 400×260 cm | Min 1224 DT\n\n**4. ELBA** — Panneau fixe\nMax : 120×250 cm | Min 143 DT/m²\n\nAsch modèle ye3jebek ?`,
-      ar: `🪟 **منتجاتنا الأربعة** :\n\n**1. COLIBRÌ 50** — نوافذ قابلة للطي\nالحد الأقصى : 200×170 سم | ابتداءً من 263 DT\n\n**2. SIDNEY 50** — أبواب قابلة للطي\nالحد الأقصى : 200×260 سم | ابتداءً من 611 DT\n\n**3. SIDNEY 50 AC** — أبواب كبيرة (مزدوجة)\nالحد الأقصى : 400×260 سم | ابتداءً من 1224 DT\n\n**4. ELBA** — لوح ثابت\nالحد الأقصى : 120×250 سم | ابتداءً من 143 DT/m²\n\nأي موديل يعجبك؟`,
-      en: `🪟 **Our 4 mosquito screen models** :\n\n**1. COLIBRÌ 50** — Window retractable\nMax: 200×170 cm | From 263 DT\n\n**2. SIDNEY 50** — Door retractable\nMax: 200×260 cm | From 611 DT\n\n**3. SIDNEY 50 AC** — Large doors (double)\nMax: 400×260 cm | From 1224 DT\n\n**4. ELBA** — Fixed panel\nMax: 120×250 cm | From 143 DT/m²\n\nWhich model interests you?`,
-      it: `🪟 **I nostri 4 modelli di zanzariere** :\n\n**1. COLIBRÌ 50** — Finestre avvolgibili\nMax: 200×170 cm | Da 263 DT\n\n**2. SIDNEY 50** — Porte avvolgibili\nMax: 200×260 cm | Da 611 DT\n\n**3. SIDNEY 50 AC** — Porte grandi (doppie)\nMax: 400×260 cm | Da 1224 DT\n\n**4. ELBA** — Pannello fisso\nMax: 120×250 cm | Da 143 DT/m²\n\nQuale modello ti interessa?`,
+      fr: `🪟 **Nos 5 modèles de moustiquaires** :\n\n**1. COLIBRÌ 50** — Fenêtres enroulables\nDimensions max : 200 cm × 250 cm | Dès 263 DT\n\n**2. SIDNEY 50** — Portes enroulables\nDimensions max : 200×260 cm | Dès 611 DT\n\n**3. SIDNEY 50 AC** — Grandes portes (double)\nDimensions max : 400×260 cm | Dès 1224 DT\n\n**4. ELBA** — Panneau fixe\nDimensions max : 120×250 cm | Dès 143 DT\n\n**5. PLISSÉ 31** — Plissé bilatéral\nDimensions max : 500×300 cm | Dès 1115 DT\n\nQuel modèle vous intéresse ?`,
+      tn: `🪟 **5 modèles mte3 moustika** :\n\n**1. COLIBRÌ 50** — Chbabek enroulables\nMax : 200 cm × 250 cm | Min 263 DT\n\n**2. SIDNEY 50** — Biban enroulables\nMax : 200×260 cm | Min 611 DT\n\n**3. SIDNEY 50 AC** — Biban kbar (double)\nMax : 400×260 cm | Min 1224 DT\n\n**4. ELBA** — Panneau fixe\nMax : 120×250 cm | Min 143 DT\n\n**5. PLISSÉ 31** — Plissé bilatéral\nMax : 500×300 cm | Min 1115 DT\n\nAsch modèle ye3jebek ?`,
+      ar: `🪟 **منتجاتنا الخمسة** :\n\n**1. COLIBRÌ 50** — نوافذ قابلة للطي\nالحد الأقصى : 200 cm × 250 سم | ابتداءً من 263 DT\n\n**2. SIDNEY 50** — أبواب قابلة للطي\nالحد الأقصى : 200×260 سم | ابتداءً من 611 DT\n\n**3. SIDNEY 50 AC** — أبواب كبيرة (مزدوجة)\nالحد الأقصى : 400×260 سم | ابتداءً من 1224 DT\n\n**4. ELBA** — لوح ثابت\nالحد الأقصى : 120×250 سم | ابتداءً من 143 DT\n\n**5. PLISSÉ 31** — مطوية ثنائية\nالحد الأقصى : 500×300 سم | ابتداءً من 1115 DT\n\nأي موديل يعجبك؟`,
+      en: `🪟 **Our 5 mosquito screen models** :\n\n**1. COLIBRÌ 50** — Window retractable\nMax: 200 cm × 250 cm | From 263 DT\n\n**2. SIDNEY 50** — Door retractable\nMax: 200×260 cm | From 611 DT\n\n**3. SIDNEY 50 AC** — Large doors (double)\nMax: 400×260 cm | From 1224 DT\n\n**4. ELBA** — Fixed panel\nMax: 120×250 cm | From 143 DT\n\n**5. PLISSÉ 31** — Bilateral pleated\nMax: 500×300 cm | From 1115 DT\n\nWhich model interests you?`,
+      it: `🪟 **I nostri 5 modelli di zanzariere** :\n\n**1. COLIBRÌ 50** — Finestre avvolgibili\nMax: 200 cm × 250 cm | Da 263 DT\n\n**2. SIDNEY 50** — Porte avvolgibili\nMax: 200×260 cm | Da 611 DT\n\n**3. SIDNEY 50 AC** — Porte grandi (doppie)\nMax: 400×260 cm | Da 1224 DT\n\n**4. ELBA** — Pannello fisso\nMax: 120×250 cm | Da 143 DT\n\n**5. PLISSÉ 31** — Plissettata bilaterale\nMax: 500×300 cm | Da 1115 DT\n\nQuale modello ti interessa?`,
     };
     return {
       text: texts[lang] || texts.fr,
@@ -959,23 +897,6 @@ export async function processLocalMessage(
       suggestions: ['COLIBRÌ 50', 'SIDNEY 50', 'ELBA'],
       action: { type: 'navigate_to_page', params: { path: '/produits' } },
       actionLabel: { fr: '🛍 Voir le catalogue', tn: '🛍 Chouf el catalogue', ar: '🛍 عرض الكتالوج', en: '🛍 View catalogue', it: '🛍 Vedi catalogo' }[lang] || '🛍 Voir le catalogue',
-    };
-  }
-
-  // COMPARISON
-  if (intent === 'comparison') {
-    const texts: Record<Lang, string> = {
-      fr: `📊 **Comparatif de nos moustiquaires** :\n\nVoici les différences clés entre nos 4 modèles. Besoin d'aide pour choisir ?`,
-      tn: `📊 **Comparaison mte3 moustika 7etna** :\n\nHouma el far9 bin el 4 modèles. T7eb n3awnek ta5tar ?`,
-      ar: `📊 **مقارنة المستيكارات** :\n\nهذه الفروقات الرئيسية بين الأربعة موديلات. تحتاج مساعدة في الاختيار؟`,
-      en: `📊 **Mosquito screen comparison** :\n\nHere are the key differences between our 4 models. Need help choosing?`,
-      it: `📊 **Confronto zanzariere** :\n\nEcco le differenze chiave tra i 4 modelli. Hai bisogno di aiuto per scegliere?`,
-    };
-    return {
-      text: texts[lang] || texts.fr,
-      detectedLang: lang,
-      comparisonTable: buildComparisonTable(lang),
-      suggestions: getSuggestions('product', lang),
     };
   }
 
@@ -1014,86 +935,85 @@ export async function processLocalMessage(
     };
   }
 
-  // LOCATION
-  if (intent === 'location') {
+  // LOCATION / ZONE
+  if (intent === 'location' || intent === 'zone') {
     const texts: Record<Lang, string> = {
-      fr: `📍 **Showroom Aluminium Space** :\n${COMPANY.address}\n\n🗺 À Mghira, Tunis — facilement accessible depuis Tunis (20 min).`,
-      tn: `📍 **Showroom mte3na** :\n${COMPANY.address}\n\n🗺 Fi Mghira, Tunis — 20 min men Tunis.`,
-      ar: `📍 **معرض Aluminium Space** :\n${COMPANY.address}\n\n🗺 في مغيرة، تونس — 20 دقيقة من تونس العاصمة.`,
-      en: `📍 **Aluminium Space Showroom** :\n${COMPANY.address}\n\n🗺 In Mghira, Tunis — 20 min from Tunis.`,
-      it: `📍 **Showroom Aluminium Space** :\n${COMPANY.address}\n\n🗺 A Mghira, Tunis — 20 min da Tunisi.`,
-    };
-    return {
-      text: texts[lang] || texts.fr,
-      detectedLang: lang,
-      suggestions: getSuggestions('contact', lang),
-    };
-  }
-
-  // HOURS
-  if (intent === 'hours') {
-    const texts: Record<Lang, string> = {
-      fr: `⏰ **Horaires d'ouverture** :\n\n${COMPANY.hours}\n\nNous sommes fermés le dimanche. Contactez-nous sur WhatsApp en dehors des heures.`,
-      tn: `⏰ **Wa9t el 3mel** :\n\n${COMPANY.hours}\n\nEl had 8alaqa. Tnajem ta3melna WhatsApp fi d dehors des heures.`,
-      ar: `⏰ **ساعات العمل** :\n\n${COMPANY.hours}\n\nمغلق الأحد. يمكنك التواصل عبر واتساب خارج ساعات العمل.`,
-      en: `⏰ **Opening hours** :\n\n${COMPANY.hours}\n\nClosed on Sunday. Contact us on WhatsApp outside business hours.`,
-      it: `⏰ **Orari di apertura** :\n\n${COMPANY.hours}\n\nChiusi la domenica. Contattaci su WhatsApp fuori orario.`,
-    };
-    return { text: texts[lang] || texts.fr, detectedLang: lang, suggestions: getSuggestions('contact', lang) };
-  }
-
-  // ABOUT
-  if (intent === 'about') {
-    const texts: Record<Lang, string> = {
-      fr: `🏢 **Aluminium Space** est spécialisé dans la fabrication et l'installation de moustiquaires de qualité italienne Grifo Flex.\n\n📍 Basé à Mghira, Tunis\n🏆 Produits certifiés, structure aluminium\n🇮🇹 Qualité italienne\n\nNous servons toute la Tunisie avec un service professionnel.`,
-      tn: `🏢 **Aluminium Space** mta3 moustika de qualité italienne Grifo Flex.\n\n📍 Fi Mghira, Tunis\n🏆 Produits certifiés, haykel aluminium\n🇮🇹 Qualité italienne\n\nNkhedmou l kol tounes.`,
-      ar: `🏢 **Aluminium Space** متخصص في تصنيع وتركيب مستيكارات إيطالية الجودة Grifo Flex.\n\n📍 في مغيرة، تونس\n🏆 منتجات معتمدة، هيكل ألومنيوم\n🇮🇹 جودة إيطالية\n\nنخدم كل تونس.`,
-      en: `🏢 **Aluminium Space** specializes in manufacturing and installing quality Italian mosquito screens (Grifo Flex).\n\n📍 Based in Mghira, Tunis\n🏆 Certified products, aluminum structure\n🇮🇹 Italian quality\n\nServing all of Tunisia.`,
-      it: `🏢 **Aluminium Space** è specializzata nella produzione e installazione di zanzariere di qualità italiana Grifo Flex.\n\n📍 A Mghira, Tunis\n🏆 Prodotti certificati, struttura in alluminio\n🇮🇹 Qualità italiana\n\nServiamo tutta la Tunisia.`,
-    };
-    return {
-      text: texts[lang] || texts.fr,
-      detectedLang: lang,
-      suggestions: getSuggestions('greeting', lang),
-      action: { type: 'navigate_to_page', params: { path: '/about' } },
-      actionLabel: { fr: '📖 En savoir plus', tn: '📖 A3ref akther', ar: '📖 اعرف أكثر', en: '📖 Learn more', it: '📖 Scopri di più' }[lang] || '📖 En savoir plus',
-    };
-  }
-
-  // INSTALLATION
-  if (intent === 'installation') {
-    const texts: Record<Lang, string> = {
-      fr: `🔧 **Installation** :\n\nNous proposons l'installation professionnelle de nos moustiquaires par nos techniciens qualifiés.\n\n📞 Appelez-nous pour planifier une installation : ${COMPANY.phone1}\n💬 WhatsApp : +216 57 099 070`,
-      tn: `🔧 **Tarkib** :\n\nNajem nrakboulek el moustika b mohtarfin mte3na.\n\n📞 Atslna bech nplaniflou : ${COMPANY.phone1}\n💬 WhatsApp : +216 57 099 070`,
-      ar: `🔧 **التركيب** :\n\nنقدم التركيب الاحترافي لمستيكاراتنا من قبل فنيينا المؤهلين.\n\n📞 اتصل بنا للتخطيط : ${COMPANY.phone1}\n💬 واتساب : +216 57 099 070`,
-      en: `🔧 **Installation** :\n\nWe offer professional installation by our qualified technicians.\n\n📞 Call us to schedule: ${COMPANY.phone1}\n💬 WhatsApp: +216 57 099 070`,
-      it: `🔧 **Installazione** :\n\nOffriamo installazione professionale da parte dei nostri tecnici qualificati.\n\n📞 Chiamaci per programmare: ${COMPANY.phone1}\n💬 WhatsApp: +216 57 099 070`,
+      fr: "📍 Tunis et Grand Tunis. Pour d'autres régions, contactez-nous.",
+      tn: "📍 Tunis w Grand Tunis. Kenek fi blassa okhra, atslna.",
+      ar: "📍 تونس وتونس الكبرى. لمناطق أخرى، اتصل بنا.",
+      en: "📍 Tunis and Greater Tunis. For other regions, contact us.",
+      it: "📍 Tunisi e Grande Tunisi. Per altre regioni, contattaci."
     };
     return { text: texts[lang] || texts.fr, detectedLang: lang, suggestions: getSuggestions('contact', lang) };
   }
 
   // DELIVERY
-  if (intent === 'delivery') {
+  if (intent === 'delivery' || intent === 'delay') {
     const texts: Record<Lang, string> = {
-      fr: `🚚 **Délais** :\n\n• Fabrication sur mesure : 7 à 14 jours ouvrables\n• Livraison possible sur tout le territoire\n• Délai de pose : 1 à 2 heures par unité\n\nContactez-nous pour plus de détails.`,
-      tn: `🚚 **Delai** :\n\n• Fabrication sur mesure : 7 à 14 jours\n• Tawsil possible l kol bled\n• Tarkib : 1 à 2 sa3et lel wa7da\n\nAtslna bech ta3ref akther.`,
-      ar: `🚚 **المواعيد** :\n\n• التصنيع على القياس : 7 إلى 14 يوم عمل\n• التوصيل ممكن لكل أنحاء البلاد\n• وقت التركيب : 1 إلى 2 ساعة للوحدة\n\nاتصل بنا للمزيد.`,
-      en: `🚚 **Lead times** :\n\n• Custom manufacturing: 7 to 14 business days\n• Delivery available across Tunisia\n• Installation: 1 to 2 hours per unit\n\nContact us for more details.`,
-      it: `🚚 **Tempi** :\n\n• Produzione su misura: 7-14 giorni lavorativi\n• Consegna disponibile in tutta la Tunisia\n• Installazione: 1-2 ore per unità\n\nContattaci per i dettagli.`,
+      fr: "🚚 Installation sous 3 à 7 jours ouvrables après confirmation de commande.",
+      tn: "🚚 El tarkib bin 3 w 7 ayam ba3d ma tconfirmili el commande.",
+      ar: "🚚 التركيب خلال 3 إلى 7 أيام عمل بعد تأكيد الطلب.",
+      en: "🚚 Installation within 3 to 7 business days after order confirmation.",
+      it: "🚚 Installazione entro 3-7 giorni lavorativi dopo la conferma."
     };
-    return { text: texts[lang] || texts.fr, detectedLang: lang, suggestions: getSuggestions('contact', lang) };
+    return { text: texts[lang] || texts.fr, detectedLang: lang, suggestions: getSuggestions('greeting', lang) };
   }
 
   // WARRANTY
   if (intent === 'warranty') {
     const texts: Record<Lang, string> = {
-      fr: `🛡️ **Garantie** :\n\n• Structure aluminium : 2 ans de garantie fabricant\n• Grille anti-insectes : 1 an\n• Service après-vente disponible\n\nNos produits Grifo Flex sont reconnus pour leur durabilité.`,
-      tn: `🛡️ **Daman** :\n\n• Haykel aluminium : 2 snin daman\n• Grille : 1 sna\n• SAV disponible\n\nProduits Grifo Flex yestahmlou.`,
-      ar: `🛡️ **الضمان** :\n\n• هيكل الألومنيوم : ضمان سنتان\n• الشبكة : سنة واحدة\n• خدمة ما بعد البيع متاحة\n\nمنتجات Grifo Flex معروفة بمتانتها.`,
-      en: `🛡️ **Warranty** :\n\n• Aluminum structure: 2 years manufacturer warranty\n• Insect mesh: 1 year\n• After-sales service available\n\nGrifo Flex products are known for their durability.`,
-      it: `🛡️ **Garanzia** :\n\n• Struttura in alluminio: 2 anni di garanzia\n• Rete anti-insetti: 1 anno\n• Servizio post-vendita disponibile\n\nI prodotti Grifo Flex sono noti per la durata.`,
+      fr: "🛡️ 3 ans de garantie sur toutes les moustiquaires Grifo Flex. SAV disponible, installation incluse dans la garantie.",
+      tn: "🛡️ 3 snin daman 3al moustikaret Grifo Flex lkol. SAV mawjoud w tarkib da5el fel daman.",
+      ar: "🛡️ ضمان 3 سنوات على جميع منتجات Grifo Flex. خدمة ما بعد البيع متاحة والتركيب مشمول.",
+      en: "🛡️ 3 years warranty on all Grifo Flex mosquito nets. After-sales service available, installation included.",
+      it: "🛡️ 3 anni di garanzia su tutte le zanzariere Grifo Flex. Servizio post-vendita e installazione inclusi."
     };
-    return { text: texts[lang] || texts.fr, detectedLang: lang, suggestions: getSuggestions('contact', lang) };
+    return { text: texts[lang] || texts.fr, detectedLang: lang, suggestions: getSuggestions('greeting', lang) };
+  }
+
+  // ORIGIN / SOURCE / ABOUT
+  if (intent === 'about' || intent === 'origin') {
+    const texts: Record<Lang, string> = {
+      fr: "Grifo Flex est une marque italienne (Grifoflex® Spa). Aluminium Space est partenaire agréé en Tunisie. Tous les produits sont fabriqués en Italie avec des matériaux premium.",
+      tn: "Grifo Flex hia marka talianya. Aluminium Space homa el partenaire agréé fi Tounes. Kol chay masnou3 fi Italia.",
+      ar: "Grifo Flex هي علامة تجارية إيطالية. Aluminium Space هو الشريك المعتمد في تونس. جميع المنتجات مصنوعة في إيطاليا بمواد عالية الجودة.",
+      en: "Grifo Flex is an Italian brand. Aluminium Space is the certified partner in Tunisia. All products are made in Italy with premium materials.",
+      it: "Grifo Flex è un marchio italiano. Aluminium Space è il partner certificato in Tunisia. Tutti i prodotti sono realizzati in Italia con materiali premium."
+    };
+    return { text: texts[lang] || texts.fr, detectedLang: lang, suggestions: getSuggestions('greeting', lang) };
+  }
+
+  // SPECS
+  if (intent === 'specs' || intent === 'technical_info') {
+    const productId = mem.lastProduct;
+    if (productId && PRODUCTS[productId]) {
+      return {
+        text: productInfoResponse(lang, productId, clientName),
+        detectedLang: lang,
+        suggestions: getSuggestions('product', lang),
+        productImage: PRODUCTS[productId].image,
+      };
+    }
+    const texts: Record<Lang, string> = {
+      fr: "Nos moustiquaires sont en aluminium et fibre de verre recouverte de PVC. Couleurs : Blanc RAL 9010 ou Noir mat. De quel produit souhaitez-vous les caractéristiques techniques ?",
+      tn: "El moustikaret mte3na b aluminium w fibre de verre bel PVC. Lwoun: Blanc RAL 9010 wella Noir mat. 3ala anehou produit t7eb ta3ref ?",
+      ar: "مستيكاراتنا مصنوعة من الألومنيوم والألياف الزجاجية المغطاة بـ PVC. الألوان: أبيض RAL 9010 أو أسود غير لامع. عن أي منتج تريد معلومات تقنية؟",
+      en: "Our screens are made of aluminum and fiberglass covered with PVC. Colors: White RAL 9010 or Matte Black. Which product would you like specs for?",
+      it: "Le nostre zanzariere sono in alluminio e fibra di vetro rivestita in PVC. Colori: Bianco RAL 9010 o Nero opaco. Per quale prodotto desideri le specifiche?"
+    };
+    return { text: texts[lang] || texts.fr, detectedLang: lang, suggestions: ['COLIBRÌ 50', 'SIDNEY 50', 'ELBA'] };
+  }
+
+  // MEASURE
+  if (intent === 'measure') {
+    const texts: Record<Lang, string> = {
+      fr: "Mesurez la largeur (L) et la hauteur (H) de votre ouverture en cm. Pour fenêtre : mesure intérieure du cadre. Pour porte : mesure de l'ouverture totale. Format: LargeurXHauteur (ex: 140×120).",
+      tn: "9is el 3ardh w el toul b cm. Lel chbek: 9is men de5el. Lel beb: 9is el fet7a lkol. Format: 3ardhXtoul (ex: 140×120).",
+      ar: "قس العرض والارتفاع لفتحتك بالسنتيمتر. للنافذة: القياس الداخلي للإطار. للباب: قياس الفتحة الكلية. مثال: 140×120.",
+      en: "Measure the width (W) and height (H) of your opening in cm. For window: inner frame measure. For door: total opening. Format: WidthXHeight (e.g., 140×120).",
+      it: "Misura la larghezza (L) e l'altezza (H) in cm. Finestra: misura interna del telaio. Porta: apertura totale. Es: 140×120."
+    };
+    return { text: texts[lang] || texts.fr, detectedLang: lang, suggestions: getSuggestions('greeting', lang) };
   }
 
   // MAINTENANCE
@@ -1123,13 +1043,13 @@ export async function processLocalMessage(
   // PAYMENT
   if (intent === 'payment') {
     const texts: Record<Lang, string> = {
-      fr: `💳 **Modalités de paiement** :\n\n• Espèces (cash)\n• Virement bancaire\n• Chèque certifié\n• Versement en acompte (30% à la commande)\n\nContactez-nous pour discuter des options.`,
-      tn: `💳 **Kif tkhales** :\n\n• Cash\n• Virement bancaire\n• Chèque certifié\n• Acompte (30% 3al commande)\n\nAtslna bech ntet7adthou.`,
-      ar: `💳 **طرق الدفع** :\n\n• نقداً\n• تحويل بنكي\n• شيك مصدق\n• دفعة مقدمة (30% عند الطلب)\n\nاتصل بنا لمناقشة الخيارات.`,
-      en: `💳 **Payment options** :\n\n• Cash\n• Bank transfer\n• Certified check\n• Down payment (30% on order)\n\nContact us to discuss options.`,
-      it: `💳 **Modalità di pagamento** :\n\n• Contanti\n• Bonifico bancario\n• Assegno certificato\n• Acconto (30% all'ordine)\n\nContattaci per discutere le opzioni.`,
+      fr: "💳 Paiement en espèces ou virement bancaire. RIB: 11 05500 01215002788 56 - Agence BOUMHEL.",
+      tn: "💳 Tnajem tkhales cash walla virement bancaire. RIB: 11 05500 01215002788 56 - Agence BOUMHEL.",
+      ar: "💳 الدفع نقداً أو تحويل بنكي. RIB: 11 05500 01215002788 56 - Agence BOUMHEL.",
+      en: "💳 Payment in cash or bank transfer. RIB: 11 05500 01215002788 56 - Agence BOUMHEL.",
+      it: "💳 Pagamento in contanti o bonifico bancario. RIB: 11 05500 01215002788 56 - Agence BOUMHEL."
     };
-    return { text: texts[lang] || texts.fr, detectedLang: lang, suggestions: getSuggestions('contact', lang) };
+    return { text: texts[lang] || texts.fr, detectedLang: lang };
   }
 
   // SHOWROOM
@@ -1147,11 +1067,11 @@ export async function processLocalMessage(
   // PROMO
   if (intent === 'promo') {
     const texts: Record<Lang, string> = {
-      fr: `🎁 **Nos offres** :\n\nUne **remise de 20%** est déjà incluse dans tous nos devis.\n\nSuivez nos réseaux sociaux pour les promotions spéciales.`,
-      tn: `🎁 **Promotions mte3na** :\n\nFi déjà **remise de 20%** fi kol devis mte3na.\n\nSuiv reseaux sociaux 7etna bech ta3ref promotions.`,
-      ar: `🎁 **عروضنا** :\n\n**خصم 20%** مدرج بالفعل في كل ديفيسات.\n\nتابع شبكاتنا الاجتماعية للعروض الخاصة.`,
-      en: `🎁 **Our offers** :\n\nA **20% discount** is already included in all our quotes.\n\nFollow our social media for special promotions.`,
-      it: `🎁 **Le nostre offerte** :\n\nUno **sconto del 20%** è già incluso in tutti i preventivi.\n\nSeguici sui social media per promozioni speciali.`,
+      fr: `🎁 **Nos offres** :\n\nUne **remise de ${BUSINESS_CONFIG.remisePct}%** est déjà incluse dans tous nos devis.\n\nSuivez nos réseaux sociaux pour les promotions spéciales.`,
+      tn: `🎁 **Promotions mte3na** :\n\nFi déjà **remise de ${BUSINESS_CONFIG.remisePct}%** fi kol devis mte3na.\n\nSuiv reseaux sociaux 7etna bech ta3ref promotions.`,
+      ar: `🎁 **عروضنا** :\n\n**خصم ${BUSINESS_CONFIG.remisePct}%** مدرج بالفعل في كل ديفيسات.\n\nتابع شبكاتنا الاجتماعية للعروض الخاصة.`,
+      en: `🎁 **Our offers** :\n\nA **${BUSINESS_CONFIG.remisePct}% discount** is already included in all our quotes.\n\nFollow our social media for special promotions.`,
+      it: `🎁 **Le nostre offerte** :\n\nUno **sconto del ${BUSINESS_CONFIG.remisePct}%** è già incluso in tutti i preventivi.\n\nSeguici sui social media per promozioni speciali.`,
     };
     return { text: texts[lang] || texts.fr, detectedLang: lang, suggestions: getSuggestions('greeting', lang) };
   }
@@ -1284,7 +1204,7 @@ export async function processLocalMessage(
 
   // NOT UNDERSTOOD — try OpenAI before static fallback
   const sessionLangLocal = sessionLang;
-  const openAiText = await processWithOpenAI(userText, history, lang);
+  const openAiText = await processWithOpenAI(userText, history, lang, onChunk);
   if (openAiText) {
     return {
       text: openAiText,

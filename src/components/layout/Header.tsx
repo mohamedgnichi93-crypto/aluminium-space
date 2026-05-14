@@ -15,6 +15,7 @@ const languages = [
 
 const Header = () => {
   const { t, i18n } = useTranslation();
+  const isRTL = ['ar', 'tn'].includes(i18n.language);
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
@@ -85,7 +86,7 @@ const Header = () => {
         <button
           key={lang.code}
           onClick={() => changeLanguage(lang.code)}
-          className="w-full text-start px-4 py-3 text-sm transition-colors duration-150"
+          className={`w-full ${isRTL ? 'text-end' : 'text-start'} px-4 py-3 text-sm transition-colors duration-150`}
           style={{
             fontFamily: 'DM Sans, sans-serif',
             color: i18n.language === lang.code ? '#81C063' : '#2F2D2C',
@@ -94,7 +95,7 @@ const Header = () => {
           onMouseEnter={e => { e.currentTarget.style.background = '#F5F7FA'; }}
           onMouseLeave={e => { e.currentTarget.style.background = i18n.language === lang.code ? '#F5F7FA' : 'transparent'; }}
         >
-          <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: '8px' }}>
             <img src={lang.flag} alt={lang.code} style={{ width: '16px', height: '12px', borderRadius: '2px' }} />
             {lang.label}
           </span>
@@ -122,19 +123,20 @@ const Header = () => {
         }
       `}</style>
 
-      <div className="container mx-auto px-4 h-full flex items-center justify-between gap-4 relative">
+      <div className="container mx-auto px-4 h-full flex items-center justify-between gap-4 relative" style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
 
         {/* Logo */}
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', flexShrink: 0 }} className="group">
+        <Link to="/" style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: '10px', textDecoration: 'none', flexShrink: 0 }} className="group">
           <img src="/logo-aluminium-space.png" alt="ALU SPACE Logo"
-            style={{ height: '58px', width: 'auto', objectFit: 'contain' }}
+            className="no-rtl-flip"
+            style={{ height: '58px', width: 'auto', objectFit: 'contain', transform: 'none', display: 'block' }}
             onError={e => { e.currentTarget.style.display = 'none'; }}
           />
           <div className="hidden sm:block">
             <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '19px', color: '#2F2D2C', letterSpacing: '3px', textTransform: 'uppercase' }}>
               ALUMINIUM <span style={{ color: '#1D3E61' }}>SPACE</span>
             </div>
-            <div style={{ fontSize: '8px', letterSpacing: '3px', color: '#818181', fontWeight: 500, textTransform: 'uppercase', fontFamily: 'Rajdhani, sans-serif', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <div style={{ fontSize: '8px', letterSpacing: '3px', color: '#818181', fontWeight: 500, textTransform: 'uppercase', fontFamily: 'Rajdhani, sans-serif', display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: '4px' }}>
               <img src="https://flagcdn.com/16x12/tn.png" alt="Tunisia" style={{ width: '16px', height: '12px' }} />
               MENUISERIE ALUMINIUM
               <img src="https://flagcdn.com/16x12/it.png" alt="Italy" style={{ width: '16px', height: '12px' }} />
@@ -143,9 +145,9 @@ const Header = () => {
         </Link>
 
         {/* Desktop: Nav + Actions (center, flex-1) */}
-        <div className="hidden md:flex items-center flex-1 justify-center gap-1">
+        <div className="hidden md:flex items-center flex-1 justify-center gap-1" style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
           {/* Nav links */}
-          <nav className="flex items-center gap-1">
+          <nav className="flex items-center gap-1" style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
             {navLinks.map(link => {
               const active = link.path === '/' ? location.pathname === '/' : location.pathname.startsWith(link.path);
               return (
@@ -179,7 +181,7 @@ const Header = () => {
           <div style={{ width: '1px', height: '20px', background: '#DBDADA', margin: '0 4px', flexShrink: 0 }} />
 
           {/* Action buttons */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2" style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
             <Link
               to="/mon-espace"
               title={t('nav.my_space')}
@@ -204,13 +206,13 @@ const Header = () => {
             {isInstalled ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#81C063', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase' }}>
                 <Download size={12} />
-                Installée ✓
+                {t('header.installed', 'Installée ✓')}
               </div>
             ) : (
               <button
                 onClick={canInstall ? install : () => setShowInstallModal(true)}
                 disabled={isInstalling}
-                title="Installer l'application"
+                title={t('header.install_app', "Installer l'application")}
                 style={{
                   display: 'flex', alignItems: 'center', gap: '6px',
                   background: 'rgba(129,192,99,0.10)', color: '#1D3E61',
@@ -224,12 +226,12 @@ const Header = () => {
                 onMouseLeave={e => { e.currentTarget.style.background = 'rgba(129,192,99,0.10)'; e.currentTarget.style.color = '#1D3E61'; e.currentTarget.style.borderColor = 'rgba(129,192,99,0.40)'; }}
               >
                 <Download size={13} />
-                {isInstalling ? '...' : 'Installer'}
+                {isInstalling ? '...' : t('header.install', 'Installer')}
               </button>
             )}
 
             {/* Language */}
-            <div className="relative" ref={langRef} style={{ borderLeft: '1px solid #DBDADA', paddingLeft: '10px' }}>
+            <div className="relative" ref={langRef} style={{ [isRTL ? 'borderRight' : 'borderLeft']: '1px solid #DBDADA', [isRTL ? 'paddingRight' : 'paddingLeft']: '10px' }}>
               <button
                 onClick={() => setLangMenuOpen(!langMenuOpen)}
                 className="flex items-center gap-1.5 text-sm transition-colors duration-200"
@@ -259,7 +261,8 @@ const Header = () => {
           <img
             src="/images/grifo-flex-logo.png"
             alt="Grifo Flex Tunisie"
-            style={{ height: '44px', width: 'auto', maxWidth: '200px', objectFit: 'contain' }}
+            className="no-rtl-flip"
+            style={{ height: '44px', width: 'auto', maxWidth: '200px', objectFit: 'contain', transform: 'none', display: 'block' }}
           />
         </a>
 
@@ -270,7 +273,7 @@ const Header = () => {
               onClick={() => setLangMenuOpen(!langMenuOpen)}
               className="min-w-[44px] min-h-[44px] flex items-center justify-center"
               style={{ color: '#2F2D2C', border: '1.5px solid #1e3a5f', borderRadius: '10px', padding: '7px 10px', background: 'transparent', boxShadow: '0 1px 4px rgba(30, 58, 95, 0.15)' }}
-              aria-label="Changer la langue"
+              aria-label={t('header.change_lang', 'Changer la langue')}
             >
               <Globe className="w-5 h-5" />
             </button>
@@ -283,7 +286,7 @@ const Header = () => {
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="min-w-[44px] min-h-[44px] flex items-center justify-center"
             style={{ color: '#2F2D2C', border: '1.5px solid #1e3a5f', borderRadius: '10px', padding: '7px 10px', background: 'transparent', boxShadow: '0 1px 4px rgba(30, 58, 95, 0.15)' }}
-            aria-label={mobileMenuOpen ? 'Fermer' : 'Menu'}
+            aria-label={mobileMenuOpen ? t('common.close', 'Fermer') : t('header.menu', 'Menu')}
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -292,7 +295,7 @@ const Header = () => {
             <button
               onClick={canInstall ? install : () => setShowInstallModal(true)}
               disabled={isInstalling}
-              title="Installer l'application"
+              title={t('header.install_app', "Installer l'application")}
               className="flex items-center justify-center"
               style={{ width: '36px', height: '36px', color: '#2F2D2C', border: '1.5px solid #1e3a5f', borderRadius: '10px', padding: '7px 10px', background: 'transparent', boxShadow: '0 1px 4px rgba(30, 58, 95, 0.15)', flexShrink: 0 }}
             >
@@ -306,7 +309,7 @@ const Header = () => {
         <a
           href="https://www.grifoflex.com" target="_blank" rel="noopener noreferrer"
           className="flex md:hidden items-center"
-          style={{ paddingLeft: '4px', borderLeft: '1px solid #DBDADA', marginLeft: '2px', flexShrink: 0, overflow: 'visible' }}
+          style={{ [isRTL ? 'paddingRight' : 'paddingLeft']: '4px', [isRTL ? 'borderRight' : 'borderLeft']: '1px solid #DBDADA', [isRTL ? 'marginRight' : 'marginLeft']: '2px', flexShrink: 0, overflow: 'visible' }}
           title="Grifo Flex"
         >
           <img
@@ -345,29 +348,29 @@ const Header = () => {
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
                 <Download size={20} color="#1D3E61" />
                 <h3 style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '17px', color: '#1D3E61', letterSpacing: '1.5px', textTransform: 'uppercase', margin: 0 }}>
-                  Installer l'application
+                  {t('header.install_app', "Installer l'application")}
                 </h3>
               </div>
 
               <div style={{ marginBottom: '18px' }}>
                 <p style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '13px', color: '#2F2D2C', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px' }}>
-                  Chrome / Edge
+                  {t('header.pwa_chrome_title', 'Chrome / Edge')}
                 </p>
-                <ol style={{ paddingLeft: '18px', margin: 0, fontFamily: 'DM Sans, sans-serif', fontSize: '13px', color: '#555', lineHeight: '1.9' }}>
-                  <li>Ouvrez le menu <strong>⋮</strong> (3 points en haut à droite)</li>
-                  <li>Cliquez <strong>"Installer Aluminium Space"</strong></li>
-                  <li>Confirmez l'installation</li>
+                <ol style={{ paddingLeft: isRTL ? '0' : '18px', paddingRight: isRTL ? '18px' : '0', margin: 0, fontFamily: 'DM Sans, sans-serif', fontSize: '13px', color: '#555', lineHeight: '1.9', textAlign: isRTL ? 'right' : 'left' }}>
+                  <li>{t('header.pwa_chrome_step1', 'Ouvrez le menu ⋮ (3 points en haut à droite)')}</li>
+                  <li>{t('header.pwa_chrome_step2', 'Cliquez "Installer Aluminium Space"')}</li>
+                  <li>{t('header.pwa_chrome_step3', "Confirmez l'installation")}</li>
                 </ol>
               </div>
 
               <div style={{ borderTop: '1px solid #DBDADA', paddingTop: '18px', marginBottom: '20px' }}>
                 <p style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '13px', color: '#2F2D2C', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px' }}>
-                  Safari (iPhone / iPad)
+                  {t('header.pwa_safari_title', 'Safari (iPhone / iPad)')}
                 </p>
-                <ol style={{ paddingLeft: '18px', margin: 0, fontFamily: 'DM Sans, sans-serif', fontSize: '13px', color: '#555', lineHeight: '1.9' }}>
-                  <li>Appuyez sur le bouton <strong>Partager</strong> 📤 en bas</li>
-                  <li>Faites défiler → <strong>"Sur l'écran d'accueil"</strong></li>
-                  <li>Appuyez sur <strong>Ajouter</strong></li>
+                <ol style={{ paddingLeft: isRTL ? '0' : '18px', paddingRight: isRTL ? '18px' : '0', margin: 0, fontFamily: 'DM Sans, sans-serif', fontSize: '13px', color: '#555', lineHeight: '1.9', textAlign: isRTL ? 'right' : 'left' }}>
+                  <li>{t('header.pwa_safari_step1', 'Appuyez sur le bouton Partager 📤 en bas')}</li>
+                  <li>{t('header.pwa_safari_step2', 'Faites défiler → "Sur l\'écran d\'accueil"')}</li>
+                  <li>{t('header.pwa_safari_step3', 'Appuyez sur Ajouter')}</li>
                 </ol>
               </div>
 
@@ -375,7 +378,7 @@ const Header = () => {
                 onClick={() => setShowInstallModal(false)}
                 style={{ width: '100%', background: '#1D3E61', color: 'white', border: 'none', borderRadius: '10px', padding: '12px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '14px', letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer' }}
               >
-                Fermer
+                {t('common.close', 'Fermer')}
               </button>
             </motion.div>
           </motion.div>
@@ -392,23 +395,22 @@ const Header = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-50"
-              style={{ background: 'rgba(0,0,0,0.5)' }}
+              className="fixed inset-0 z-40 bg-black/50 md:hidden"
               onClick={() => setMobileMenuOpen(false)}
             />
 
             {/* Slide-in Panel */}
             <motion.div
-              initial={{ x: '100%', opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: '100%', opacity: 0 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed top-0 right-0 bottom-0 z-50 flex flex-col"
-              style={{ width: '85%', maxWidth: '320px', background: '#0A1628' }}
+              initial={{ y: '-100%', opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: '-100%', opacity: 0 }}
+              transition={{ type: 'spring', damping: 28, stiffness: 220 }}
+              className="fixed top-0 left-0 right-0 z-50 flex flex-col"
+              style={{ width: '100%', maxWidth: '100%', background: '#0A1628' }}
             >
               {/* Panel Header */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: '2px solid #81C063' }}>
-                <div>
+              <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: '2px solid #81C063' }}>
+                <div style={{ textAlign: isRTL ? 'right' : 'left' }}>
                   <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 800, fontSize: '16px', color: '#FFFFFF', letterSpacing: '3px', textTransform: 'uppercase' }}>
                     ALUMINIUM <span style={{ color: '#81C063' }}>SPACE</span>
                   </div>
@@ -420,7 +422,7 @@ const Header = () => {
                 <button
                   onClick={() => setMobileMenuOpen(false)}
                   style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.05)', color: '#FFFFFF', cursor: 'pointer' }}
-                  aria-label="Fermer"
+                  aria-label={t('common.close', 'Fermer')}
                 >
                   <X size={18} />
                 </button>
@@ -444,19 +446,20 @@ const Header = () => {
                         to={link.path}
                         onClick={() => setMobileMenuOpen(false)}
                         style={{
-                          display: 'flex', alignItems: 'center', gap: '12px', padding: '16px 24px',
+                          display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: '12px', padding: '16px 24px',
                           fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, letterSpacing: '2px',
                           textTransform: 'uppercase', fontSize: '16px',
                           color: active ? '#81C063' : '#FFFFFF',
                           background: active ? 'rgba(129,192,99,0.08)' : 'transparent',
                           borderBottom: '1px solid rgba(255,255,255,0.08)',
-                          borderLeft: active ? '3px solid #81C063' : '3px solid transparent',
+                          [isRTL ? 'borderRight' : 'borderLeft']: active ? '3px solid #81C063' : '3px solid transparent',
                           textDecoration: 'none', transition: 'background 0.15s',
+                          textAlign: isRTL ? 'right' : 'left',
                         }}
                       >
-                        <span style={{ opacity: active ? 1 : 0.6, display: 'flex' }}>{iconMap[link.path]}</span>
+                        <span style={{ opacity: active ? 1 : 0.6, display: 'flex', transform: isRTL ? 'scaleX(-1)' : 'none' }}>{iconMap[link.path]}</span>
                         <span style={{ flex: 1 }}>{link.name}</span>
-                        <ChevronRight size={14} style={{ opacity: 0.4 }} />
+                        <ChevronRight size={14} style={{ opacity: 0.4, transform: isRTL ? 'rotate(180deg)' : 'none' }} />
                       </Link>
                     );
                   })}
@@ -467,7 +470,7 @@ const Header = () => {
                     to="/mon-espace"
                     onClick={() => setMobileMenuOpen(false)}
                     style={{
-                      display: 'flex', alignItems: 'center', gap: '10px', padding: '14px 20px',
+                      display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: '10px', padding: '14px 20px',
                       borderRadius: '10px', border: '1px solid rgba(255,255,255,0.3)',
                       color: '#FFFFFF', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700,
                       fontSize: '15px', letterSpacing: '1.5px', textTransform: 'uppercase',
@@ -481,8 +484,8 @@ const Header = () => {
 
                 {/* Contact Buttons */}
                 <div style={{ padding: '0 20px', marginTop: '20px' }}>
-                  <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', color: '#94A3B8', marginBottom: '12px' }}>
-                    NOUS CONTACTER
+                  <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', color: '#94A3B8', marginBottom: '12px', textAlign: isRTL ? 'right' : 'left' }}>
+                    {t('header.contact_us_upper', 'NOUS CONTACTER')}
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <a

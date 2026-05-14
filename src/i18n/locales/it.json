@@ -8,25 +8,46 @@
     "dashboard": "Dashboard",
     "my_space": "Il Mio Spazio"
   },
+  "devis": {
+    "otherColor": "Altro colore",
+    "chooseColor": "Scegli un colore",
+    "colorSelected": "Colore selezionato",
+    "confirm": "Conferma",
+    "standardColors": "Colori standard",
+    "extendedColors": "Catalogo colori"
+  },
   "hero": {
     "title": "ALUMINIUM SPACE",
     "subtitle": "Infissi in Alluminio — Mghira, Tunis",
-    "badge": "Distributore ufficiale Grifo Flex",
+    "badge": "Partner certificato Grifo Flex",
     "cta_products": "Vedi i nostri prodotti",
     "cta_quote": "Richiedi un preventivo"
   },
   "home": {
-    "quality_badge": "🇮🇹 Qualità Italiana · Grifo Flex",
+    "quality_badge": "Qualità Italiana · Grifo Flex",
     "title_line1": "Zanzariere",
     "title_line2": "di Qualità",
     "slogan": "Progetta. Visualizza. Realizza.",
-    "description": "Specialista in infissi in alluminio a Mghira. Distributore ufficiale Grifo Flex — protezione invisibile, qualità italiana.",
+    "description": "Specialista in infissi in alluminio a Mghira. Partner certificato Grifo Flex — protezione invisibile, qualità italiana.",
     "cta_products": "Vedi i nostri prodotti →",
     "cta_quote": "Richiedi un preventivo",
     "trust_custom": "Su misura",
     "trust_install": "Installazione inclusa",
     "trust_free": "Preventivo gratuito",
-    "scroll": "Scopri"
+    "scroll": "Scopri",
+    "distributeur_officiel": "Partner certificato",
+    "mobile_title": "ZANZARIERE DI QUALITÀ",
+    "mobile_cta_products": "VEDI I NOSTRI PRODOTTI",
+    "mobile_cta_quote": "RICHIEDI UN PREVENTIVO",
+    "products_title": "I nostri modelli di zanzariere Grifo Flex",
+    "how_it_works_title": "Come funziona — Zanzariere Grifo Flex",
+    "view_product": "Vedi prodotto",
+    "stats": {
+      "models": "Modelli Grifo Flex",
+      "custom": "Su misura",
+      "warranty": "Anni di garanzia",
+      "mechanism": "Garanzia meccanismo"
+    }
   },
   "steps": {
     "title": "Come funziona?",
@@ -61,8 +82,9 @@
     "category_panneau": "Zanzariere a Pannello",
     "colibri50_desc": "Zanzariera avvolgibile per finestre con cassonetto superiore. Meccanismo a molla silenziosa. Guide laterali a doppia spazzola. Struttura in alluminio bianco RAL 9010.",
     "sidney50_desc": "Zanzariera per porte con cassonetto laterale. Meccanismo a molla. Maniglia esterna pieghevole. Guide a doppia spazzola. Struttura in alluminio bianco.",
-    "sidney50ac_desc": "Zanzariera a doppio cassonetto per grandi aperture e terrazze. Apertura centrale bidirezionale. Meccanismo a molla. Struttura in alluminio bianco.",
-    "elba_desc": "Zanzariera a pannello fisso per finestre. Telaio in alluminio bianco. Rete in fibra di vetro PVC. Fissaggi a parete in nylon. Semplice, economica ed efficace."
+    "sidney50ac_desc": "Zanzariera a due cassonetti per grandi aperture e terrazzi. Apertura centrale bidirezionale. Meccanismo a molla. Struttura in alluminio bianco.",
+    "elba_desc": "Zanzariera a pannello fisso per finestra. Telaio in alluminio bianco. Fibra di vetro PVC. Fissaggi a muro in nylon. Semplice, economica ed efficace.",
+    "plisse31_desc": "Zanzariera plissettata bilaterale (31mm). Ideale per grandi aperture fino a 5000mm. Sblocco a calamita, guida inferiore extra flat e rete nera di serie. Resistenza al vento Classe 1."
   },
   "products_page": {
     "title": "I Nostri Prodotti",
@@ -74,7 +96,10 @@
     "feat2_title": "Produzione Su Misura",
     "feat2_desc": "Ogni zanzariera è adattata alle dimensioni esatte della tua apertura.",
     "feat3_title": "Tecnologia Italiana",
-    "feat3_desc": "Meccanismi a molla di precisione, guide con doppia spazzola."
+    "feat3_desc": "Meccanismi a molla di precisione, guide con doppia spazzola.",
+    "view_btn": "Vedi",
+    "devis_btn": "Preventivo",
+    "compare_hint": "Scorri per vedere tutta la tabella"
   },
   "product_detail": {
     "breadcrumb_home": "Home",
@@ -86,7 +111,8 @@
     "spec_caisson": "Dimensioni cassonetto:",
     "spec_size": "Dimensione effettiva:",
     "spec_measures": "Misure (L×H):",
-    "see_price": "Vedi tariffe",
+    "plisse31_prices": "Tariffe Plissé 31 (per dimensioni)",
+    "see_price": "Vedi prezzo",
     "price_unit_ht": "Prezzo unitario IVA esclusa",
     "price_per_sqm": "Prezzo al m²",
     "colibri_h170": "Per finestre altezza 170 cm",
@@ -112,6 +138,63 @@
     "availability_label": "Disponibilità",
     "availability_status": "Installazione entro 3–7 giorni lavorativi",
     "availability_zone": "Tunis & Grande Tunisi"
+  },
+  "measureGuide": {
+    "badge": "GUIDA ALLE MISURE",
+    "stepOf": "Passo {{current}} / {{total}}",
+    "prev": "Precedente",
+    "next": "Passo successivo",
+    "saved": "💾 Misure salvate",
+    "inputLabel": "Inserisci le tue 3 misure (mm)",
+    "yourDimension": "La tua {{dim}} da ordinare:",
+    "commander": "Ordina {{l}}×{{h}} mm",
+    "accessDevis": "Vai al modulo di preventivo",
+    "downloadMemo": "📄 Scarica il mio promemoria misure",
+    "noMeasures": "⬅ Inserisci le tue misure nei passi 3 e 4 per vedere il riepilogo qui",
+    "steps": {
+      "tools": {
+        "sub": "Preparati",
+        "title": "Gli strumenti necessari",
+        "desc": "Per misurare correttamente la tua apertura, prepara:\n\n• Un metro a nastro (minimo 3 metri)\n• Una matita e un taccuino\n• Una livella a bolla (opzionale ma consigliata)"
+      },
+      "embrasure": {
+        "sub": "Comprendere lo spazio",
+        "title": "Identificare il vano",
+        "desc": "Il vano è lo spazio vuoto tra i due bordi interni del muro — è qui che verrà fissata la zanzariera."
+      },
+      "mistakes": {
+        "sub": "Errori da evitare",
+        "title": "NON fare questi errori",
+        "desc": "❌ NON misurare sul telaio della finestra esistente.\n✅ Misura SEMPRE all'interno del vano.\n⚠️ Un errore di 2 cm può rendere la zanzariera inutilizzabile."
+      },
+      "largeur": {
+        "sub": "Misura 1/2",
+        "title": "Misurare la Larghezza — L",
+        "desc": "Prendi 3 misure (in alto, al centro, in basso) e mantieni la più piccola.\nEsempio per il tuo {{type}} : {{example}} mm."
+      },
+      "hauteur": {
+        "sub": "Misura 2/2",
+        "title": "Misurare l'Altezza — H",
+        "desc": "Prendi 3 misure (sinistra, centro, destra) e mantieni la più piccola.\nEsempio : {{example}} mm."
+      },
+      "recap": {
+        "sub": "Tutto è pronto!",
+        "title": "Le tue dimensioni finali",
+        "desc": "Il tuo ordine : {{l}} × {{h}} mm\n\nIl nostro team verifica gratuitamente le tue misure dopo l'ordine."
+      }
+    },
+    "clientStep": {
+      "sub": "Ultimo passo",
+      "title": "I tuoi dati",
+      "desc": "Lasciaci i tuoi dati per registrare la tua richiesta di misura.",
+      "nameLabel": "Nome completo",
+      "namePlaceholder": "Il tuo nome e cognome",
+      "phoneLabel": "Numero di telefono",
+      "phonePlaceholder": "Es: 55 123 456",
+      "submitBtn": "Invia la mia richiesta",
+      "successTitle": "Richiesta inviata!",
+      "successDesc": "La tua richiesta è stata inviata con successo. Il nostro team ti contatterà a breve."
+    }
   },
   "contact_page": {
     "description": "Non esitare a contattarci per qualsiasi domanda o richiesta di preventivo.",
@@ -149,7 +232,35 @@
     "next": "Avanti",
     "prev": "Indietro",
     "required": "Campo obbligatorio",
-    "invalid_email": "Email non valida"
+    "invalid_email": "Email non valida",
+    "width_cm": "Larghezza (cm)",
+    "height_cm": "Altezza (cm)",
+    "mesh_type_label": "Tipo di rete",
+    "dimensions_title": "Dimensioni della tua apertura",
+    "updated_product": "Prodotto aggiornato: {{name}}",
+    "dimensions_notice": "Le tue dimensioni superano i 200cm. Il Sidney 50 AC supporta fino a 400×260 cm.",
+    "min_price_notice": "Prezzo calcolato per la dimensione minima disponibile.",
+    "custom_quote_notice": "Contattaci per un preventivo personalizzato.",
+    "whatsapp_contact": "Contatta su WhatsApp",
+    "estimation_title": "Stima del prezzo",
+    "unit_price_ht": "Prezzo unitario (IVA escl.)",
+    "subtotal_ht": "Subtotale IVA escl.",
+    "remise_label": "Sconto {{percent}}%",
+    "net_ht": "Prezzo scontato",
+    "fodec": "FODEC ({{percent}}%)",
+    "tva": "IVA ({{percent}}%)",
+    "timbre": "Marca da bollo",
+    "total_ttc": "TOTALE IVA incl.",
+    "add_another": "Aggiungi un altro articolo",
+    "accept_download": "Accetta e scarica PDF",
+    "summary_title": "Riepilogo del preventivo",
+    "validity": "Valido per {{days}} giorni",
+    "placeholder_wh": "Inserisci le tue dimensioni per vedere la stima del prezzo",
+    "client_title": "I tuoi dati",
+    "summary_banner": "Il tuo preventivo: {{count}} articolo(i) — Totale IVA escl.: {{total}}",
+    "phone_format": "Formato: 8 cifre",
+    "notes_placeholder": "Dettagli aggiuntivi, preferenze di installazione...",
+    "privacy_note": "I tuoi dati sono al sicuro e verranno utilizzati solo per contattarti in merito a questo preventivo."
   },
   "devis_steps": {
     "product": "PRODOTTO",
@@ -161,7 +272,7 @@
     "address": "125 lot Laaroussi, Mghira, Tunis",
     "phone": "(+216) 53 186 611",
     "email": "contact@aluminiumspace.com",
-    "partner": "Distributore ufficiale Grifo Flex Tunisia",
+    "partner": "Partner certificato Grifo Flex Tunisia",
     "copyright": "© 2026 Aluminium Space",
     "quick_links": "Link Rapidi",
     "slogan": "Progetta. Visualizza. Realizza.",
@@ -169,6 +280,39 @@
     "motto": "Essere tra i migliori con un tocco fuori dall'ordinario.",
     "brand_desc": "Specialista in infissi in alluminio a Mghira, Tunis. Produciamo e installiamo zanzariere su misura di alta qualità per il tuo comfort.",
     "see_maps": "Vedi su Google Maps",
-    "powered_by": "Powered by Grifo Flex"
+    "powered_by": "Powered by Grifo Flex",
+    "brand_subtitle": "FALEGNAMERIA IN ALLUMINIO"
+  },
+  "common": {
+    "client": "Cliente",
+    "phone_short": "Tel",
+    "email_short": "Email",
+    "qty_short": "Qtà",
+    "color_frame": "Colore del telaio",
+    "selected": "Selezionato",
+    "white": "Bianco",
+    "black": "Nero",
+    "back": "Indietro",
+    "next": "Avanti",
+    "close": "Chiudi",
+    "processing": "Elaborazione in corso..."
+  },
+  "header": {
+    "installed": "Installata ✓",
+    "install_app": "Installa l'app",
+    "install": "Installa",
+    "menu": "Menu",
+    "contact_us_upper": "CONTATTACI",
+    "pwa_chrome_title": "Chrome / Edge",
+    "pwa_chrome_step1": "Apri il menu ⋮ (3 punti in alto a destra)",
+    "pwa_chrome_step2": "Clicca su \"Installa Aluminium Space\"",
+    "pwa_chrome_step3": "Conferma l'installazione",
+    "pwa_safari_title": "Safari (iPhone / iPad)",
+    "pwa_safari_step1": "Tocca il pulsante Condividi 📤 in basso",
+    "pwa_safari_step2": "Scorri → \"Aggiungi alla schermata Home\"",
+    "pwa_safari_step3": "Tocca Aggiungi"
+  },
+  "portal": {
+    "empty_hint": "Inserisci il tuo codice per accedere al tuo ordine"
   }
 }

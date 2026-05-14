@@ -58,7 +58,7 @@ const QUICK_ACTIONS: Record<Lang, { label: string; message: string }[]> = {
 
 const PLACEHOLDER_NORMAL: Record<Lang, string> = {
   fr: 'Tapez votre message...', ar: 'اكتب رسالتك...', tn: 'Ekteb 7na...',
-  en: 'Type your message...', it: 'Scrivi il tuo messaggio...',
+  en: 'Type your message...', it: 'Scrivi il tuo message...',
 };
 
 const PLACEHOLDER_DIMS: Record<Lang, string> = {
@@ -87,9 +87,9 @@ export default function AIAgent() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
-    messages, isLoading, loadingMessage, sendMessage,
+    messages, isLoading, loadingMessage, streamingMessage, sendMessage,
     handleVoiceInput, isListening, interimTranscript,
-    voiceSupported, clearHistory, executeAction, transcript, rateMessage,
+    voiceSupported, sttError, clearHistory, executeAction, transcript, rateMessage,
   } = useAIAgentLogic(
     currentLanguage, pendingMessage, clearPendingMessage, closeAgent, setLanguage,
   );
@@ -99,7 +99,7 @@ export default function AIAgent() {
   // Scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isLoading]);
+  }, [messages, isLoading, streamingMessage]);
 
   // Focus on open
   useEffect(() => {
@@ -120,13 +120,11 @@ export default function AIAgent() {
     if (prevListeningRef.current && !isListening) {
       const toSend = transcript.trim();
       if (toSend) {
-        sendMessage(toSend);
-        setInputValue('');
-        setShowQuickActions(false);
+        handleSend(toSend);
       }
     }
     prevListeningRef.current = isListening;
-  }, [isListening, transcript, sendMessage]);
+  }, [isListening, transcript]);
 
   // Track if waiting for dimensions
   useEffect(() => {
@@ -175,17 +173,26 @@ export default function AIAgent() {
     e.target.value = '';
   };
 
-  const handleSend = () => {
-    if (!inputValue.trim() || isLoading) return;
-    sendMessage(inputValue.trim(), imagePreview);
+  const handleSend = (overrideText?: string) => {
+    const textToSanitize = overrideText || inputValue;
+    if (!textToSanitize.trim() || isLoading) return;
+
+    const sanitizedMessage = textToSanitize
+      .replace(/<[^>]*>/g, '') // supprimer HTML
+      .replace(/[^\w\sÀ-ž?!.,;:()'"/\u0600-\u06FF-]/g, '') // garder: latin, arabe, ponctuation
+      .trim()
+      .slice(0, 500);
+
+    if (sanitizedMessage.length < 2) return;
+
+    sendMessage(sanitizedMessage, imagePreview);
     setInputValue('');
     setImagePreview(null);
     setShowQuickActions(false);
   };
 
   const handleQuickAction = (msg: string) => {
-    sendMessage(msg);
-    setShowQuickActions(false);
+    handleSend(msg);
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -201,12 +208,10 @@ export default function AIAgent() {
 
   return (
     <>
-      {/* Proactive bubble — removed to prevent content overlap on all screens */}
-
-      {/* ── FAB Button ──────────────────────────────────────────── */}
+      {/* FAB Button */}
       <motion.button
         onClick={() => { toggleAgent(); }}
-        className="ai-fab-button fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center"
+        className={`ai-fab-button fixed right-6 z-50 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center ${isMobile ? 'bottom-[80px]' : 'bottom-6'}`}
         style={{ background: '#1A5DA8', boxShadow: '0 8px 32px rgba(26,93,168,0.45)' }}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
@@ -237,7 +242,7 @@ export default function AIAgent() {
         )}
       </motion.button>
 
-      {/* ── Chat Panel ──────────────────────────────────────────── */}
+      {/* Chat Panel */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -254,12 +259,11 @@ export default function AIAgent() {
               boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
             }}
           >
-            {/* ── HEADER ──────────────────────────────────────────── */}
+            {/* HEADER */}
             <div
               className="flex items-center gap-2 px-3 py-2.5 flex-shrink-0"
               style={{ background: '#0D1B2A', minHeight: '56px' }}
             >
-              {/* Avatar */}
               <div className="relative flex-shrink-0">
                 <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: '#1A5DA8', border: '2px solid #4ADE80' }}>
                   {avatarError ? (
@@ -276,7 +280,6 @@ export default function AIAgent() {
                 <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-400 rounded-full border-2" style={{ borderColor: '#0D1B2A' }} />
               </div>
 
-              {/* Name + status */}
               <div className="flex-1 min-w-0">
                 <p style={{ color: 'white', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '13px', letterSpacing: '1px', lineHeight: 1.1 }}>
                   ALU — Assistant Aluminium Space
@@ -286,31 +289,25 @@ export default function AIAgent() {
                 </p>
               </div>
 
-              {/* Reset */}
               <button
                 onClick={clearHistory}
                 className="p-1 rounded"
                 style={{ color: 'rgba(255,255,255,0.4)' }}
-                onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.8)')}
-                onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.4)')}
                 title="Réinitialiser"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
               </button>
 
-              {/* Close */}
               <button
                 onClick={closeAgent}
                 className="p-1 rounded"
                 style={{ color: 'rgba(255,255,255,0.4)' }}
-                onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.8)')}
-                onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.4)')}
               >
                 <ChevronDown className="w-4 h-4" />
               </button>
             </div>
 
-            {/* ── MESSAGES ──────────────────────────────────────────── */}
+            {/* MESSAGES */}
             <div
               className="flex-1 overflow-y-auto p-3 space-y-3"
               style={{ background: '#F8FAFC' }}
@@ -345,7 +342,6 @@ export default function AIAgent() {
                     >
                       {renderText(msg.content)}
 
-                      {/* Action button */}
                       {msg.actionLabel && msg.action && (
                         <button
                           onClick={() => executeAction(msg.action!)}
@@ -363,10 +359,8 @@ export default function AIAgent() {
                       )}
                     </div>
 
-                    {/* Assistant extra content */}
                     {msg.role === 'assistant' && (
                       <div className="mt-1.5 space-y-1.5">
-                        {/* Product image */}
                         {msg.productImage && (
                           <div style={{ background: '#F4F7FB', borderRadius: 10, padding: 6, border: '1px solid #E8EDF5' }}>
                             <img
@@ -378,7 +372,6 @@ export default function AIAgent() {
                           </div>
                         )}
 
-                        {/* Comparison table */}
                         {msg.comparisonTable && (
                           <div style={{ overflowX: 'auto', borderRadius: 8, border: '1px solid #E8EDF5' }}>
                             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11, fontFamily: 'DM Sans, sans-serif' }}>
@@ -404,7 +397,6 @@ export default function AIAgent() {
                           </div>
                         )}
 
-                        {/* Devis button */}
                         {msg.devisButton?.show && (
                           <button
                             onClick={() => executeAction({ type: 'open_devis_wizard', params: { productId: msg.devisButton!.productId, width: msg.devisButton!.width, height: msg.devisButton!.height } })}
@@ -420,13 +412,12 @@ export default function AIAgent() {
                           </button>
                         )}
 
-                        {/* Suggestions (only on last assistant message) */}
                         {msg.suggestions && msg.suggestions.length > 0 && msgIdx === messages.length - 1 && (
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
                             {msg.suggestions.map((s, i) => (
                               <button
                                 key={i}
-                                onClick={() => { sendMessage(s); setShowQuickActions(false); }}
+                                onClick={() => { handleSend(s); }}
                                 style={{
                                   background: 'white', color: '#1A5DA8',
                                   border: '1px solid #C8D9F0',
@@ -435,14 +426,6 @@ export default function AIAgent() {
                                   fontFamily: 'DM Sans, sans-serif', fontWeight: 500,
                                   transition: 'all 0.15s',
                                 }}
-                                onMouseEnter={e => {
-                                  (e.currentTarget as HTMLElement).style.background = '#1A5DA8';
-                                  (e.currentTarget as HTMLElement).style.color = 'white';
-                                }}
-                                onMouseLeave={e => {
-                                  (e.currentTarget as HTMLElement).style.background = 'white';
-                                  (e.currentTarget as HTMLElement).style.color = '#1A5DA8';
-                                }}
                               >
                                 {s}
                               </button>
@@ -450,7 +433,6 @@ export default function AIAgent() {
                           </div>
                         )}
 
-                        {/* Rating buttons */}
                         <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end' }}>
                           <button
                             onClick={() => rateMessage(msg.id, 'up')}
@@ -460,7 +442,6 @@ export default function AIAgent() {
                               borderColor: msg.rating === 'up' ? '#27AE60' : '#E8EDF5',
                               borderRadius: 6, padding: '2px 6px', cursor: 'pointer',
                               color: msg.rating === 'up' ? '#27AE60' : '#AABBCC',
-                              transition: 'all 0.15s',
                             }}
                             title="Utile"
                           >
@@ -474,7 +455,6 @@ export default function AIAgent() {
                               borderColor: msg.rating === 'down' ? '#EF4444' : '#E8EDF5',
                               borderRadius: 6, padding: '2px 6px', cursor: 'pointer',
                               color: msg.rating === 'down' ? '#EF4444' : '#AABBCC',
-                              transition: 'all 0.15s',
                             }}
                             title="Pas utile"
                           >
@@ -487,8 +467,35 @@ export default function AIAgent() {
                 </div>
               ))}
 
-              {/* Quick actions after welcome */}
-              {showQuickActions && messages.length <= 1 && (
+              {/* Streaming message */}
+              {streamingMessage && (
+                <div className="flex justify-start">
+                  <div className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center mr-1.5 mt-0.5" style={{ background: '#1A5DA8' }}>
+                    <Bot className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="flex flex-col max-w-[80%]">
+                    <div
+                      className="px-3.5 py-2.5 text-sm leading-relaxed"
+                      style={{
+                        background: 'white',
+                        color: '#0D1B2A',
+                        borderRadius: '18px 18px 18px 4px',
+                        border: '1px solid #E8EDF5',
+                        fontFamily: 'DM Sans, sans-serif',
+                      }}
+                    >
+                      {renderText(streamingMessage)}
+                      <motion.span
+                        animate={{ opacity: [0, 1, 0] }}
+                        transition={{ duration: 0.8, repeat: Infinity }}
+                        style={{ display: 'inline-block', width: '2px', height: '14px', background: '#1A5DA8', marginLeft: '2px', verticalAlign: 'middle' }}
+                      >|</motion.span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {showQuickActions && messages.length <= 1 && !isLoading && !streamingMessage && (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginTop: 8 }}>
                   {quickActions.map((action, i) => (
                     <button
@@ -501,15 +508,6 @@ export default function AIAgent() {
                         fontSize: 12, cursor: 'pointer',
                         fontFamily: 'DM Sans, sans-serif', fontWeight: 500,
                         textAlign: 'center', lineHeight: 1.3,
-                        transition: 'all 0.15s',
-                      }}
-                      onMouseEnter={e => {
-                        (e.currentTarget as HTMLElement).style.background = '#EEF4FF';
-                        (e.currentTarget as HTMLElement).style.borderColor = '#1A5DA8';
-                      }}
-                      onMouseLeave={e => {
-                        (e.currentTarget as HTMLElement).style.background = 'white';
-                        (e.currentTarget as HTMLElement).style.borderColor = '#C8D9F0';
                       }}
                     >
                       {action.label}
@@ -518,8 +516,7 @@ export default function AIAgent() {
                 </div>
               )}
 
-              {/* Loading indicator */}
-              {isLoading && (
+              {isLoading && !streamingMessage && (
                 <div className="flex justify-start">
                   <div className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center mr-1.5" style={{ background: '#1A5DA8' }}>
                     <Bot className="w-4 h-4 text-white" />
@@ -548,12 +545,19 @@ export default function AIAgent() {
                 </div>
               )}
 
+              {sttError && (
+                <div className="flex justify-center p-2">
+                  <span style={{ fontSize: 11, color: '#EF4444', background: '#FEE2E2', padding: '4px 12px', borderRadius: '12px', fontFamily: 'DM Sans, sans-serif' }}>
+                    {sttError}
+                  </span>
+                </div>
+              )}
+
               <div ref={messagesEndRef} />
             </div>
 
-            {/* ── INPUT ZONE ──────────────────────────────────────────── */}
+            {/* INPUT ZONE */}
             <div style={{ background: 'white', borderTop: '1px solid #E8EDF5', flexShrink: 0 }}>
-              {/* Voice listening bar */}
               {isListening && (
                 <div
                   className="flex items-center gap-2 px-3 py-2"
@@ -571,7 +575,6 @@ export default function AIAgent() {
                 </div>
               )}
 
-              {/* Image preview */}
               {imagePreview && (
                 <div style={{ padding: '8px 12px 0', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
                   <div style={{ position: 'relative', display: 'inline-block' }}>
@@ -588,7 +591,6 @@ export default function AIAgent() {
               )}
 
               <div className="flex items-end gap-2 p-3">
-                {/* Mic button — pulsing ring when active */}
                 {voiceSupported && (
                   <div style={{ position: 'relative', flexShrink: 0 }}>
                     {isListening && (
@@ -613,8 +615,6 @@ export default function AIAgent() {
                   </div>
                 )}
 
-                {/* Camera / image upload */}
-                {/* Hidden camera input — capture="environment" opens camera directly on mobile */}
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -631,12 +631,10 @@ export default function AIAgent() {
                     color: imagePreview ? '#81C063' : '#94A3B8',
                     border: imagePreview ? '1px solid rgba(129,192,99,0.4)' : 'none',
                   }}
-                  title={isMobile ? 'Prendre une photo' : 'Partager une photo'}
                 >
                   <Camera className="w-4 h-4" />
                 </button>
 
-                {/* Textarea */}
                 <textarea
                   ref={inputRef}
                   value={inputValue}
@@ -647,6 +645,7 @@ export default function AIAgent() {
                     : (PLACEHOLDER_NORMAL[currentLanguage] || PLACEHOLDER_NORMAL.fr)
                   }
                   rows={1}
+                  maxLength={500}
                   style={{
                     flex: 1, resize: 'none', border: '1px solid #E8EDF5',
                     borderRadius: 12, padding: '8px 12px',
@@ -664,9 +663,8 @@ export default function AIAgent() {
                   disabled={isLoading}
                 />
 
-                {/* Send button */}
                 <button
-                  onClick={handleSend}
+                  onClick={() => handleSend()}
                   disabled={!inputValue.trim() || isLoading}
                   className="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center transition-all"
                   style={{

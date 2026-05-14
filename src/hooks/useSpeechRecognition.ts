@@ -2,8 +2,8 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 
 export const SPEECH_LANGUAGES: Record<string, string> = {
   fr: 'fr-FR',
-  ar: 'ar-SA',
-  tn: 'ar-TN',
+  ar: 'ar-MA',
+  tn: 'ar-SA',
   en: 'en-US',
   it: 'it-IT',
 };
@@ -16,15 +16,17 @@ interface SpeechRecognitionHook {
   stopListening: () => void;
   isSupported: boolean;
   error: string | null;
+  sttError: string | null;
 }
 
-const SILENCE_TIMEOUT = 2500;
+const SILENCE_TIMEOUT = 4000;
 
 export function useSpeechRecognition(): SpeechRecognitionHook {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [interimTranscript, setInterimTranscript] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [sttError, setSttError] = useState<string | null>(null);
 
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -43,7 +45,7 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
   const startListening = useCallback(
     (language = 'fr-FR') => {
       if (!isSupported) {
-        setError('Reconnaissance vocale non supportée sur ce navigateur.');
+        setSttError('Reconnaissance vocale non supportée sur ce navigateur.');
         return;
       }
 
@@ -53,10 +55,7 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
       }
 
       const SpeechRecognitionAPI =
-        (window as typeof window & { webkitSpeechRecognition: typeof SpeechRecognition })
-          .SpeechRecognition ??
-        (window as typeof window & { webkitSpeechRecognition: typeof SpeechRecognition })
-          .webkitSpeechRecognition;
+        (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
       const recognition = new SpeechRecognitionAPI();
       recognition.continuous = true;
@@ -68,10 +67,11 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
         setIsListening(true);
         setTranscript('');
         setInterimTranscript('');
+        setSttError(null);
         setError(null);
       };
 
-      recognition.onresult = (event: SpeechRecognitionEvent) => {
+      recognition.onresult = (event: any) => {
         let finalText = '';
         let interimText = '';
 
@@ -91,7 +91,6 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
           setInterimTranscript(interimText);
         }
 
-        // Reset silence timer on any speech activity
         clearSilenceTimer();
         silenceTimerRef.current = setTimeout(() => {
           if (recognitionRef.current) {
@@ -100,10 +99,17 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
         }, SILENCE_TIMEOUT);
       };
 
-      recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-        if (event.error !== 'no-speech' && event.error !== 'aborted') {
-          setError(`Erreur : ${event.error}`);
+      recognition.onerror = (event: any) => {
+        let msg = '';
+        switch (event.error) {
+          case 'no-speech': msg = "Je n'ai rien entendu, réessayez"; break;
+          case 'not-allowed': msg = "Accès micro refusé. Vérifiez les permissions"; break;
+          case 'network': msg = "Problème réseau avec la reconnaissance vocale"; break;
+          case 'aborted': break;
+          default: msg = `Erreur : ${event.error}`;
         }
+        if (msg) setSttError(msg);
+        
         setIsListening(false);
         setInterimTranscript('');
         clearSilenceTimer();
@@ -138,5 +144,14 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
     };
   }, []);
 
-  return { isListening, transcript, interimTranscript, startListening, stopListening, isSupported, error };
+  return { 
+    isListening, 
+    transcript, 
+    interimTranscript, 
+    startListening, 
+    stopListening, 
+    isSupported, 
+    error,
+    sttError
+  };
 }

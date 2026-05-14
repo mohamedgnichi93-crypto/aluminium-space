@@ -1,5 +1,18 @@
 @import "tailwindcss";
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+
 html {
   scroll-behavior: auto !important;
 }
@@ -601,9 +614,16 @@ body.menu-open .ai-fab-button {
     overflow-x: auto; 
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    mask-image: linear-gradient(to right, black 85%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
   }
   .scroll-x::-webkit-scrollbar {
     display: none;
+  }
+
+  .modal-viewport-height {
+    height: 100vh;
+    height: 100dvh;
   }
 
   /* Snap scroll */
@@ -674,4 +694,52 @@ body.menu-open .ai-fab-button {
     min-width: 0 !important;
     justify-content: center !important;
   }
+}
+
+/* ── RTL Utilities ── */
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="rtl"] .ltr-only {
+  display: none !important;
+}
+
+[dir="ltr"] .rtl-only {
+  display: none !important;
+}
+
+/* Logical properties fallback/support */
+[dir="rtl"] .ms-auto { margin-right: auto; margin-left: 0; }
+[dir="rtl"] .me-auto { margin-left: auto; margin-right: 0; }
+[dir="rtl"] .text-start { text-align: right; }
+[dir="rtl"] .text-end { text-align: left; }
+
+/* RTL Global Fixes */
+[dir="rtl"] img {
+  transform: none !important;
+}
+
+[dir="rtl"] .logo,
+[dir="rtl"] [class*="logo"],
+[dir="rtl"] [class*="brand"] {
+  transform: none !important;
+}
+
+[dir="rtl"] picture,
+[dir="rtl"] picture img {
+  transform: none !important;
+}
+
+/* Prevent any inherited scaleX(-1) from reaching images */
+[dir="rtl"] img,
+[dir="rtl"] video,
+[dir="rtl"] canvas,
+[dir="rtl"] iframe {
+  transform: none !important;
+  -webkit-transform: none !important;
+}
+
+.no-rtl-flip {
+  transform: none !important;
 }

@@ -8,6 +8,14 @@
     "dashboard": "Dashboard",
     "my_space": "My Space"
   },
+  "devis": {
+    "otherColor": "Other color",
+    "chooseColor": "Choose a color",
+    "colorSelected": "Selected color",
+    "confirm": "Confirm",
+    "standardColors": "Standard Colors",
+    "extendedColors": "Color Catalog"
+  },
   "hero": {
     "title": "ALUMINIUM SPACE",
     "subtitle": "Aluminum Carpentry — Mghira, Tunis",
@@ -16,7 +24,7 @@
     "cta_quote": "Request a quote"
   },
   "home": {
-    "quality_badge": "🇮🇹 Italian Quality · Grifo Flex",
+    "quality_badge": "Italian Quality · Grifo Flex",
     "title_line1": "Mosquito Nets",
     "title_line2": "of Quality",
     "slogan": "Design. Visualize. Realize.",
@@ -26,7 +34,20 @@
     "trust_custom": "Custom made",
     "trust_install": "Installation included",
     "trust_free": "Free quote",
-    "scroll": "Discover"
+    "scroll": "Discover",
+    "distributeur_officiel": "Certified Partner",
+    "mobile_title": "PREMIUM MOSQUITO SCREENS",
+    "mobile_cta_products": "VIEW OUR PRODUCTS",
+    "mobile_cta_quote": "REQUEST A QUOTE",
+    "products_title": "Our Grifo Flex Mosquito Screen Models",
+    "how_it_works_title": "How It Works — Grifo Flex Mosquito Screens",
+    "view_product": "View product",
+    "stats": {
+      "models": "Grifo Flex Models",
+      "custom": "Custom made",
+      "warranty": "Year warranty",
+      "mechanism": "Mechanism warranty"
+    }
   },
   "steps": {
     "title": "How does it work?",
@@ -62,7 +83,8 @@
     "colibri50_desc": "Roller mosquito screen for windows with top cassette. Silent spring mechanism. Double brush-seal lateral channels. White aluminum structure RAL 9010.",
     "sidney50_desc": "Mosquito screen for doors with side cassette. Spring mechanism. Folding external handle. Double brush-seal channels. White aluminum structure.",
     "sidney50ac_desc": "Double-cassette mosquito screen for large openings and terraces. Bidirectional central opening. Spring mechanism. White aluminum structure.",
-    "elba_desc": "Fixed panel mosquito screen for windows. White aluminum frame. PVC fiberglass mesh. Nylon wall fixings. Simple, economical and effective."
+    "elba_desc": "Fixed panel mosquito screen for windows. White aluminum frame. PVC fiberglass mesh. Nylon wall fixings. Simple, economical and effective.",
+    "plisse31_desc": "Bilateral pleated screen (31mm). Ideal for large openings up to 5000mm. Magnetic release, ultra-flat bottom rail and black mesh as standard. Wind resistance Class 1."
   },
   "products_page": {
     "title": "Our Products",
@@ -74,7 +96,10 @@
     "feat2_title": "Custom Manufacturing",
     "feat2_desc": "Each mosquito net is adapted to the exact dimensions of your opening.",
     "feat3_title": "Italian Technology",
-    "feat3_desc": "Precision spring mechanisms, double brush-seal slides."
+    "feat3_desc": "Precision spring mechanisms, double brush-seal slides.",
+    "view_btn": "View",
+    "devis_btn": "Quote",
+    "compare_hint": "Swipe to see full table"
   },
   "product_detail": {
     "breadcrumb_home": "Home",
@@ -86,6 +111,7 @@
     "spec_caisson": "Box dimensions:",
     "spec_size": "Effective size:",
     "spec_measures": "Dimensions (W×H):",
+    "plisse31_prices": "Plissé 31 Pricing (by dimensions)",
     "see_price": "View pricing",
     "price_unit_ht": "Unit price excl. tax",
     "price_per_sqm": "Price per m²",
@@ -112,6 +138,63 @@
     "availability_label": "Availability",
     "availability_status": "Installation within 3–7 business days",
     "availability_zone": "Tunis & Greater Tunis"
+  },
+  "measureGuide": {
+    "badge": "MEASUREMENT GUIDE",
+    "stepOf": "Step {{current}} / {{total}}",
+    "prev": "Previous",
+    "next": "Next Step",
+    "saved": "💾 Measurements saved",
+    "inputLabel": "Enter your 3 measurements (mm)",
+    "yourDimension": "Your {{dim}} to order:",
+    "commander": "Order {{l}}×{{h}} mm",
+    "accessDevis": "Go to quote form",
+    "downloadMemo": "📄 Download my measurement memo",
+    "noMeasures": "⬅ Enter your measurements in steps 3 and 4 to see your recap here",
+    "steps": {
+      "tools": {
+        "sub": "Get ready",
+        "title": "Necessary tools",
+        "desc": "Pour mesurer correctement votre ouverture, préparez :\n\n• Un mètre ruban (minimum 3 mètres)\n• Un crayon et un carnet de notes\n• Un niveau à bulle (optionnel mais recommandé)"
+      },
+      "embrasure": {
+        "sub": "Understand space",
+        "title": "Identify the embrasure",
+        "desc": "L'embrasure est l'espace vide entre les deux bords intérieurs du mur — c'est là que la moustiquaire sera fixée."
+      },
+      "mistakes": {
+        "sub": "Mistakes to avoid",
+        "title": "Don't make these mistakes",
+        "desc": "❌ Ne mesurez PAS sur le cadre de la fenêtre existante.\n✅ Mesurez TOUJOURS dans l'embrasure.\n⚠️ Une erreur de 2 cm peut rendre la moustiquaire inutilisable."
+      },
+      "largeur": {
+        "sub": "Measure 1/2",
+        "title": "Measure Width — L",
+        "desc": "Prenez 3 mesures (haut, milieu, bas) et retenez la plus petite.\nExemple pour votre {{type}} : {{example}} mm."
+      },
+      "hauteur": {
+        "sub": "Measure 2/2",
+        "title": "Measure Height — H",
+        "desc": "Prenez 3 mesures (gauche, centre, droit) et retenez la plus petite.\nExemple : {{example}} mm."
+      },
+      "recap": {
+        "sub": "Everything is ready!",
+        "title": "Your final dimensions",
+        "desc": "Votre commande : {{l}} × {{h}} mm\n\nNotre équipe vérifie vos mesures gratuitement après la commande."
+      }
+    },
+    "clientStep": {
+      "sub": "Last step",
+      "title": "Your details",
+      "desc": "Leave us your details to register your measurement request.",
+      "nameLabel": "Full name",
+      "namePlaceholder": "Your full name",
+      "phoneLabel": "Phone number",
+      "phonePlaceholder": "Ex: 55 123 456",
+      "submitBtn": "Send my request",
+      "successTitle": "Request sent!",
+      "successDesc": "Your request has been sent successfully. Our team will contact you shortly."
+    }
   },
   "contact_page": {
     "description": "Don't hesitate to contact us for any question or quote request.",
@@ -149,7 +232,35 @@
     "next": "Next",
     "prev": "Previous",
     "required": "This field is required",
-    "invalid_email": "Invalid email"
+    "invalid_email": "Invalid email",
+    "width_cm": "Width (cm)",
+    "height_cm": "Height (cm)",
+    "mesh_type_label": "Mesh Type",
+    "dimensions_title": "Your opening dimensions",
+    "updated_product": "Product updated: {{name}}",
+    "dimensions_notice": "Your dimensions exceed 200cm. Sidney 50 AC supports up to 400×260 cm.",
+    "min_price_notice": "Price calculated for the minimum available dimension.",
+    "custom_quote_notice": "Contact us for a custom quote.",
+    "whatsapp_contact": "Contact on WhatsApp",
+    "estimation_title": "Price Estimate",
+    "unit_price_ht": "Unit price (excl. VAT)",
+    "subtotal_ht": "Subtotal excl. VAT",
+    "remise_label": "Discount {{percent}}%",
+    "net_ht": "Price after discount",
+    "fodec": "FODEC ({{percent}}%)",
+    "tva": "VAT ({{percent}}%)",
+    "timbre": "Stamp duty",
+    "total_ttc": "TOTAL incl. VAT",
+    "add_another": "Add another item",
+    "accept_download": "Accept and download PDF",
+    "summary_title": "Your quote summary",
+    "validity": "Valid for {{days}} days",
+    "placeholder_wh": "Enter your dimensions to see the price estimate",
+    "client_title": "Your Contact Details",
+    "summary_banner": "Your quote: {{count}} item(s) — Total excl. VAT: {{total}}",
+    "phone_format": "Format: 8 digits",
+    "notes_placeholder": "Additional details, installation preferences...",
+    "privacy_note": "Your data is secure and will only be used to contact you about this quote."
   },
   "devis_steps": {
     "product": "PRODUCT",
@@ -169,6 +280,39 @@
     "motto": "Being among the best with a touch that stands out.",
     "brand_desc": "Aluminium carpentry specialist in Mghira, Tunis. We manufacture and install high quality custom mosquito nets for your comfort.",
     "see_maps": "View on Google Maps",
-    "powered_by": "Powered by Grifo Flex"
+    "powered_by": "Powered by Grifo Flex",
+    "brand_subtitle": "ALUMINIUM JOINERY"
+  },
+  "common": {
+    "client": "Client",
+    "phone_short": "Tel",
+    "email_short": "Email",
+    "qty_short": "Qty",
+    "color_frame": "Frame color",
+    "selected": "Selected",
+    "white": "White",
+    "black": "Black",
+    "back": "Back",
+    "next": "Next",
+    "close": "Close",
+    "processing": "Processing..."
+  },
+  "header": {
+    "installed": "Installed ✓",
+    "install_app": "Install the app",
+    "install": "Install",
+    "menu": "Menu",
+    "contact_us_upper": "CONTACT US",
+    "pwa_chrome_title": "Chrome / Edge",
+    "pwa_chrome_step1": "Open the ⋮ menu (3 dots top right)",
+    "pwa_chrome_step2": "Click \"Install Aluminium Space\"",
+    "pwa_chrome_step3": "Confirm the installation",
+    "pwa_safari_title": "Safari (iPhone / iPad)",
+    "pwa_safari_step1": "Tap the Share button 📤 at the bottom",
+    "pwa_safari_step2": "Scroll → \"Add to Home Screen\"",
+    "pwa_safari_step3": "Tap Add"
+  },
+  "portal": {
+    "empty_hint": "Enter your code to access your order"
   }
 }

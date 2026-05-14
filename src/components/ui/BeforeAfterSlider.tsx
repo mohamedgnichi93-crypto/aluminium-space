@@ -57,7 +57,7 @@ function SingleSlider({ slide, lang }: { slide: SlideItem; lang: string }) {
         <span style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '14px', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'white' }}>
           {loc(slide.title)}
         </span>
-        <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '11px', color: 'rgba(255,255,255,0.5)' }}>
+        <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '11px', color: 'rgba(255,255,255,0.85)' }}>
           ← glisser →
         </span>
       </div>

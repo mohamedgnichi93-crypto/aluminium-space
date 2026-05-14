@@ -37,7 +37,7 @@ const Layout = () => {
 
       {!isDashboard && <Footer />}
 
-      {/* Sticky mobile CTA — removed to fix mobile responsiveness (covered footer, overlapped AI agent) */}
+
 
       {/* Toast Container */}
       <ToastContainer toasts={toasts} onRemove={removeToast} />

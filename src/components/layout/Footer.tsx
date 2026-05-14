@@ -31,12 +31,12 @@ const Footer = () => {
               </span>
             </div>
             <div style={{ fontSize: '9px', letterSpacing: '3px', color: 'rgba(255,255,255,0.5)', fontWeight: 500, marginBottom: '8px', fontFamily: 'Rajdhani, sans-serif', textTransform: 'uppercase' }}>
-              MENUISERIE ALUMINIUM
+              {t('footer.brand_subtitle', 'MENUISERIE ALUMINIUM')}
             </div>
             <p style={{ color: '#81C063', fontSize: '13px', fontStyle: 'italic', marginBottom: '12px', fontFamily: 'DM Sans, sans-serif' }}>
               "{t('footer.motto')}"
             </p>
-            <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '14px', lineHeight: 1.7, maxWidth: '340px', marginBottom: '24px', fontFamily: 'DM Sans, sans-serif' }}>
+            <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '14px', lineHeight: 1.7, maxWidth: '340px', marginBottom: '24px', fontFamily: 'DM Sans, sans-serif' }}>
               {t('footer.brand_desc')}
             </p>
             <div className="flex items-center justify-center md:justify-start gap-3 flex-wrap">
@@ -86,7 +86,7 @@ const Footer = () => {
                     borderRadius: '50%',
                     background: 'rgba(255,255,255,0.08)',
                     border: '1px solid rgba(255,255,255,0.15)',
-                    color: 'rgba(255,255,255,0.7)',
+                    color: 'rgba(255,255,255,0.85)',
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = social.color;
@@ -95,7 +95,7 @@ const Footer = () => {
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)';
-                    e.currentTarget.style.color = 'rgba(255,255,255,0.7)';
+                    e.currentTarget.style.color = 'rgba(255,255,255,0.85)';
                     e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
                   }}
                   aria-label={social.label}
@@ -118,9 +118,9 @@ const Footer = () => {
                   <Link
                     to={link.path}
                     className="flex items-center gap-2 text-sm transition-all duration-200"
-                    style={{ color: 'rgba(255,255,255,0.6)', paddingLeft: '0', fontFamily: 'DM Sans, sans-serif' }}
+                    style={{ color: 'rgba(255,255,255,0.85)', paddingLeft: '0', fontFamily: 'DM Sans, sans-serif' }}
                     onMouseEnter={(e) => { e.currentTarget.style.color = '#81C063'; e.currentTarget.style.paddingLeft = '4px'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; e.currentTarget.style.paddingLeft = '0'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,0.85)'; e.currentTarget.style.paddingLeft = '0'; }}
                   >
                     <span style={{ color: '#81C063' }}>›</span>
                     {link.name}
@@ -146,7 +146,7 @@ const Footer = () => {
             </h3>
             <div style={{ width: '30px', height: '2px', background: '#81C063', marginBottom: '20px', borderRadius: '1px' }} />
             <ul className="space-y-4">
-              <li className="flex gap-3 text-sm" style={{ color: 'rgba(255,255,255,0.7)' }}>
+              <li className="flex gap-3 text-sm" style={{ color: 'rgba(255,255,255,0.85)' }}>
                 <MapPin className="w-4 h-4 shrink-0 mt-0.5" style={{ color: '#81C063' }} />
                 <span style={{ fontFamily: 'DM Sans, sans-serif' }}>
                   {t('footer.address')} -{' '}
@@ -166,17 +166,17 @@ const Footer = () => {
               <li className="flex gap-3 text-sm">
                 <Phone className="w-4 h-4 shrink-0 mt-0.5" style={{ color: '#81C063' }} />
                 <div className="flex flex-col gap-1" style={{ fontFamily: 'DM Sans, sans-serif' }}>
-                  <a href="tel:+21653186611" className="transition-colors" style={{ color: 'rgba(255,255,255,0.7)' }} onMouseEnter={(e) => e.currentTarget.style.color = 'white'} onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.7)'}>(+216) 53 186 611</a>
-                  <a href="tel:+21657099070" className="transition-colors" style={{ color: 'rgba(255,255,255,0.7)' }} onMouseEnter={(e) => e.currentTarget.style.color = 'white'} onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.7)'}>(+216) 57 099 070</a>
+                  <a href="tel:+21653186611" className="transition-colors" style={{ color: 'rgba(255,255,255,0.85)' }} onMouseEnter={(e) => e.currentTarget.style.color = 'white'} onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.85)'}>(+216) 53 186 611</a>
+                  <a href="tel:+21657099070" className="transition-colors" style={{ color: 'rgba(255,255,255,0.85)' }} onMouseEnter={(e) => e.currentTarget.style.color = 'white'} onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.85)'}>(+216) 57 099 070</a>
                 </div>
               </li>
               <li className="flex gap-3 text-sm">
                 <svg className="w-4 h-4 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="#81C063" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                <a href="https://wa.me/21657099070" target="_blank" rel="noopener noreferrer" className="transition-colors" style={{ color: 'rgba(255,255,255,0.7)', fontFamily: 'DM Sans, sans-serif' }} onMouseEnter={(e) => e.currentTarget.style.color = 'white'} onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.7)'}>WhatsApp: +216 57 099 070</a>
+                <a href="https://wa.me/21657099070" target="_blank" rel="noopener noreferrer" className="transition-colors" style={{ color: 'rgba(255,255,255,0.85)', fontFamily: 'DM Sans, sans-serif' }} onMouseEnter={(e) => e.currentTarget.style.color = 'white'} onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.85)'}>WhatsApp: +216 57 099 070</a>
               </li>
               <li className="flex gap-3 text-sm">
                 <Mail className="w-4 h-4 shrink-0 mt-0.5" style={{ color: '#81C063' }} />
-                <a href="mailto:contact@aluminiumspace.com" className="transition-colors" style={{ color: 'rgba(255,255,255,0.7)', fontFamily: 'DM Sans, sans-serif' }} onMouseEnter={(e) => e.currentTarget.style.color = 'white'} onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.7)'}>contact@aluminiumspace.com</a>
+                <a href="mailto:contact@aluminiumspace.com" className="transition-colors" style={{ color: 'rgba(255,255,255,0.85)', fontFamily: 'DM Sans, sans-serif' }} onMouseEnter={(e) => e.currentTarget.style.color = 'white'} onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.85)'}>contact@aluminiumspace.com</a>
               </li>
             </ul>
           </div>
@@ -184,11 +184,11 @@ const Footer = () => {
 
         {/* Bottom Bar */}
         <div
-          className="flex flex-col md:flex-row items-center justify-between gap-4"
+          className="flex flex-col md:flex-row items-center justify-between gap-2 text-center md:text-left"
           style={{ borderTop: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.15)', margin: '0 -16px', padding: '14px 16px' }}
         >
           <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '13px', fontFamily: 'DM Sans, sans-serif' }}>{t('footer.copyright')}</p>
-          <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '13px', fontFamily: 'DM Sans, sans-serif' }}>{t('footer.powered_by')}</p>
+          <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '13px', fontFamily: 'DM Sans, sans-serif', whiteSpace: 'nowrap' }}>{t('footer.powered_by')}</p>
         </div>
       </div>
     </footer>

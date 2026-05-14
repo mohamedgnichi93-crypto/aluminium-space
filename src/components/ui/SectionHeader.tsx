@@ -36,7 +36,7 @@ const SectionHeader = ({ label, title, subtitle, center = true, light = false }:
     {subtitle && (
       <p style={{
         fontFamily: 'DM Sans, sans-serif', fontSize: 'clamp(14px, 2.5vw, 17px)',
-        color: light ? 'rgba(255,255,255,0.65)' : '#818181',
+        color: light ? 'rgba(255,255,255,0.85)' : '#818181',
         lineHeight: 1.7, maxWidth: center ? '560px' : 'none',
         margin: center ? '12px auto 0 auto' : '12px 0 0 0',
       }}>

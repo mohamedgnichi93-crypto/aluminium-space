@@ -25,8 +25,8 @@ const NotFound = () => {
     <div style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #F5F7FA 0%, #E8EDF5 100%)', padding: '40px 20px' }}>
 
       {/* Background decoration */}
-      <div style={{ position: 'absolute', top: '20%', right: '5%', width: '300px', height: '300px', borderRadius: '50%', background: 'rgba(129,192,99,0.06)', filter: 'blur(60px)', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', bottom: '20%', left: '5%', width: '200px', height: '200px', borderRadius: '50%', background: 'rgba(41,103,136,0.06)', filter: 'blur(60px)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', top: '20%', right: '5%', width: '300px', height: '300px', borderRadius: '50%', background: 'radial-gradient(ellipse at center, rgba(129,192,99,0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', bottom: '20%', left: '5%', width: '200px', height: '200px', borderRadius: '50%', background: 'radial-gradient(ellipse at center, rgba(41,103,136,0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
       <motion.div
         initial={{ opacity: 0, y: 30 }}

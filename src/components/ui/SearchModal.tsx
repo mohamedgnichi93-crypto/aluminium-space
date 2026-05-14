@@ -58,7 +58,7 @@ const SearchModal = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-[9999] flex items-start justify-center pt-[15vh]"
+            className="fixed inset-0 z-[9999] flex items-start justify-center pt-[15vh] modal-viewport-height"
             style={{ background: 'rgba(13, 27, 42, 0.4)', backdropFilter: 'blur(8px)' }}
             onClick={() => setIsOpen(false)}
           >

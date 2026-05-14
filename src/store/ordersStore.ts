@@ -19,13 +19,21 @@ export interface Order {
     quantity: number;
     meshType?: string;
     color?: string;
+    openingType?: 'fenetre' | 'porte' | null;
+    baseUnitPrice: number;
+    colorSurchargeAmount: number;
+    colorSurchargePct: number;
     unitPrice: number;
     totalPrice: number;
   }>;
-  totalHT: number;
+  totalHT: number; // This is Total Brut HT
   remise: number;
-  fodec: number;
-  tva: number;
+  netHT: number;
+  fodec: number; // This is the percentage
+  fodecAmount: number;
+  baseForTVA: number;
+  tva: number; // This is the percentage
+  tvaAmount: number;
   timbre: number;
   totalTTC: number;
   status: 'pending' | 'confirmed' | 'en_fabrication' | 'pret' | 'installe' | 'cancelled' | 'livree';
@@ -40,8 +48,12 @@ interface OrderRow {
   items: Order['items'];
   total_ht: number;
   remise: number;
+  net_ht: number;
   fodec: number;
+  fodec_amount: number;
+  base_for_tva: number;
   tva: number;
+  tva_amount: number;
   timbre: number;
   total_ttc: number;
   status: Order['status'];
@@ -56,8 +68,12 @@ function rowToOrder(row: OrderRow): Order {
     items: row.items,
     totalHT: row.total_ht,
     remise: row.remise,
+    netHT: row.net_ht,
     fodec: row.fodec,
+    fodecAmount: row.fodec_amount,
+    baseForTVA: row.base_for_tva,
     tva: row.tva,
+    tvaAmount: row.tva_amount,
     timbre: row.timbre,
     totalTTC: row.total_ttc,
     status: row.status,
@@ -73,8 +89,12 @@ function orderToRow(order: Order): OrderRow {
     items: order.items,
     total_ht: order.totalHT,
     remise: order.remise,
+    net_ht: order.netHT,
     fodec: order.fodec,
+    fodec_amount: order.fodecAmount,
+    base_for_tva: order.baseForTVA,
     tva: order.tva,
+    tva_amount: order.tvaAmount,
     timbre: order.timbre,
     total_ttc: order.totalTTC,
     status: order.status,
@@ -151,7 +171,7 @@ export const saveOrder = (order: Omit<Order, 'id' | 'date' | 'status'>): Order =
   const orders = getOrders();
   const newOrder: Order = {
     ...order,
-    id: Math.random().toString(36).substring(2, 11).toUpperCase(),
+    id: crypto.randomUUID(),
     date: new Date().toISOString(),
     status: 'pending',
   };
@@ -181,12 +201,26 @@ export const updateOrder = (id: string, updates: Partial<Order>): Order | null =
     const items = updated.items;
     const totalHT = items.reduce((sum, it) => sum + it.unitPrice * it.quantity, 0);
     const remise = updated.remise ?? 0;
-    const afterRemise = totalHT * (1 - remise / 100);
-    const fodec = updated.fodec ?? 0;
-    const tva = updated.tva ?? 0;
-    const timbre = updated.timbre ?? 0;
+    const fodec = updated.fodec ?? 1; // Default to 1% if not specified
+    const tva = updated.tva ?? 19;    // Default to 19% if not specified
+    const timbre = updated.timbre ?? 1; // Default to 1.000 DT
+
+    // 5-Step Tunisian Fiscal Formula
+    const netHT = totalHT - remise;
+    const fodecAmount = netHT * (fodec / 100);
+    const baseForTVA = netHT + fodecAmount;
+    const tvaAmount = baseForTVA * (tva / 100);
+    const totalTTC = Math.round(baseForTVA + tvaAmount + timbre);
+
     updated.totalHT = totalHT;
-    updated.totalTTC = afterRemise * (1 + (fodec + tva) / 100) + timbre;
+    updated.netHT = netHT;
+    updated.fodecAmount = fodecAmount;
+    updated.baseForTVA = baseForTVA;
+    updated.tvaAmount = tvaAmount;
+    updated.totalTTC = totalTTC;
+    updated.timbre = timbre;
+    updated.fodec = fodec;
+    updated.tva = tva;
   }
   orders[idx] = updated;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));

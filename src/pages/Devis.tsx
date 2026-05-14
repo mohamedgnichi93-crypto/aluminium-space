@@ -36,7 +36,7 @@ const Devis = () => {
             {t('devis_page.title')}
           </h1>
           <div style={{ width: '48px', height: '3px', background: '#81C063', margin: '0 auto 16px', borderRadius: '2px' }} />
-          <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '15px', color: 'rgba(255,255,255,0.65)', maxWidth: '480px', margin: '0 auto' }}>
+          <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '15px', color: 'rgba(255,255,255,0.85)', maxWidth: '480px', margin: '0 auto' }}>
             {t('devis_page.subtitle')}
           </p>
         </motion.div>

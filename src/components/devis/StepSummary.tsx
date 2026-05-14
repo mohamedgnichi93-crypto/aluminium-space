@@ -1,12 +1,14 @@
 import { useTranslation } from 'react-i18next';
 import { products } from '../../data/products';
-import { Edit2 } from 'lucide-react';
+import { ALL_COLORS } from '../../data/colors';
+
 import { formatPrice } from '../../utils/pdfGenerator';
 import { getSettings } from '../../store/settingsStore';
 import type { DevisItem } from './DevisWizard';
+import { formatPrice as formatPriceUtil } from '../../utils/formatPrice';
 
 interface Props {
-  formData: any;
+  formData: DevisFormData;
   items: DevisItem[];
   onPrev: () => void;
   onSubmitOrder: () => void;
@@ -14,7 +16,8 @@ interface Props {
 }
 
 const StepSummary = ({ formData, items, onPrev, onSubmitOrder, isSubmitting }: Props) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRTL = ['ar', 'tn'].includes(i18n.language);
 
   const cfg = getSettings();
   // Global Calculations (for UI)
@@ -25,248 +28,246 @@ const StepSummary = ({ formData, items, onPrev, onSubmitOrder, isSubmitting }: P
   const baseTVA = totalNetHT + fodec;
   const tva = baseTVA * (cfg.tvaPercent / 100);
   const timbre = cfg.timbreFiscal;
+  const totalSurcharge = items.reduce((sum, item) => sum + ((item.colorSurchargeAmount ?? 0) / 1000) * item.quantity, 0);
   const totalTTC = baseTVA + tva + timbre;
-
-  const getProductImage = (productId: string) => {
-    switch (productId) {
-      case 'colibri-50': return '/images/colibri-50.png';
-      case 'sidney-50': return '/images/sidney-50.png';
-      case 'sidney-50-ac': return '/images/sidney-50-ac.png';
-      case 'elba': return '/images/elba.png';
-      default: return '/images/colibri-50.png';
-    }
-  };
 
   return (
     <div className="animate-fade-in w-full">
-      <h2 style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '26px', letterSpacing: '2px', textTransform: 'uppercase', color: '#1D3E61', marginBottom: '32px', textAlign: 'center' }}>
-        Résumé de votre Devis
-      </h2>
-
       <div
-        className="devis-invoice-container"
         style={{
           background: 'white',
           border: '1px solid #E2E8F0',
-          borderRadius: '20px',
-          padding: '40px',
-          marginBottom: '32px'
+          borderRadius: '16px',
+          padding: '24px',
+          maxWidth: '640px',
+          margin: '0 auto',
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', paddingBottom: '32px', borderBottom: '2px solid #1A5DA8', marginBottom: '32px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <img src="/logo-aluminium-space.png" alt="Logo" style={{ height: '50px', width: 'auto', objectFit: 'contain' }} />
-            <div>
-              <div style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '20px', color: '#0D1B2A', letterSpacing: '0.5px' }}>
-                ALUMINIUM <span style={{ color: '#1A5DA8' }}>SPACE</span>
-              </div>
-              <div style={{ fontSize: '11px', letterSpacing: '2px', color: '#8896A5', fontWeight: 500, fontFamily: 'Inter, sans-serif' }}>
-                MENUISERIE ALUMINIUM
-              </div>
-            </div>
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <h2 style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600, fontSize: '20px', color: '#0D1B2A', margin: '0 0 8px', textAlign: 'center' }}>
+            {t('quote.summary_title', 'Résumé de votre devis')}
+          </h2>
+          <span style={{ 
+            display: 'inline-block',
+            background: '#F0FDF4', 
+            color: '#16A34A', 
+            padding: '4px 12px', 
+            borderRadius: '20px', 
+            fontSize: '12px', 
+            fontWeight: 600,
+            fontFamily: 'Inter, sans-serif'
+          }}>
+            {t('quote.validity', 'Valable {{days}} jours', { days: cfg.validityDays })}
+          </span>
+        </div>
+
+        <div style={{ background: '#F8FAFC', borderRadius: '10px', padding: '16px', marginBottom: '24px', textAlign: isRTL ? 'right' : 'left' }}>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '11px', color: '#64748B', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
+            {t('common.client', 'Client')} :
           </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '24px', color: '#1A5DA8', marginBottom: '4px' }}>DEVIS OFFICIEL</div>
-            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#8896A5' }}>Date: {new Date().toLocaleDateString('fr-TN')}</div>
-            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#8896A5' }}>Validité: {cfg.validityDays} jours</div>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#0D1B2A', lineHeight: 1.6 }}>
+            <p style={{ fontWeight: 600 }}>{formData.fullName}</p>
+            <p style={{ color: '#4A5568' }}>{formData.address}</p>
+            <p style={{ color: '#4A5568' }}>{t('common.phone_short', 'Tél')}: {formData.phone}</p>
+            {formData.email && <p style={{ color: '#4A5568' }}>{t('common.email_short', 'Email')}: {formData.email}</p>}
           </div>
         </div>
 
-        <div className="devis-from-to-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', marginBottom: '32px' }}>
-          <div>
-            <h4 style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600, fontSize: '14px', color: '#4A5568', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>De :</h4>
-            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#0D1B2A', lineHeight: 1.6 }}>
-              <p style={{ fontWeight: 600 }}>Aluminium Space</p>
-              <p style={{ color: '#4A5568' }}>125 lot Laaroussi, Mghira</p>
-              <p style={{ color: '#4A5568' }}>Tunis, Tunisie</p>
-              <p style={{ color: '#4A5568' }}>Tél: (+216) 53 186 611</p>
-              <p style={{ color: '#4A5568' }}>Email: contact@aluminiumspace.com</p>
-            </div>
-          </div>
-          <div>
-            <h4 style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600, fontSize: '14px', color: '#4A5568', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>À :</h4>
-            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#0D1B2A', lineHeight: 1.6 }}>
-              <p style={{ fontWeight: 600 }}>{formData.fullName}</p>
-              <p style={{ color: '#4A5568' }}>{formData.address}</p>
-              <p style={{ color: '#4A5568' }}>Tél: {formData.phone}</p>
-              {formData.email && <p style={{ color: '#4A5568' }}>Email: {formData.email}</p>}
-            </div>
-          </div>
-        </div>
-
-        <p className="block md:hidden" style={{ fontSize: '12px', color: '#94A3B8', textAlign: 'center', marginBottom: '6px', fontFamily: 'DM Sans, sans-serif' }}>← Faites défiler pour voir le tableau →</p>
-        <div style={{ width: '100%', marginBottom: '32px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' as any, border: '1px solid #E2E8F0', borderRadius: '12px' }}>
-          <div style={{ minWidth: '750px' }}>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: '30% 15% 8% 15% 17% 15%',
-              background: '#1D3E61',
-              padding: '14px 20px',
-              fontFamily: 'Space Grotesk, sans-serif',
-              fontWeight: 600,
-              fontSize: '13px',
-              color: 'white',
-              alignItems: 'center'
-            }}>
-              <div>Description</div>
-              <div style={{ textAlign: 'center' }}>Dimensions</div>
-              <div style={{ textAlign: 'center' }}>Qté</div>
-              <div style={{ textAlign: 'right' }}>P.U HT</div>
-              <div style={{ textAlign: 'right' }}>Remise {cfg.remisePercent}%</div>
-              <div style={{ textAlign: 'right' }}>Net HT</div>
-            </div>
-
-            {items.map((item) => {
-              const uPrice = item.unitPrice / 1000;
-              const itemRemise = uPrice * item.quantity * (cfg.remisePercent / 100);
-              const itemNet = uPrice * item.quantity - itemRemise;
-              const prod = products.find(p => p.id === item.productId);
-
-              return (
-                <div key={item.id} style={{
-                  display: 'grid',
-                  gridTemplateColumns: '30% 15% 8% 15% 17% 15%',
-                  padding: '16px 20px',
-                  borderBottom: '1px solid #E2E8F0',
-                  fontFamily: 'Inter, sans-serif',
-                  fontSize: '14px',
-                  color: '#0D1B2A',
-                  alignItems: 'center',
-                  background: 'white'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <img src={getProductImage(item.productId)} alt="" style={{ width: '45px', height: '45px', objectFit: 'contain', background: '#F8FAFD', borderRadius: '8px', padding: '4px' }} />
-                    <div>
-                      <div style={{ fontWeight: 600, color: '#1A202C' }}>{item.productName}</div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '3px', flexWrap: 'wrap' }}>
-                        <span style={{ fontSize: '11px', color: '#8896A5', fontStyle: 'italic' }}>
-                          {prod ? t(`products.category_${prod.category}`) : ''}
-                          {item.meshType && ` — ${item.meshType}`}
-                        </span>
-                        {item.color && (
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'rgba(29,62,97,0.06)', border: '1px solid #D0D9E8', borderRadius: '20px', padding: '1px 8px 1px 4px' }}>
-                            <span style={{
-                              display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%',
-                              background: item.color === 'Noir' ? '#1A1A1A' : '#FFFFFF',
-                              border: item.color === 'Blanc' ? '1.5px solid #C0CAD6' : '1.5px solid #1A1A1A',
-                              flexShrink: 0,
-                            }} />
-                            <span style={{ fontSize: '11px', fontWeight: 600, color: '#1D3E61', fontFamily: 'Inter, sans-serif', fontStyle: 'normal' }}>
-                              {item.color}
-                            </span>
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div style={{ textAlign: 'center', color: '#4A5568' }}>{item.width} × {item.height} cm</div>
-                  <div style={{ textAlign: 'center', color: '#4A5568' }}>{item.quantity}</div>
-                  <div style={{ textAlign: 'right', color: '#4A5568' }}>{formatPrice(uPrice)}</div>
-                  <div style={{ textAlign: 'right', color: '#EF4444', fontWeight: 500 }}>{formatPrice(itemRemise)}</div>
-                  <div style={{ textAlign: 'right', fontWeight: 700, color: '#1A5DA8' }}>{formatPrice(itemNet)}</div>
+        <div style={{ marginBottom: '24px' }}>
+          {items.map((item, idx) => {
+            const productData = products.find(p => p.id === item.productId);
+            const imageUrl = productData?.imageUrl ?? null;
+            const uPrice = item.unitPrice / 1000;
+            const itemTotal = uPrice * item.quantity;
+            
+            return (
+              <div key={item.id} style={{ 
+                display: 'flex', 
+                flexDirection: isRTL ? 'row-reverse' : 'row',
+                alignItems: 'center', 
+                padding: '14px 0', 
+                borderBottom: idx === items.length - 1 ? 'none' : '1px solid #F1F5F9',
+                gap: 0
+              }}>
+                {/* LEFT SIDE — Product image */}
+                <div style={{ width: '64px', height: '64px', borderRadius: '10px', overflow: 'hidden', border: '0.5px solid #E2E8F0', flexShrink: 0, background: '#F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {imageUrl ? (
+                    <img src={imageUrl} alt={item.productName} className="no-rtl-flip" style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'none' }} />
+                  ) : (
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  )}
                 </div>
-              );
-            })}
-          </div>
+
+                {/* CENTER — Product details */}
+                <div style={{ flex: 1, padding: '0 12px', textAlign: isRTL ? 'right' : 'left' }}>
+                  <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: '15px', color: '#1D3E61' }}>
+                    {item.productName}
+                    {item.openingType && (
+                      <span style={{
+                        fontSize: 12,
+                        color: '#6B7280',
+                        marginLeft: 6,
+                      }}>
+                        — {item.openingType === 'fenetre' 
+                            ? '🪟 Fenêtre' 
+                            : '🚪 Porte'}
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#64748B', marginTop: '2px' }}>
+                    {item.width} × {item.height} cm — {t('common.qty_short', 'Qté')}: {item.quantity}
+                  </div>
+                  {item.color && (
+                    <div style={{ display: 'inline-flex', flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', background: '#F1F5F9', borderRadius: '20px', padding: '2px 10px', fontSize: '12px', color: '#475569', marginTop: '4px' }}>
+                      <span style={{ 
+                        display: 'inline-block', 
+                        width: '8px', 
+                        height: '8px', 
+                        borderRadius: '50%', 
+                        background: ALL_COLORS.find(c => c.name === item.color)?.hex || '#FFFFFF', 
+                        border: '1px solid rgba(0,0,0,0.1)',
+                        [isRTL ? 'marginLeft' : 'marginRight']: '5px', 
+                        verticalAlign: 'middle' 
+                      }} />
+                      {t(`common.${item.color?.toLowerCase() ?? 'blanc'}`, item.color ?? 'Blanc')}
+                      {(item.colorSurchargePct ?? 0) > 0 && (
+                        <span style={{ 
+                          fontSize: '11px', 
+                          color: '#92400E', 
+                          [isRTL ? 'marginRight' : 'marginLeft']: '8px',
+                          fontWeight: 600
+                        }}>
+                          (+{item.colorSurchargePct}%)
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* RIGHT SIDE — Pricing */}
+                <div style={{ textAlign: isRTL ? 'left' : 'right', flexShrink: 0 }}>
+                  <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#94A3B8' }}>
+                    {formatPriceUtil(uPrice)} DT /u
+                  </div>
+                  <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: '15px', color: '#1D3E61', marginTop: '2px' }}>
+                    {formatPriceUtil(itemTotal)} DT
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
 
-        <div className="devis-totals-outer" style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <div className="devis-totals-panel" style={{ width: '320px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#4A5568' }}>
-              <span>Total brut HT :</span>
-              <span style={{ color: '#0D1B2A' }}>{formatPrice(totalBrutHT)}</span>
+        <div style={{ background: '#F8FAFC', borderRadius: '10px', padding: '16px' }}>
+          <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: '8px', fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#64748B' }}>
+            <span>{t('quote.subtotal_ht', 'Sous-total HT')}</span>
+            <span>{formatPrice(totalBrutHT)}</span>
+          </div>
+          {totalSurcharge > 0 && (
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: isRTL ? 'row-reverse' : 'row', 
+              justifyContent: 'space-between', 
+              color: '#92400E',
+              background: '#FFFBEB',
+              padding: '6px 10px',
+              borderRadius: 8,
+              border: '1px solid #FDE68A',
+              margin: '6px 0',
+              fontSize: '13px',
+              fontFamily: 'Inter, sans-serif',
+              fontWeight: 500
+            }}>
+              <span>{t('quote.color_surcharge', 'Supplément couleurs')}</span>
+              <span>+ {formatPrice(totalSurcharge)}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#EF4444' }}>
-              <span>Remise ({cfg.remisePercent}%) :</span>
+          )}
+          {totalRemise > 0 && (
+            <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: '8px', fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#EF4444' }}>
+              <span>{t('quote.remise_label', 'Remise ({{percent}}%)', { percent: cfg.remisePercent })}</span>
               <span>-{formatPrice(totalRemise)}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#0D1B2A', fontWeight: 600, textDecoration: 'none' }}>
-              <span style={{ textDecoration: 'none' }}>Total net HT :</span>
-              <span style={{ textDecoration: 'none' }}>{formatPrice(totalNetHT)}</span>
-            </div>
-
-            <div style={{ height: '1px', background: '#E2E8F0', margin: '12px 0' }} />
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#4A5568' }}>
-              <span>FODEC (1%) :</span>
-              <span style={{ color: '#0D1B2A' }}>{formatPrice(fodec)}</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#4A5568' }}>
-              <span>Base TVA :</span>
-              <span style={{ color: '#0D1B2A' }}>{formatPrice(baseTVA)}</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#4A5568' }}>
-              <span>TVA (19%) :</span>
-              <span style={{ color: '#0D1B2A' }}>{formatPrice(tva)}</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#4A5568' }}>
-              <span>Timbre fiscal :</span>
-              <span style={{ color: '#0D1B2A' }}>{formatPrice(timbre)}</span>
-            </div>
-
-            <div style={{ background: '#1D3E61', borderRadius: '10px', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 4px 12px rgba(26,93,168,0.15)' }}>
-              <span style={{ color: 'white', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600, fontSize: '16px' }}>TOTAL TTC</span>
-              <span style={{ color: 'white', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '24px' }}>{formatPrice(totalTTC)}</span>
-            </div>
+          )}
+          <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: '8px', fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#64748B' }}>
+            <span>{t('quote.fodec', 'FODEC ({{percent}}%)', { percent: cfg.fodecPercent })}</span>
+            <span>{formatPrice(fodec)}</span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: '8px', fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#64748B' }}>
+            <span>{t('quote.tva', 'TVA ({{percent}}%)', { percent: cfg.tvaPercent })}</span>
+            <span>{formatPrice(tva)}</span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: '12px', fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#64748B' }}>
+            <span>{t('quote.timbre', 'Timbre fiscal')}</span>
+            <span>{formatPrice(timbre)}</span>
+          </div>
+          
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: isRTL ? 'row-reverse' : 'row',
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            paddingTop: '12px', 
+            borderTop: '1px solid #E2E8F0',
+            marginTop: '4px'
+          }}>
+            <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: '16px', color: '#1D3E61' }}>{t('quote.total_ttc', 'Total TTC')}</span>
+            <span style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '20px', color: '#1D3E61' }}>{formatPrice(totalTTC)}</span>
           </div>
         </div>
-      </div>
 
-      <div className="devis-summary-action-buttons" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-        <button
-          onClick={onPrev}
-          type="button"
-          style={{
-            background: 'transparent',
-            color: '#4A5568',
-            border: '1px solid #D0D9E8',
-            padding: '14px 24px',
-            fontFamily: 'Space Grotesk, sans-serif',
-            fontWeight: 600,
-            fontSize: '15px',
-            cursor: 'pointer',
-            borderRadius: '10px',
-            transition: 'background 0.2s ease',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.background = '#F5F7FA'}
-          onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-        >
-          <Edit2 size={16} />
-          Modifier
-        </button>
+        <div style={{
+          display: 'flex',
+          flexDirection: isRTL ? 'row-reverse' : 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: '16px',
+          marginTop: '24px'
+        }}>
+          {/* LEFT — Retour button */}
+          <button
+            onClick={onPrev}
+            style={{
+              background: 'transparent',
+              border: '1.5px solid #CBD5E1',
+              borderRadius: '12px',
+              padding: '14px 28px',
+              fontSize: '15px',
+              fontWeight: '500',
+              color: '#64748B',
+              cursor: 'pointer',
+              display: 'flex',
+              flexDirection: isRTL ? 'row-reverse' : 'row',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+          >
+            {isRTL ? `${t('common.back', 'Retour')} →` : `← ${t('common.back', 'Retour')}`}
+          </button>
 
-        <button
-          onClick={onSubmitOrder}
-          disabled={isSubmitting}
-          type="button"
-          style={{
-            background: isSubmitting ? '#7A9BC4' : '#1D3E61',
-            color: 'white',
-            border: 'none',
-            borderRadius: '12px',
-            padding: '16px 40px',
-            fontSize: '15px',
-            fontWeight: 700,
-            fontFamily: 'Rajdhani, sans-serif',
-            letterSpacing: '1.5px',
-            textTransform: 'uppercase',
-            cursor: isSubmitting ? 'not-allowed' : 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            boxShadow: isSubmitting ? 'none' : '0 6px 20px rgba(29,62,97,0.30)',
-            transition: 'all 0.2s ease',
-            minWidth: '260px',
-            justifyContent: 'center',
-          }}
-          onMouseEnter={(e) => { if (!isSubmitting) { e.currentTarget.style.background = '#81C063'; e.currentTarget.style.boxShadow = '0 8px 25px rgba(129,192,99,0.35)'; } }}
-          onMouseLeave={(e) => { if (!isSubmitting) { e.currentTarget.style.background = '#1D3E61'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(29,62,97,0.30)'; } }}
-        >
-          {isSubmitting ? '⏳ Envoi en cours...' : '✓ Confirmer & Télécharger le Devis'}
-        </button>
+          {/* RIGHT — Accept & Download PDF button */}
+          <button
+            onClick={onSubmitOrder}
+            disabled={isSubmitting}
+            style={{
+              flex: 1,
+              background: '#1D3E61',
+              border: 'none',
+              borderRadius: '12px',
+              padding: '14px 28px',
+              fontSize: '15px',
+              fontWeight: '600',
+              color: '#ffffff',
+              cursor: isSubmitting ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              opacity: isSubmitting ? 0.7 : 1
+            }}
+          >
+            {isSubmitting ? t('common.processing', 'Traitement...') : t('quote.accept_download', 'Accepter et télécharger le PDF')}
+          </button>
+        </div>
       </div>
     </div>
   );

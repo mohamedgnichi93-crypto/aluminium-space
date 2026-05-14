@@ -7,11 +7,7 @@ export interface Product {
   description: string;
   descriptionKey: string;
   imageUrl: string;
-  specs: {
-    caisson?: string;
-    tailleEffective: string;
-    mesures: string;
-  };
+
 }
 
 export const products: Product[] = [
@@ -22,11 +18,7 @@ export const products: Product[] = [
     descriptionKey: 'products.colibri50_desc',
     description: 'Moustiquaire enroulable pour fenêtre à caisson supérieur. Mécanisme à ressort. Coulisses latérales à doubles joints-brosses. Barre de charge avec cordon de tirage. Panneau moustiquaire en fibre de verre recouverte de PVC. Structure en aluminium blanc.',
     imageUrl: '/images/colibri-50.png',
-    specs: {
-      caisson: '45 mm',
-      tailleEffective: '52 mm',
-      mesures: 'Min 350×500 mm — Max 2000×1700 mm (L×H)'
-    }
+
   },
   {
     id: 'sidney-50',
@@ -35,11 +27,7 @@ export const products: Product[] = [
     descriptionKey: 'products.sidney50_desc',
     description: 'Moustiquaire pour portes à caisson latéral. Mécanisme à ressort. Coulisses latérales à doubles joints-brosses. Barre de charge à poignée externe pliante. Panneau moustiquaire en fibre de verre recouverte de PVC. Structure en aluminium blanc.',
     imageUrl: '/images/sidney-50.png',
-    specs: {
-      caisson: '45 mm',
-      tailleEffective: '58 mm',
-      mesures: 'Min 350×700 mm — Max 2000×2600 mm (L×H)'
-    }
+
   },
   {
     id: 'sidney-50-ac',
@@ -48,11 +36,7 @@ export const products: Product[] = [
     descriptionKey: 'products.sidney50ac_desc',
     description: 'Moustiquaire pour portes à caisson latéral. Système à deux caissons pour grandes ouvertures. Mécanisme à ressort. Coulisses à doubles joints-brosses. Barre de charge à poignées externes pliantes. Panneau moustiquaire en fibre de verre recouverte de PVC. Structure en aluminium blanc.',
     imageUrl: '/images/sidney-50-ac.png',
-    specs: {
-      caisson: '45 mm',
-      tailleEffective: '58 mm',
-      mesures: 'Min 70×700 mm — Max 4000×2600 mm (L×H)'
-    }
+
   },
   {
     id: 'elba',
@@ -61,10 +45,15 @@ export const products: Product[] = [
     descriptionKey: 'products.elba_desc',
     description: 'Moustiquaire à panneau fixe pour fenêtre. Châssis fixe en aluminium blanc. Panneau moustiquaire en fibre de verre recouverte de PVC. Fixations murales en nylon. Joint-brosse périmétral (en option). Joint magnétique périmétral (en option). Sur demande : panneau en aluminium ou acier inox.',
     imageUrl: '/images/elba.png',
-    specs: {
-      tailleEffective: '10 mm',
-      mesures: 'Min 300×300 mm — Max 1200×2500 mm (L×H)'
-    }
+
+  },
+  {
+    id: 'plisse31',
+    name: 'Plissé 31 Bilatérale',
+    category: 'plisse',
+    descriptionKey: 'products.plisse31_desc',
+    description: 'Moustiquaire plissée bilatérale (encombrement 31mm). Idéale pour grandes ouvertures (5000x3000mm). Déverrouillage à aimant et rail inférieur extra plat.',
+    imageUrl: '/images/plisse31.png',
   }
 ];
 
@@ -104,5 +93,13 @@ export const priceTables = {
     fibre: 143000,
     aluminium: 183000,
     inox: 262000
+  },
+  plisse31: {
+    125: { '120-180': 1115000, '180-240': 1487000, '240-300': 1859000 },
+    180: { '120-180': 1540000, '180-240': 2018000, '240-300': 2496000 },
+    250: { '120-180': 2018000, '180-240': 2443000, '240-300': 3102000 },
+    300: { '120-180': 2443000, '180-240': 2868000, '240-300': 3718000 },
+    400: { '120-180': 2709000, '180-240': 3399000, '240-300': 4355000 },
+    500: { '120-180': 2974000, '180-240': 3930000, '240-300': 4993000 },
   }
 };
