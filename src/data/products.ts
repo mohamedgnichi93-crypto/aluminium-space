@@ -17,7 +17,7 @@ export const products: Product[] = [
     category: 'plisse',
     descriptionKey: 'products.colibri50_desc',
     description: 'Moustiquaire enroulable pour fenêtre à caisson supérieur. Mécanisme à ressort. Coulisses latérales à doubles joints-brosses. Barre de charge avec cordon de tirage. Panneau moustiquaire en fibre de verre recouverte de PVC. Structure en aluminium blanc.',
-    imageUrl: '/images/colibri-50.png',
+    imageUrl: '/images/colibri-50.webp',
 
   },
   {
@@ -26,7 +26,7 @@ export const products: Product[] = [
     category: 'enroulable',
     descriptionKey: 'products.sidney50_desc',
     description: 'Moustiquaire pour portes à caisson latéral. Mécanisme à ressort. Coulisses latérales à doubles joints-brosses. Barre de charge à poignée externe pliante. Panneau moustiquaire en fibre de verre recouverte de PVC. Structure en aluminium blanc.',
-    imageUrl: '/images/sidney-50.png',
+    imageUrl: '/images/sidney-50.webp',
 
   },
   {
@@ -35,7 +35,7 @@ export const products: Product[] = [
     category: 'plisse',
     descriptionKey: 'products.sidney50ac_desc',
     description: 'Moustiquaire pour portes à caisson latéral. Système à deux caissons pour grandes ouvertures. Mécanisme à ressort. Coulisses à doubles joints-brosses. Barre de charge à poignées externes pliantes. Panneau moustiquaire en fibre de verre recouverte de PVC. Structure en aluminium blanc.',
-    imageUrl: '/images/sidney-50-ac.png',
+    imageUrl: '/images/sidney-50-ac.webp',
 
   },
   {
@@ -44,7 +44,7 @@ export const products: Product[] = [
     category: 'panneau',
     descriptionKey: 'products.elba_desc',
     description: 'Moustiquaire à panneau fixe pour fenêtre. Châssis fixe en aluminium blanc. Panneau moustiquaire en fibre de verre recouverte de PVC. Fixations murales en nylon. Joint-brosse périmétral (en option). Joint magnétique périmétral (en option). Sur demande : panneau en aluminium ou acier inox.',
-    imageUrl: '/images/elba.png',
+    imageUrl: '/images/elba.webp',
 
   },
   {
@@ -53,7 +53,7 @@ export const products: Product[] = [
     category: 'plisse',
     descriptionKey: 'products.plisse31_desc',
     description: 'Moustiquaire plissée bilatérale (encombrement 31mm). Idéale pour grandes ouvertures (5000x3000mm). Déverrouillage à aimant et rail inférieur extra plat.',
-    imageUrl: '/images/plisse31.png',
+    imageUrl: '/images/plisse31.webp',
   }
 ];
 

@@ -17,6 +17,7 @@ import TrashTable from '../components/dashboard/TrashTable';
 import SettingsPanel from '../components/dashboard/SettingsPanel';
 import ChatPanel from '../components/dashboard/ChatPanel';
 import EditOrderModal from '../components/dashboard/EditOrderModal';
+import PageSEO from '../components/ui/PageSEO';
 import {
   LayoutDashboard, ShoppingBag, BarChart3, LogOut,
   Bell, Search, CheckCircle, Clock, Trash2, Eye, FileText, Pencil, Plus, Minus, X as XIcon
@@ -56,6 +57,15 @@ const Dashboard = () => {
   const lockoutIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // --- UI STATE ---
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
     const saved = localStorage.getItem('sidebar_collapsed');
     if (saved !== null) return saved === 'true';
@@ -397,16 +407,36 @@ const Dashboard = () => {
   const sidebarWidth = isSidebarCollapsed ? '64px' : '220px';
 
   return (
+    <>
+    <PageSEO titleFr="Dashboard — Aluminium Space" path="/dashboard" noIndex />
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: '#F4F7FB' }}>
       <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
 
+      {/* MOBILE OVERLAY */}
+      {isMobile && sidebarOpen && (
+        <div 
+          onClick={() => setSidebarOpen(false)}
+          style={{
+            position: 'fixed', inset: 0,
+            background: 'rgba(0,0,0,0.5)',
+            zIndex: 39
+          }} 
+        />
+      )}
+
       {/* SIDEBAR */}
       <DashboardSidebar
+        isMobile={isMobile}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
         activeTab={activeTab}
         isSidebarCollapsed={isSidebarCollapsed}
         unreadSessions={unreadSessions}
         trashedOrdersCount={trashedOrders.length}
-        setActiveTab={setActiveTab}
+        setActiveTab={(tab) => {
+          setActiveTab(tab);
+          if (isMobile) setSidebarOpen(false);
+        }}
         toggleSidebar={toggleSidebar}
         handleLogout={handleLogout}
       />
@@ -422,6 +452,8 @@ const Dashboard = () => {
         }}
       >
         <DashboardHeader
+          onMenuClick={() => setSidebarOpen(prev => !prev)}
+          isMobile={isMobile}
           activeTab={activeTab}
           currentTime={currentTime}
           isOnline={isOnline}
@@ -463,22 +495,18 @@ const Dashboard = () => {
               />
             ) : activeTab === 'demandes' ? (
               <MeasureRequestsTable />
-            ) : (activeTab === 'dashboard' || activeTab === 'stats') && (
+            ) : activeTab === 'stats' && (
               <>
-                {/* ACCÈS RAPIDES */}
-            {(activeTab === 'dashboard' || activeTab === 'stats') && (
-              <QuickActions setActiveTab={setActiveTab} />
-            )}
+                <QuickActions setActiveTab={setActiveTab} />
 
-            {/* KPI CARDS */}
-            <KpiCards
-              totalOrders={totalOrders}
-              pendingOrders={pendingOrders}
-              confirmedOrders={confirmedOrders}
-              totalRevenue={totalRevenue}
-              orders={orders}
-              formatDT={formatDT}
-            />
+                <KpiCards
+                  totalOrders={totalOrders}
+                  pendingOrders={pendingOrders}
+                  confirmedOrders={confirmedOrders}
+                  totalRevenue={totalRevenue}
+                  orders={orders}
+                  formatDT={formatDT}
+                />
 
                 <DashboardCharts
                   orders={orders}
@@ -505,27 +533,40 @@ const Dashboard = () => {
               />
             )}
 
-            {activeTab !== 'corbeille' && activeTab !== 'stats' && activeTab !== 'chat' && (activeTab === 'dashboard' || activeTab === 'orders') && (
-              <OrdersTable
-                filteredOrders={filteredOrders}
-                currentItems={currentItems}
-                totalPages={totalPages}
-                currentPage={currentPage}
-                itemsPerPage={itemsPerPage}
-                setCurrentPage={setCurrentPage}
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-                statusFilter={statusFilter}
-                setStatusFilter={setStatusFilter}
-                dateFilter={dateFilter}
-                setDateFilter={setDateFilter}
-                handleStatusChange={handleStatusChange}
-                handleMoveToTrash={handleMoveToTrash}
-                handleDownloadPDF={handleDownloadPDF}
-                setSelectedOrder={setSelectedOrder}
-                setEditingOrder={setEditingOrder}
-                formatDT={formatDT}
-              />
+            {(activeTab === 'dashboard' || activeTab === 'orders') && (
+              <>
+                {activeTab === 'dashboard' && (
+                  <KpiCards
+                    totalOrders={totalOrders}
+                    pendingOrders={pendingOrders}
+                    confirmedOrders={confirmedOrders}
+                    totalRevenue={totalRevenue}
+                    orders={orders}
+                    formatDT={formatDT}
+                  />
+                )}
+
+                <OrdersTable
+                  filteredOrders={filteredOrders}
+                  currentItems={currentItems}
+                  totalPages={totalPages}
+                  currentPage={currentPage}
+                  itemsPerPage={itemsPerPage}
+                  setCurrentPage={setCurrentPage}
+                  searchTerm={searchTerm}
+                  setSearchTerm={setSearchTerm}
+                  statusFilter={statusFilter}
+                  setStatusFilter={setStatusFilter}
+                  dateFilter={dateFilter}
+                  setDateFilter={setDateFilter}
+                  handleStatusChange={handleStatusChange}
+                  handleMoveToTrash={handleMoveToTrash}
+                  handleDownloadPDF={handleDownloadPDF}
+                  setSelectedOrder={setSelectedOrder}
+                  setEditingOrder={setEditingOrder}
+                  formatDT={formatDT}
+                />
+              </>
             )}
           </div>
         </div>
@@ -549,6 +590,7 @@ const Dashboard = () => {
         />
       )}
     </div>
+    </>
   );
 };
 

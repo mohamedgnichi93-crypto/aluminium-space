@@ -345,7 +345,8 @@ function drawTotals(doc: jsPDF, order: Order, startY: number): number {
   );
 
   const remise = order.remise;
-  const netHT = order.totalHT - remise;
+  // order.totalHT is already net of remise (saved by DevisWizard)
+  const netHT = order.totalHT;
   
   // Use pre-calculated amounts if available, otherwise fallback to standard formula
   const fodecAmount = order.fodecAmount ?? (netHT * 0.01);
@@ -354,7 +355,7 @@ function drawTotals(doc: jsPDF, order: Order, startY: number): number {
   const timbre = order.timbre;
   const totalTTC = order.totalTTC;
 
-  const remisePct = brutHT > 0 ? Math.round((remise / brutHT) * 100) : 0;
+  const remisePct = order.remisePercent ?? (brutHT > 0 ? Math.round((remise / brutHT) * 100) : 0);
 
   const totalSurcharge = order.items.reduce((sum, item) => sum + ((item.colorSurchargeAmount ?? 0) * (item.quantity || 1)), 0);
   const baseBrutHT = brutHT - totalSurcharge;

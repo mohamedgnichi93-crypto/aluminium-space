@@ -23,6 +23,7 @@ interface Order {
     address: string;
   };
   remise: number;
+  remisePercent?: number;
   fodec: number;
   tva: number;
   items: OrderItem[];
@@ -42,6 +43,9 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({
   updateOrder,
   loadData
 }) => {
+  // Derive remisePercent: use stored value, or reverse-engineer from amounts
+  const totalHT = editingOrder.items.reduce((sum, it) => sum + it.unitPrice * (it.quantity || 1), 0);
+  const remisePercent = editingOrder.remisePercent ?? (totalHT > 0 ? Math.round((editingOrder.remise / totalHT) * 100) : 0);
   return (
     <div
       style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
@@ -84,13 +88,21 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({
             </div>
           </div>
 
-          {/* Remise */}
+          {/* Remise / FODEC / TVA */}
           <div style={{ marginBottom: '24px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
-            {[
-              { key: 'remise' as const, label: 'Remise (%)', max: 100 },
-              { key: 'fodec' as const, label: 'FODEC (%)', max: 100 },
-              { key: 'tva' as const, label: 'TVA (%)', max: 100 },
-            ].map(({ key, label }) => (
+            {/* Remise — uses remisePercent, NOT the raw millimes amount */}
+            <div>
+              <label style={{ fontFamily: 'Inter, sans-serif', fontSize: '11px', color: '#6B7280', fontWeight: 600, textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>Remise (%)</label>
+              <input
+                type="number" min="0" max="100" step="0.1"
+                value={remisePercent}
+                onChange={e => setEditingOrder({ ...editingOrder, remisePercent: parseFloat(e.target.value) || 0 })}
+                style={{ width: '100%', padding: '8px 12px', border: '1px solid #E8EDF5', borderRadius: '8px', fontFamily: 'Inter, sans-serif', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+                onFocus={e => e.currentTarget.style.borderColor = '#1D3E61'}
+                onBlur={e => e.currentTarget.style.borderColor = '#E8EDF5'}
+              />
+            </div>
+            {[{ key: 'fodec' as const, label: 'FODEC (%)' }, { key: 'tva' as const, label: 'TVA (%)' }].map(({ key, label }) => (
               <div key={key}>
                 <label style={{ fontFamily: 'Inter, sans-serif', fontSize: '11px', color: '#6B7280', fontWeight: 600, textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>{label}</label>
                 <input

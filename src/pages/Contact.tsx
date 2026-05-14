@@ -171,7 +171,7 @@ const Contact = () => {
 
           {/* Info column */}
           <motion.div
-            initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
             className="contact-info-col"
           >
             <h2 style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '22px', color: '#1D3E61', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '20px' }}>
@@ -207,7 +207,7 @@ const Contact = () => {
 
           {/* Form column */}
           <motion.div
-            initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
             style={{ background: 'white', borderRadius: '20px', padding: 'clamp(24px, 4vw, 40px)', border: '1px solid #E8EDF5', boxShadow: '0 4px 24px rgba(29,62,97,0.07)' }}
             className="contact-form-col"
           >

@@ -239,6 +239,7 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
         items: items,
         totalHT: globalTotalHT,
         remise: totalRemise,
+        remisePercent: cfg.remisePercent,
         fodec: cfg.fodecPercent,
         fodecAmount: fodec,
         baseForTVA: totalAfterFodec,

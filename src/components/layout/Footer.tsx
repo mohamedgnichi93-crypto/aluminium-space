@@ -146,9 +146,9 @@ const Footer = () => {
             </h3>
             <div style={{ width: '30px', height: '2px', background: '#81C063', marginBottom: '20px', borderRadius: '1px' }} />
             <ul className="space-y-4">
-              <li className="flex gap-3 text-sm" style={{ color: 'rgba(255,255,255,0.85)' }}>
-                <MapPin className="w-4 h-4 shrink-0 mt-0.5" style={{ color: '#81C063' }} />
-                <span style={{ fontFamily: 'DM Sans, sans-serif' }}>
+              <li style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', color: 'rgba(255,255,255,0.85)', fontSize: '14px' }}>
+                <MapPin size={16} style={{ flexShrink: 0, marginTop: '2px', color: '#81C063' }} />
+                <div style={{ fontFamily: 'DM Sans, sans-serif' }}>
                   {t('footer.address')} -{' '}
                   <a
                     href="https://maps.google.com/?q=125+lot+Laaroussi+Mghira+Ben+Arous+Tunisie"
@@ -161,22 +161,26 @@ const Footer = () => {
                   >
                     {t('footer.see_maps')}
                   </a>
-                </span>
+                </div>
               </li>
-              <li className="flex gap-3 text-sm">
-                <Phone className="w-4 h-4 shrink-0 mt-0.5" style={{ color: '#81C063' }} />
-                <div className="flex flex-col gap-1" style={{ fontFamily: 'DM Sans, sans-serif' }}>
+              <li style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '14px' }}>
+                <Phone size={16} style={{ flexShrink: 0, marginTop: '2px', color: '#81C063' }} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontFamily: 'DM Sans, sans-serif' }}>
                   <a href="tel:+21653186611" className="transition-colors" style={{ color: 'rgba(255,255,255,0.85)' }} onMouseEnter={(e) => e.currentTarget.style.color = 'white'} onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.85)'}>(+216) 53 186 611</a>
                   <a href="tel:+21657099070" className="transition-colors" style={{ color: 'rgba(255,255,255,0.85)' }} onMouseEnter={(e) => e.currentTarget.style.color = 'white'} onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.85)'}>(+216) 57 099 070</a>
                 </div>
               </li>
-              <li className="flex gap-3 text-sm">
-                <svg className="w-4 h-4 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="#81C063" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                <a href="https://wa.me/21657099070" target="_blank" rel="noopener noreferrer" className="transition-colors" style={{ color: 'rgba(255,255,255,0.85)', fontFamily: 'DM Sans, sans-serif' }} onMouseEnter={(e) => e.currentTarget.style.color = 'white'} onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.85)'}>WhatsApp: +216 57 099 070</a>
+              <li style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '14px' }}>
+                <svg width="16" height="16" style={{ flexShrink: 0, marginTop: '2px' }} viewBox="0 0 24 24" fill="none" stroke="#81C063" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                <div style={{ fontFamily: 'DM Sans, sans-serif' }}>
+                  <a href="https://wa.me/21657099070" target="_blank" rel="noopener noreferrer" className="transition-colors" style={{ color: 'rgba(255,255,255,0.85)' }} onMouseEnter={(e) => e.currentTarget.style.color = 'white'} onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.85)'}>WhatsApp: +216 57 099 070</a>
+                </div>
               </li>
-              <li className="flex gap-3 text-sm">
-                <Mail className="w-4 h-4 shrink-0 mt-0.5" style={{ color: '#81C063' }} />
-                <a href="mailto:contact@aluminiumspace.com" className="transition-colors" style={{ color: 'rgba(255,255,255,0.85)', fontFamily: 'DM Sans, sans-serif' }} onMouseEnter={(e) => e.currentTarget.style.color = 'white'} onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.85)'}>contact@aluminiumspace.com</a>
+              <li style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '14px' }}>
+                <Mail size={16} style={{ flexShrink: 0, marginTop: '2px', color: '#81C063' }} />
+                <div style={{ fontFamily: 'DM Sans, sans-serif' }}>
+                  <a href="mailto:contact@aluminiumspace.com" className="transition-colors" style={{ color: 'rgba(255,255,255,0.85)' }} onMouseEnter={(e) => e.currentTarget.style.color = 'white'} onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.85)'}>contact@aluminiumspace.com</a>
+                </div>
               </li>
             </ul>
           </div>

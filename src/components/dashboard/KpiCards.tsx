@@ -20,7 +20,7 @@ const KpiCards: React.FC<KpiCardsProps> = ({
   formatDT
 }) => {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', marginBottom: '24px' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '16px', marginBottom: '24px' }}>
       <div style={{ background: 'white', borderRadius: '14px', padding: '20px 24px', border: '1px solid #E8EDF5', borderLeft: '4px solid #1D3E61', boxShadow: '0 2px 8px rgba(13,27,42,0.05)', display: 'flex', alignItems: 'center', gap: '16px' }}>
         <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#EEF2F8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <ShoppingBag size={24} color="#1D3E61" />

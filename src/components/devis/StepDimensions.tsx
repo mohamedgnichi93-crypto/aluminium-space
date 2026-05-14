@@ -947,7 +947,7 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
                 <>
                   {/* Product info strip */}
                   <div style={{ border: '1px solid #E8EDF5', borderRadius: '12px', padding: '12px 16px', display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: '12px', marginBottom: '16px', background: 'white' }}>
-                    <img src={product?.imageUrl || '/images/colibri-50.png'} alt="" className="no-rtl-flip" style={{ width: '48px', height: '48px', objectFit: 'contain', background: 'rgba(29,62,97,0.04)', borderRadius: '8px', padding: '4px', flexShrink: 0, transform: 'none' }} />
+                    <img src={product?.imageUrl || '/images/colibri-50.webp'} alt={product?.name || 'Produit'} className="no-rtl-flip" style={{ width: '48px', height: '48px', objectFit: 'contain', background: 'rgba(29,62,97,0.04)', borderRadius: '8px', padding: '4px', flexShrink: 0, transform: 'none' }} />
                     <div style={{ minWidth: 0, textAlign: isRTL ? 'right' : 'left' }}>
                       <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '15px', color: '#1D3E61', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product?.name}</div>
                       <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: '8px', marginTop: '2px', flexWrap: 'wrap' }}>

@@ -1,4 +1,4 @@
-const CACHE = 'alu-space-v6';
+const CACHE = 'alu-space-__SW_VERSION__';
 const PRECACHE = ['/', '/manifest.json', '/logo-aluminium-space.png'];
 
 self.addEventListener('install', e => {
@@ -29,22 +29,21 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // Cache-first for static assets (JS, CSS, images, fonts)
+  // Network-first for static assets (JS, CSS, images, fonts)
   if (
     url.pathname.match(/\.(js|css|png|jpg|jpeg|svg|webp|woff2?|ttf|ico)$/) ||
     url.hostname !== self.location.hostname
   ) {
     e.respondWith(
-      caches.match(e.request).then(cached => {
-        if (cached) return cached;
-        return fetch(e.request).then(res => {
+      fetch(e.request)
+        .then(res => {
           if (res.ok) {
             const clone = res.clone();
             caches.open(CACHE).then(c => c.put(e.request, clone));
           }
           return res;
-        });
-      })
+        })
+        .catch(() => caches.match(e.request) ?? new Response('Offline', { status: 503 }))
     );
     return;
   }

@@ -187,8 +187,8 @@ const Home = () => {
                 {/* Desktop Styled Wrapper */}
                 <div className="hidden md:block w-full" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(129,192,99,0.2)', borderRadius: '24px', padding: 'clamp(24px, 4vw, 40px)', backdropFilter: 'blur(8px)', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
                   <picture className="no-rtl-flip w-full">
-                    <source srcSet="/images/colibri-hero.webp" type="image/webp" />
-                    <img src="/images/colibri-hero.png" alt="Grifo Flex Colibrì 50"
+                    <source srcSet="/images/colibri-50.webp" type="image/webp" />
+                    <img src="/images/colibri-50.png" alt="Grifo Flex Colibrì 50"
                       className="no-rtl-flip mx-auto"
                       style={{ width: '100%', height: 'auto', maxHeight: '280px', objectFit: 'contain', filter: 'drop-shadow(0 12px 24px rgba(0,0,0,0.3))', transform: 'none' }}
                     />
@@ -203,8 +203,8 @@ const Home = () => {
                 {/* Mobile Plain Wrapper */}
                 <div className="md:hidden w-full">
                   <picture className="no-rtl-flip w-full">
-                    <source srcSet="/images/colibri-hero.webp" type="image/webp" />
-                    <img src="/images/colibri-hero.png" alt="Grifo Flex" className="no-rtl-flip mx-auto" style={{ width: '100%', maxHeight: '250px', objectFit: 'contain', transform: 'none' }} />
+                    <source srcSet="/images/colibri-50.webp" type="image/webp" />
+                    <img src="/images/colibri-50.png" alt="Grifo Flex" className="no-rtl-flip mx-auto" style={{ width: '100%', maxHeight: '250px', objectFit: 'contain', transform: 'none' }} />
                   </picture>
                 </div>
               </motion.div>

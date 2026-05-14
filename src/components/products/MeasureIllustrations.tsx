@@ -55,7 +55,7 @@ export const IllustrationStyles = () => (
 );
 
 export const ToolsSVG: React.FC<{ k: number }> = ({ k }) => (
-  <svg key={k} viewBox="0 0 320 210" width="320" height="210">
+  <svg key={k} viewBox="0 0 320 210" style={{ width: '100%', maxWidth: '320px', height: 'auto' }}>
     <IllustrationStyles />
     {/* Tape measure */}
     <g className="t0" transform="translate(20,35)">
@@ -110,7 +110,7 @@ export const ToolsSVG: React.FC<{ k: number }> = ({ k }) => (
 );
 
 export const EmbrasureSVG: React.FC<{ k: number; isDoor: boolean }> = ({ k, isDoor }) => (
-  <svg key={k} viewBox="0 0 320 210" width="320" height="210">
+  <svg key={k} viewBox="0 0 320 210" style={{ width: '100%', maxWidth: '320px', height: 'auto' }}>
     <IllustrationStyles />
     {/* Wall + opening - top view */}
     <g className="e0">
@@ -144,7 +144,7 @@ export const EmbrasureSVG: React.FC<{ k: number; isDoor: boolean }> = ({ k, isDo
 );
 
 export const MistakesSVG: React.FC<{ k: number }> = ({ k }) => (
-  <svg key={k} viewBox="0 0 320 210" width="320" height="210">
+  <svg key={k} viewBox="0 0 320 210" style={{ width: '100%', maxWidth: '320px', height: 'auto' }}>
     <IllustrationStyles />
     
     {/* Left Panel: Wrong (Frame) */}
@@ -186,7 +186,7 @@ export const LargeurSVG: React.FC<{ k: number; isDoor: boolean }> = ({ k, isDoor
   const cx = fX + fW / 2;
 
   return (
-    <svg key={k} viewBox="0 0 320 210" width="320" height="210">
+    <svg key={k} viewBox="0 0 320 210" style={{ width: '100%', maxWidth: '320px', height: 'auto' }}>
       <IllustrationStyles />
       <g className="w0">
         <rect x={fX} y={fY} width={fW} height={fH} rx="3" fill="none" stroke="#B0BED0" strokeWidth="3" />
@@ -238,7 +238,7 @@ export const HauteurSVG: React.FC<{ k: number; isDoor: boolean }> = ({ k, isDoor
   const cy = fY + fH / 2;
 
   return (
-    <svg key={k} viewBox="0 0 320 210" width="320" height="210">
+    <svg key={k} viewBox="0 0 320 210" style={{ width: '100%', maxWidth: '320px', height: 'auto' }}>
       <IllustrationStyles />
       <g className="h0">
         <rect x={fX} y={fY} width={fW} height={fH} rx="3" fill="none" stroke="#B0BED0" strokeWidth="3" />
@@ -285,7 +285,7 @@ export const HauteurSVG: React.FC<{ k: number; isDoor: boolean }> = ({ k, isDoor
 };
 
 export const FormulaSVG: React.FC<{ k: number; exampleL?: string; exampleH?: string }> = ({ k, exampleL = "1 200", exampleH = "2 150" }) => (
-  <svg key={k} viewBox="0 0 320 210" width="320" height="210">
+  <svg key={k} viewBox="0 0 320 210" style={{ width: '100%', maxWidth: '320px', height: 'auto' }}>
     <IllustrationStyles />
     <g className="o0">
       <rect x="35" y="15" width="250" height="68" rx="12" fill="#EEF4FF" stroke="#1A5DA8" strokeWidth="2" />
@@ -314,7 +314,7 @@ export const FormulaSVG: React.FC<{ k: number; exampleL?: string; exampleH?: str
 );
 
 export const TipsSVG: React.FC<{ k: number }> = ({ k }) => (
-  <svg key={k} viewBox="0 0 320 210" width="320" height="210">
+  <svg key={k} viewBox="0 0 320 210" style={{ width: '100%', maxWidth: '320px', height: 'auto' }}>
     <IllustrationStyles />
     {[
       { icon: '📏', color: '#EEF4FF', border: '#B8D0F0', text: 'Mesurez toujours DANS l\'embrasure, entre les deux bords du mur', dy: 0 },

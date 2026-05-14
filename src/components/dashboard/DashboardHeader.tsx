@@ -1,8 +1,10 @@
 import React from 'react';
-import { Bell, LogOut } from 'lucide-react';
+import { Bell, LogOut, Menu } from 'lucide-react';
 
 interface DashboardHeaderProps {
   activeTab: string;
+  onMenuClick: () => void;
+  isMobile: boolean;
   currentTime: Date;
   isOnline: boolean;
   isSyncing: boolean;
@@ -12,6 +14,8 @@ interface DashboardHeaderProps {
 
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   activeTab,
+  onMenuClick,
+  isMobile,
   currentTime,
   isOnline,
   isSyncing,
@@ -29,7 +33,21 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       padding: '0 32px',
       flexShrink: 0
     }}>
-      <h2 style={{
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        {isMobile && (
+          <button
+            onClick={onMenuClick}
+            style={{
+              background: 'none', border: 'none',
+              cursor: 'pointer', padding: '8px',
+              borderRadius: '8px', marginRight: '12px',
+              display: 'flex', alignItems: 'center'
+            }}
+          >
+            <Menu size={22} color="#3D5166" />
+          </button>
+        )}
+        <h2 style={{
         fontFamily: 'Space Grotesk, sans-serif',
         fontWeight: 700,
         fontSize: '18px',
@@ -38,8 +56,9 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
         textTransform: 'uppercase',
         letterSpacing: '1px'
       }}>
-        {activeTab === 'dashboard' ? 'Tableau de bord' : activeTab === 'orders' ? 'Commandes' : activeTab === 'stats' ? 'Statistiques' : activeTab === 'corbeille' ? 'Corbeille' : activeTab === 'chat' ? 'Messages Clients' : activeTab === 'parametres' ? 'Paramètres' : 'Tableau de bord'}
-      </h2>
+          {activeTab === 'dashboard' ? 'Tableau de bord' : activeTab === 'orders' ? 'Commandes' : activeTab === 'stats' ? 'Statistiques' : activeTab === 'corbeille' ? 'Corbeille' : activeTab === 'chat' ? 'Messages Clients' : activeTab === 'parametres' ? 'Paramètres' : 'Tableau de bord'}
+        </h2>
+      </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
         <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#6B7280' }} className="hidden lg:inline-block">
@@ -68,9 +87,8 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           <span className="hidden sm:inline">{isSyncing ? 'Sync...' : 'Sync'}</span>
         </button>
 
-        <div style={{ position: 'relative', cursor: 'pointer' }}>
+        <div style={{ position: 'relative' }}>
           <Bell size={20} color="#3D5166" />
-          <div style={{ position: 'absolute', top: '-4px', right: '-4px', width: '8px', height: '8px', borderRadius: '50%', background: '#EF4444' }} />
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

@@ -26,6 +26,8 @@ const PriceTable1D = ({ title, columns, prices, prefix, tooltipTemplate }: {
       <div style={{
         overflowX: 'scroll',
         width: '100%',
+        maxWidth: '100%',
+        minWidth: 0,
         marginBottom: '16px',
       }}>
         <table style={{
@@ -105,7 +107,7 @@ const ProductDetail = () => {
         <div className="container mx-auto px-4">
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             {/* Breadcrumb */}
-            <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.85)', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px', fontFamily: 'DM Sans, sans-serif' }}>
+            <nav style={{ fontSize: '14px', color: 'rgba(255,255,255,0.85)', marginBottom: '20px', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '4px', fontFamily: 'DM Sans, sans-serif' }}>
               <Link to="/" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none' }} onMouseEnter={(e) => e.currentTarget.style.color = '#81C063'} onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.85)')}>
                 {t('product_detail.breadcrumb_home')}
               </Link>
@@ -115,7 +117,7 @@ const ProductDetail = () => {
               </Link>
               <span>›</span>
               <span style={{ color: '#81C063', fontWeight: 600 }}>{product.name}</span>
-            </div>
+            </nav>
             <h1 style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: 'clamp(28px, 6vw, 48px)', color: '#FFFFFF', letterSpacing: '2px', textTransform: 'uppercase', margin: 0, marginBottom: '12px' }}>
               {product.name}
             </h1>
@@ -128,14 +130,15 @@ const ProductDetail = () => {
         <div className="product-detail-container" style={{ maxWidth: '1200px', margin: '0 auto', padding: 'clamp(32px, 4vw, 48px) clamp(16px, 3vw, 24px)' }}>
 
           {/* TWO COLUMN LAYOUT */}
-          <div className="flex flex-col lg:flex-row items-start" style={{ gap: '40px' }}>
+          <div className="flex flex-col lg:flex-row items-start" style={{ gap: 'clamp(16px, 3vw, 40px)' }}>
 
             {/* Left Column — Image (45%) */}
             <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               className="w-full lg:w-[45%]"
+              style={{ minWidth: 0 }}
             >
               <div style={{ background: '#FFFFFF', border: '1px solid #DBDADA', borderRadius: '20px', padding: 'clamp(16px, 4vw, 32px)', boxShadow: '0 4px 20px rgba(47,45,44,0.07)' }}>
                 <div style={{ background: '#F5F7FA', borderRadius: '12px', padding: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -188,10 +191,11 @@ const ProductDetail = () => {
 
             {/* Right Column — Info produit (55%) */}
             <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.6 }}
               className="w-full lg:w-[55%]"
+              style={{ minWidth: 0 }}
             >
               <div style={{ background: '#FFFFFF', border: '1px solid #DBDADA', borderRadius: '20px', padding: 'clamp(16px, 4vw, 32px)', boxShadow: '0 4px 20px rgba(47,45,44,0.07)' }}>
 
@@ -356,7 +360,7 @@ const ProductDetail = () => {
                             <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#296788', marginBottom: '8px', fontFamily: 'Rajdhani, sans-serif', letterSpacing: '1px', textTransform: 'uppercase' }}>
                               {t('product_detail.plisse31_prices')}
                             </h4>
-                            <div style={{ overflowX: 'scroll', width: '100%', marginBottom: '16px' }}>
+                            <div style={{ overflowX: 'scroll', width: '100%', maxWidth: '100%', minWidth: 0, marginBottom: '16px' }}>
                               <table style={{ borderCollapse: 'collapse', tableLayout: 'auto', whiteSpace: 'nowrap' }}>
                                 <thead>
                                   <tr style={{ background: '#1A5DA8' }}>
@@ -405,6 +409,8 @@ const ProductDetail = () => {
                             <div style={{
                               overflowX: 'scroll',
                               width: '100%',
+                              maxWidth: '100%',
+                              minWidth: 0,
                               marginBottom: '16px',
                             }}>
                               <table style={{

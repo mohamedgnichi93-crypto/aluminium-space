@@ -277,6 +277,15 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                 onBlur={e => { e.currentTarget.style.borderColor = '#E8EDF5'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.background = '#FAFBFD'; }}
               />
             </div>
+            <div>
+              <label style={{ display: 'block', fontFamily: 'Inter, sans-serif', fontSize: '11px', fontWeight: 700, color: '#4A5568', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Dimanche</label>
+              <input type="text" value={settings.sundayHours || ''} placeholder="Fermé"
+                onChange={e => setSettings(s => ({ ...s, sundayHours: e.target.value }))}
+                style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1.5px solid #E8EDF5', fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#0D1B2A', outline: 'none', boxSizing: 'border-box', background: '#FAFBFD' }}
+                onFocus={e => { e.currentTarget.style.borderColor = '#1D3E61'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(29,62,97,0.08)'; e.currentTarget.style.background = 'white'; }}
+                onBlur={e => { e.currentTarget.style.borderColor = '#E8EDF5'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.background = '#FAFBFD'; }}
+              />
+            </div>
             <div style={{ gridColumn: '1 / -1' }}>
               <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', color: '#8896A5', marginBottom: '12px' }}>Aperçu horaires</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -331,15 +340,6 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
               <label style={{ display: 'block', fontFamily: 'Inter, sans-serif', fontSize: '11px', fontWeight: 700, color: '#4A5568', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>RIB Bancaire</label>
               <input type="text" value={settings.rib || ''} placeholder="00 000 0000000000000 00"
                 onChange={e => setSettings(s => ({ ...s, rib: e.target.value }))}
-                style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1.5px solid #E8EDF5', fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#0D1B2A', outline: 'none', boxSizing: 'border-box', background: '#FAFBFD' }}
-                onFocus={e => { e.currentTarget.style.borderColor = '#1D3E61'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(29,62,97,0.08)'; e.currentTarget.style.background = 'white'; }}
-                onBlur={e => { e.currentTarget.style.borderColor = '#E8EDF5'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.background = '#FAFBFD'; }}
-              />
-            </div>
-            <div>
-              <label style={{ display: 'block', fontFamily: 'Inter, sans-serif', fontSize: '11px', fontWeight: 700, color: '#4A5568', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Horaire Dimanche</label>
-              <input type="text" value={settings.sundayHours || ''} placeholder="Fermé"
-                onChange={e => setSettings(s => ({ ...s, sundayHours: e.target.value }))}
                 style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1.5px solid #E8EDF5', fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#0D1B2A', outline: 'none', boxSizing: 'border-box', background: '#FAFBFD' }}
                 onFocus={e => { e.currentTarget.style.borderColor = '#1D3E61'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(29,62,97,0.08)'; e.currentTarget.style.background = 'white'; }}
                 onBlur={e => { e.currentTarget.style.borderColor = '#E8EDF5'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.background = '#FAFBFD'; }}

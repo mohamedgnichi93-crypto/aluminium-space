@@ -12,6 +12,7 @@ interface PageSEOProps {
   descEn?: string;
   descIt?: string;
   path?: string;
+  noIndex?: boolean;
 }
 
 const BASE_URL = 'https://aluminium-space.tn';
@@ -29,7 +30,7 @@ const defaults = {
   descIt: 'Partner certificato Grifo Flex in Tunisia — zanzariere su misura, installazione professionale a Mghira.',
 };
 
-const PageSEO = ({ titleFr, titleAr, titleEn, titleIt, descFr, descAr, descEn, descIt, path = '' }: PageSEOProps) => {
+const PageSEO = ({ titleFr, titleAr, titleEn, titleIt, descFr, descAr, descEn, descIt, path = '', noIndex = false }: PageSEOProps) => {
   const { i18n } = useTranslation();
   const lang = i18n.language;
 
@@ -51,6 +52,7 @@ const PageSEO = ({ titleFr, titleAr, titleEn, titleIt, descFr, descAr, descEn, d
     <Helmet>
       <title>{title}</title>
       <meta name="description" content={desc} />
+      {noIndex && <meta name="robots" content="noindex, nofollow" />}
       <link rel="canonical" href={canonical} />
       <meta property="og:title" content={title} />
       <meta property="og:description" content={desc} />

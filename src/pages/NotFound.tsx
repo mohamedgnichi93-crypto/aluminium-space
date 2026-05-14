@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Home, Search, Phone } from 'lucide-react';
+import PageSEO from '../components/ui/PageSEO';
 
 const NotFound = () => {
   const navigate = useNavigate();
@@ -22,6 +23,14 @@ const NotFound = () => {
   const loc = (obj: Record<string, string>) => obj[lang] ?? obj.fr;
 
   return (
+    <>
+    <PageSEO
+      titleFr="Page introuvable — Aluminium Space"
+      titleAr="الصفحة غير موجودة — Aluminium Space"
+      titleEn="Page Not Found — Aluminium Space"
+      titleIt="Pagina non trovata — Aluminium Space"
+      path="/404"
+    />
     <div style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #F5F7FA 0%, #E8EDF5 100%)', padding: '40px 20px' }}>
 
       {/* Background decoration */}
@@ -186,6 +195,7 @@ const NotFound = () => {
         </motion.div>
       </motion.div>
     </div>
+    </>
   );
 };
 

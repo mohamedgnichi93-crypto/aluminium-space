@@ -28,6 +28,7 @@ export interface Order {
   }>;
   totalHT: number; // This is Total Brut HT
   remise: number;
+  remisePercent?: number;
   netHT: number;
   fodec: number; // This is the percentage
   fodecAmount: number;
@@ -48,6 +49,7 @@ interface OrderRow {
   items: Order['items'];
   total_ht: number;
   remise: number;
+  remise_percent?: number;
   net_ht: number;
   fodec: number;
   fodec_amount: number;
@@ -68,6 +70,7 @@ function rowToOrder(row: OrderRow): Order {
     items: row.items,
     totalHT: row.total_ht,
     remise: row.remise,
+    remisePercent: row.remise_percent,
     netHT: row.net_ht,
     fodec: row.fodec,
     fodecAmount: row.fodec_amount,
@@ -89,6 +92,7 @@ function orderToRow(order: Order): OrderRow {
     items: order.items,
     total_ht: order.totalHT,
     remise: order.remise,
+    remise_percent: order.remisePercent,
     net_ht: order.netHT,
     fodec: order.fodec,
     fodec_amount: order.fodecAmount,
@@ -196,11 +200,12 @@ export const updateOrder = (id: string, updates: Partial<Order>): Order | null =
   const idx = orders.findIndex(o => o.id === id);
   if (idx < 0) return null;
   const updated: Order = { ...orders[idx], ...updates, id };
-  // Recalculate totals when items change
-  if (updates.items || updates.remise !== undefined) {
+  // Recalculate totals when items or remisePercent change
+  if (updates.items || updates.remise !== undefined || updates.remisePercent !== undefined) {
     const items = updated.items;
     const totalHT = items.reduce((sum, it) => sum + it.unitPrice * it.quantity, 0);
-    const remise = updated.remise ?? 0;
+    const remisePct = updates.remisePercent ?? updated.remisePercent ?? 0;
+    const remise = Math.round(totalHT * (remisePct / 100));
     const fodec = updated.fodec ?? 1; // Default to 1% if not specified
     const tva = updated.tva ?? 19;    // Default to 19% if not specified
     const timbre = updated.timbre ?? 1; // Default to 1.000 DT
@@ -213,6 +218,8 @@ export const updateOrder = (id: string, updates: Partial<Order>): Order | null =
     const totalTTC = Math.round(baseForTVA + tvaAmount + timbre);
 
     updated.totalHT = totalHT;
+    updated.remise = remise;
+    updated.remisePercent = remisePct;
     updated.netHT = netHT;
     updated.fodecAmount = fodecAmount;
     updated.baseForTVA = baseForTVA;
