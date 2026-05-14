@@ -1,4 +1,4 @@
-{
+﻿{
   "nav": {
     "home": "Home",
     "products": "Products",
@@ -18,18 +18,18 @@
   },
   "hero": {
     "title": "ALUMINIUM SPACE",
-    "subtitle": "Aluminum Carpentry — Mghira, Tunis",
+    "subtitle": "Aluminum Carpentry â€” Mghira, Tunis",
     "badge": "Official Grifo Flex Distributor",
     "cta_products": "View our products",
     "cta_quote": "Request a quote"
   },
   "home": {
-    "quality_badge": "Italian Quality · Grifo Flex",
+    "quality_badge": "Italian Quality Â· Grifo Flex",
     "title_line1": "Mosquito Nets",
     "title_line2": "of Quality",
     "slogan": "Design. Visualize. Realize.",
-    "description": "Aluminium carpentry specialist in Mghira. Official Grifo Flex distributor — invisible protection, Italian quality.",
-    "cta_products": "View our products →",
+    "description": "Aluminium carpentry specialist in Mghira. Official Grifo Flex distributor â€” invisible protection, Italian quality.",
+    "cta_products": "View our products â†’",
     "cta_quote": "Request a quote",
     "trust_custom": "Custom made",
     "trust_install": "Installation included",
@@ -40,7 +40,7 @@
     "mobile_cta_products": "VIEW OUR PRODUCTS",
     "mobile_cta_quote": "REQUEST A QUOTE",
     "products_title": "Our Grifo Flex Mosquito Screen Models",
-    "how_it_works_title": "How It Works — Grifo Flex Mosquito Screens",
+    "how_it_works_title": "How It Works â€” Grifo Flex Mosquito Screens",
     "view_product": "View product",
     "stats": {
       "models": "Grifo Flex Models",
@@ -58,7 +58,7 @@
   },
   "partners": {
     "title": "Our Mosquito Nets",
-    "description": "We distribute Grifo Flex mosquito nets — made in Italy, recognized for their quality and durability."
+    "description": "We distribute Grifo Flex mosquito nets â€” made in Italy, recognized for their quality and durability."
   },
   "features": {
     "title": "Why Choose Aluminium Space?",
@@ -88,7 +88,7 @@
   },
   "products_page": {
     "title": "Our Products",
-    "quality_badge": "Grifo Flex — Italian Quality",
+    "quality_badge": "Grifo Flex â€” Italian Quality",
     "why_title": "Why choose our mosquito nets?",
     "why_desc": "Our Grifo Flex mosquito nets are made in Italy with high quality materials. Each product is designed to provide optimal protection against insects while remaining aesthetic and discreet. Aluminium Space offers professional custom installation in Mghira and throughout the Tunis region.",
     "feat1_title": "Premium Materials",
@@ -110,20 +110,20 @@
     "specs_title": "Technical Specifications",
     "spec_caisson": "Box dimensions:",
     "spec_size": "Effective size:",
-    "spec_measures": "Dimensions (W×H):",
-    "plisse31_prices": "Plissé 31 Pricing (by dimensions)",
+    "spec_measures": "Dimensions (WÃ—H):",
+    "plisse31_prices": "PlissÃ© 31 Pricing (by dimensions)",
     "see_price": "View pricing",
     "price_unit_ht": "Unit price excl. tax",
-    "price_per_sqm": "Price per m²",
+    "price_per_sqm": "Price per mÂ²",
     "colibri_h170": "For windows height 170 cm",
     "colibri_h250": "For windows height 170.1 cm to 250 cm",
-    "sidney_w160": "Doors width ≤ 160 cm",
+    "sidney_w160": "Doors width â‰¤ 160 cm",
     "sidney_w200": "Doors width 160.1 to 200 cm",
     "sidney_ac_w320": "Width up to 320 cm",
     "sidney_ac_w400": "Width up to 400 cm",
     "large_openings_title": "For large openings (> 200cm wide)",
-    "large_openings_desc": "Discover the Sidney 50 AC — up to 400cm wide.",
-    "see_sidney_ac": "See Sidney 50 AC →",
+    "large_openings_desc": "Discover the Sidney 50 AC â€” up to 400cm wide.",
+    "see_sidney_ac": "See Sidney 50 AC â†’",
     "elba_glass": "Fiberglass",
     "elba_alu": "Aluminium",
     "elba_inox": "Stainless steel",
@@ -132,11 +132,11 @@
     "tva_notice": "These prices are excl. tax. 19% VAT will be added in the final quote.",
     "cta_quote": "Calculate my quote",
     "ask_alu": "Ask ALU",
-    "tooltip_wh": "Price for {{w}}cm × {{h}}cm",
-    "tooltip_max_wh": "Price for ≤{{maxW}}cm × {{h}}cm",
-    "tooltip_exact_wh": "Price for {{w}}cm × {{h}}cm",
+    "tooltip_wh": "Price for {{w}}cm Ã— {{h}}cm",
+    "tooltip_max_wh": "Price for â‰¤{{maxW}}cm Ã— {{h}}cm",
+    "tooltip_exact_wh": "Price for {{w}}cm Ã— {{h}}cm",
     "availability_label": "Availability",
-    "availability_status": "Installation within 3–7 business days",
+    "availability_status": "Installation within 3â€“7 business days",
     "availability_zone": "Tunis & Greater Tunis"
   },
   "measureGuide": {
@@ -144,43 +144,43 @@
     "stepOf": "Step {{current}} / {{total}}",
     "prev": "Previous",
     "next": "Next Step",
-    "saved": "💾 Measurements saved",
-    "inputLabel": "Enter your 3 measurements (mm)",
+    "saved": "ðŸ’¾ Measurements saved",
+    "inputLabel": "Enter your 3 measurements (cm)",
     "yourDimension": "Your {{dim}} to order:",
-    "commander": "Order {{l}}×{{h}} mm",
+    "commander": "Order {{l}}Ã—{{h}} cm",
     "accessDevis": "Go to quote form",
-    "downloadMemo": "📄 Download my measurement memo",
-    "noMeasures": "⬅ Enter your measurements in steps 3 and 4 to see your recap here",
+    "downloadMemo": "ðŸ“„ Download my measurement memo",
+    "noMeasures": "â¬… Enter your measurements in steps 3 and 4 to see your recap here",
     "steps": {
       "tools": {
         "sub": "Get ready",
         "title": "Necessary tools",
-        "desc": "Pour mesurer correctement votre ouverture, préparez :\n\n• Un mètre ruban (minimum 3 mètres)\n• Un crayon et un carnet de notes\n• Un niveau à bulle (optionnel mais recommandé)"
+        "desc": "Pour mesurer correctement votre ouverture, prÃ©parez :\n\nâ€¢ Un mÃ¨tre ruban (minimum 3 mÃ¨tres)\nâ€¢ Un crayon et un carnet de notes\nâ€¢ Un niveau Ã  bulle (optionnel mais recommandÃ©)"
       },
       "embrasure": {
         "sub": "Understand space",
         "title": "Identify the embrasure",
-        "desc": "L'embrasure est l'espace vide entre les deux bords intérieurs du mur — c'est là que la moustiquaire sera fixée."
+        "desc": "L'embrasure est l'espace vide entre les deux bords intÃ©rieurs du mur â€” c'est lÃ  que la moustiquaire sera fixÃ©e."
       },
       "mistakes": {
         "sub": "Mistakes to avoid",
         "title": "Don't make these mistakes",
-        "desc": "❌ Ne mesurez PAS sur le cadre de la fenêtre existante.\n✅ Mesurez TOUJOURS dans l'embrasure.\n⚠️ Une erreur de 2 cm peut rendre la moustiquaire inutilisable."
+        "desc": "âŒ Ne mesurez PAS sur le cadre de la fenÃªtre existante.\nâœ… Mesurez TOUJOURS dans l'embrasure.\nâš ï¸ Une erreur de 2 cm peut rendre la moustiquaire inutilisable."
       },
       "largeur": {
         "sub": "Measure 1/2",
-        "title": "Measure Width — L",
-        "desc": "Prenez 3 mesures (haut, milieu, bas) et retenez la plus petite.\nExemple pour votre {{type}} : {{example}} mm."
+        "title": "Measure Width â€” L",
+        "desc": "Prenez 3 mesures (haut, milieu, bas) et retenez la plus petite.\nExemple pour votre {{type}} : {{example}} cm."
       },
       "hauteur": {
         "sub": "Measure 2/2",
-        "title": "Measure Height — H",
-        "desc": "Prenez 3 mesures (gauche, centre, droit) et retenez la plus petite.\nExemple : {{example}} mm."
+        "title": "Measure Height â€” H",
+        "desc": "Prenez 3 mesures (gauche, centre, droit) et retenez la plus petite.\nExemple : {{example}} cm."
       },
       "recap": {
         "sub": "Everything is ready!",
         "title": "Your final dimensions",
-        "desc": "Votre commande : {{l}} × {{h}} mm\n\nNotre équipe vérifie vos mesures gratuitement après la commande."
+        "desc": "Votre commande : {{l}} Ã— {{h}} cm\n\nNotre Ã©quipe vÃ©rifie vos mesures gratuitement aprÃ¨s la commande."
       }
     },
     "clientStep": {
@@ -204,7 +204,7 @@
     "whatsapp_title": "WhatsApp",
     "email_title": "Email",
     "hours_title": "Hours",
-    "hours_value": "Mon–Fri: 08:00–17:00 | Sat: 08:00–12:00"
+    "hours_value": "Monâ€“Fri: 08:00â€“17:00 | Sat: 08:00â€“12:00"
   },
   "devis_page": {
     "title": "Request a Quote",
@@ -238,7 +238,7 @@
     "mesh_type_label": "Mesh Type",
     "dimensions_title": "Your opening dimensions",
     "updated_product": "Product updated: {{name}}",
-    "dimensions_notice": "Your dimensions exceed 200cm. Sidney 50 AC supports up to 400×260 cm.",
+    "dimensions_notice": "Your dimensions exceed 200cm. Sidney 50 AC supports up to 400Ã—260 cm.",
     "min_price_notice": "Price calculated for the minimum available dimension.",
     "custom_quote_notice": "Contact us for a custom quote.",
     "whatsapp_contact": "Contact on WhatsApp",
@@ -257,7 +257,7 @@
     "validity": "Valid for {{days}} days",
     "placeholder_wh": "Enter your dimensions to see the price estimate",
     "client_title": "Your Contact Details",
-    "summary_banner": "Your quote: {{count}} item(s) — Total excl. VAT: {{total}}",
+    "summary_banner": "Your quote: {{count}} item(s) â€” Total excl. VAT: {{total}}",
     "phone_format": "Format: 8 digits",
     "notes_placeholder": "Additional details, installation preferences...",
     "privacy_note": "Your data is secure and will only be used to contact you about this quote."
@@ -273,7 +273,7 @@
     "phone": "(+216) 53 186 611",
     "email": "contact@aluminiumspace.com",
     "partner": "Official Grifo Flex Tunisia Distributor",
-    "copyright": "© 2026 Aluminium Space",
+    "copyright": "Â© 2026 Aluminium Space",
     "quick_links": "Quick Links",
     "slogan": "Design. Visualize. Realize.",
     "vr_sub": "Experience your windows in virtual reality",
@@ -298,18 +298,18 @@
     "processing": "Processing..."
   },
   "header": {
-    "installed": "Installed ✓",
+    "installed": "Installed âœ“",
     "install_app": "Install the app",
     "install": "Install",
     "menu": "Menu",
     "contact_us_upper": "CONTACT US",
     "pwa_chrome_title": "Chrome / Edge",
-    "pwa_chrome_step1": "Open the ⋮ menu (3 dots top right)",
+    "pwa_chrome_step1": "Open the â‹® menu (3 dots top right)",
     "pwa_chrome_step2": "Click \"Install Aluminium Space\"",
     "pwa_chrome_step3": "Confirm the installation",
     "pwa_safari_title": "Safari (iPhone / iPad)",
-    "pwa_safari_step1": "Tap the Share button 📤 at the bottom",
-    "pwa_safari_step2": "Scroll → \"Add to Home Screen\"",
+    "pwa_safari_step1": "Tap the Share button ðŸ“¤ at the bottom",
+    "pwa_safari_step2": "Scroll â†’ \"Add to Home Screen\"",
     "pwa_safari_step3": "Tap Add"
   },
   "portal": {

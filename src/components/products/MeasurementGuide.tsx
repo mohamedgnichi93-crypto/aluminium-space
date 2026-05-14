@@ -150,13 +150,13 @@ const MeasurementGuide: React.FC<Props> = ({ productId, productName, onClose, on
       doc.text('LARGEUR (L)', 20, 72);
       doc.setTextColor(30, 30, 30);
       doc.setFont('helvetica', 'normal');
-      doc.text(`L1 = ${measL.l1 || '—'} mm`, 20, 83);
-      doc.text(`L2 = ${measL.l2 || '—'} mm`, 75, 83);
-      doc.text(`L3 = ${measL.l3 || '—'} mm`, 130, 83);
+      doc.text(`L1 = ${measL.l1 || '—'} cm`, 20, 83);
+      doc.text(`L2 = ${measL.l2 || '—'} cm`, 75, 83);
+      doc.text(`L3 = ${measL.l3 || '—'} cm`, 130, 83);
       doc.setTextColor(37, 99, 235);
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(13);
-      doc.text(`→ L à commander : ${minL ?? '—'} mm`, 20, 97);
+      doc.text(`→ L à commander : ${minL ?? '—'} cm`, 20, 97);
 
       // H values
       doc.setFontSize(11);
@@ -167,13 +167,13 @@ const MeasurementGuide: React.FC<Props> = ({ productId, productName, onClose, on
       doc.text('HAUTEUR (H)', 20, 124);
       doc.setTextColor(30, 30, 30);
       doc.setFont('helvetica', 'normal');
-      doc.text(`H1 = ${measH.h1 || '—'} mm`, 20, 135);
-      doc.text(`H2 = ${measH.h2 || '—'} mm`, 75, 135);
-      doc.text(`H3 = ${measH.h3 || '—'} mm`, 130, 135);
+      doc.text(`H1 = ${measH.h1 || '—'} cm`, 20, 135);
+      doc.text(`H2 = ${measH.h2 || '—'} cm`, 75, 135);
+      doc.text(`H3 = ${measH.h3 || '—'} cm`, 130, 135);
       doc.setTextColor(5, 150, 105);
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(13);
-      doc.text(`→ H à commander : ${minH ?? '—'} mm`, 20, 149);
+      doc.text(`→ H à commander : ${minH ?? '—'} cm`, 20, 149);
 
       // Final dimensions box
       doc.setFillColor(27, 58, 107);
@@ -181,7 +181,7 @@ const MeasurementGuide: React.FC<Props> = ({ productId, productName, onClose, on
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(16);
       doc.setFont('helvetica', 'bold');
-      doc.text(`DIMENSIONS : ${minL ?? '—'} mm × ${minH ?? '—'} mm`, 105, 183, { align: 'center' });
+      doc.text(`DIMENSIONS : ${minL ?? '—'} mm × ${minH ?? '—'} cm`, 105, 183, { align: 'center' });
 
       // Footer
       doc.setTextColor(150, 150, 150);
@@ -409,7 +409,7 @@ const MeasurementGuide: React.FC<Props> = ({ productId, productName, onClose, on
                       <input
                         type="number"
                         inputMode="numeric"
-                        placeholder="ex: 1200"
+                        placeholder="ex: 120"
                         value={measL[key]}
                         onChange={e => setMeasL((p: any) => ({ ...p, [key]: e.target.value }))}
                         style={{
@@ -425,7 +425,7 @@ const MeasurementGuide: React.FC<Props> = ({ productId, productName, onClose, on
                     <span style={{ fontSize: 18 }}>✅</span>
                     <div>
                       <p style={{ fontSize: 11, color: '#065F46', fontWeight: 600 }}>{t('measureGuide.yourDimension', { dim: 'LARGEUR L' })}</p>
-                      <p style={{ fontSize: 22, fontWeight: 800, color: '#059669' }}>{minL} mm</p>
+                      <p style={{ fontSize: 22, fontWeight: 800, color: '#059669' }}>{minL} cm</p>
                     </div>
                   </div>
                 )}
@@ -456,7 +456,7 @@ const MeasurementGuide: React.FC<Props> = ({ productId, productName, onClose, on
                       <input
                         type="number"
                         inputMode="numeric"
-                        placeholder="ex: 1500"
+                        placeholder="ex: 150"
                         value={measH[key]}
                         onChange={e => setMeasH((p: any) => ({ ...p, [key]: e.target.value }))}
                         style={{
@@ -472,7 +472,7 @@ const MeasurementGuide: React.FC<Props> = ({ productId, productName, onClose, on
                     <span style={{ fontSize: 18 }}>✅</span>
                     <div>
                       <p style={{ fontSize: 11, color: '#065F46', fontWeight: 600 }}>{t('measureGuide.yourDimension', { dim: 'HAUTEUR H' })}</p>
-                      <p style={{ fontSize: 22, fontWeight: 800, color: '#059669' }}>{minH} mm</p>
+                      <p style={{ fontSize: 22, fontWeight: 800, color: '#059669' }}>{minH} cm</p>
                     </div>
                   </div>
                 )}

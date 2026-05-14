@@ -1,4 +1,4 @@
-{
+﻿{
   "nav": {
     "home": "Home",
     "products": "Prodotti",
@@ -18,29 +18,29 @@
   },
   "hero": {
     "title": "ALUMINIUM SPACE",
-    "subtitle": "Infissi in Alluminio — Mghira, Tunis",
+    "subtitle": "Infissi in Alluminio â€” Mghira, Tunis",
     "badge": "Partner certificato Grifo Flex",
     "cta_products": "Vedi i nostri prodotti",
     "cta_quote": "Richiedi un preventivo"
   },
   "home": {
-    "quality_badge": "Qualità Italiana · Grifo Flex",
+    "quality_badge": "QualitÃ  Italiana Â· Grifo Flex",
     "title_line1": "Zanzariere",
-    "title_line2": "di Qualità",
+    "title_line2": "di QualitÃ ",
     "slogan": "Progetta. Visualizza. Realizza.",
-    "description": "Specialista in infissi in alluminio a Mghira. Partner certificato Grifo Flex — protezione invisibile, qualità italiana.",
-    "cta_products": "Vedi i nostri prodotti →",
+    "description": "Specialista in infissi in alluminio a Mghira. Partner certificato Grifo Flex â€” protezione invisibile, qualitÃ  italiana.",
+    "cta_products": "Vedi i nostri prodotti â†’",
     "cta_quote": "Richiedi un preventivo",
     "trust_custom": "Su misura",
     "trust_install": "Installazione inclusa",
     "trust_free": "Preventivo gratuito",
     "scroll": "Scopri",
     "distributeur_officiel": "Partner certificato",
-    "mobile_title": "ZANZARIERE DI QUALITÀ",
+    "mobile_title": "ZANZARIERE DI QUALITÃ€",
     "mobile_cta_products": "VEDI I NOSTRI PRODOTTI",
     "mobile_cta_quote": "RICHIEDI UN PREVENTIVO",
     "products_title": "I nostri modelli di zanzariere Grifo Flex",
-    "how_it_works_title": "Come funziona — Zanzariere Grifo Flex",
+    "how_it_works_title": "Come funziona â€” Zanzariere Grifo Flex",
     "view_product": "Vedi prodotto",
     "stats": {
       "models": "Modelli Grifo Flex",
@@ -58,11 +58,11 @@
   },
   "partners": {
     "title": "Le Nostre Zanzariere",
-    "description": "Distribuiamo zanzariere Grifo Flex — made in Italy, riconosciute per qualità e durabilità."
+    "description": "Distribuiamo zanzariere Grifo Flex â€” made in Italy, riconosciute per qualitÃ  e durabilitÃ ."
   },
   "features": {
-    "title": "Perché Scegliere Aluminium Space?",
-    "f1_title": "Qualità Italiana",
+    "title": "PerchÃ© Scegliere Aluminium Space?",
+    "f1_title": "QualitÃ  Italiana",
     "f1_desc": "Zanzariere Grifo Flex robuste e durature.",
     "f2_title": "Su Misura",
     "f2_desc": "Adattamento perfetto alle tue dimensioni.",
@@ -88,13 +88,13 @@
   },
   "products_page": {
     "title": "I Nostri Prodotti",
-    "quality_badge": "Grifo Flex — Qualità Italiana",
-    "why_title": "Perché scegliere le nostre zanzariere?",
-    "why_desc": "Le nostre zanzariere Grifo Flex sono prodotte in Italia con materiali di alta qualità. Ogni prodotto è progettato per offrire una protezione ottimale dagli insetti rimanendo estetico e discreto. Aluminium Space offre un'installazione professionale su misura a Mghira e in tutta la regione di Tunis.",
+    "quality_badge": "Grifo Flex â€” QualitÃ  Italiana",
+    "why_title": "PerchÃ© scegliere le nostre zanzariere?",
+    "why_desc": "Le nostre zanzariere Grifo Flex sono prodotte in Italia con materiali di alta qualitÃ . Ogni prodotto Ã¨ progettato per offrire una protezione ottimale dagli insetti rimanendo estetico e discreto. Aluminium Space offre un'installazione professionale su misura a Mghira e in tutta la regione di Tunis.",
     "feat1_title": "Materiali Premium",
     "feat1_desc": "Fibra di vetro rivestita in PVC, telaio in alluminio bianco resistente.",
     "feat2_title": "Produzione Su Misura",
-    "feat2_desc": "Ogni zanzariera è adattata alle dimensioni esatte della tua apertura.",
+    "feat2_desc": "Ogni zanzariera Ã¨ adattata alle dimensioni esatte della tua apertura.",
     "feat3_title": "Tecnologia Italiana",
     "feat3_desc": "Meccanismi a molla di precisione, guide con doppia spazzola.",
     "view_btn": "Vedi",
@@ -110,33 +110,33 @@
     "specs_title": "Caratteristiche tecniche",
     "spec_caisson": "Dimensioni cassonetto:",
     "spec_size": "Dimensione effettiva:",
-    "spec_measures": "Misure (L×H):",
-    "plisse31_prices": "Tariffe Plissé 31 (per dimensioni)",
+    "spec_measures": "Misure (LÃ—H):",
+    "plisse31_prices": "Tariffe PlissÃ© 31 (per dimensioni)",
     "see_price": "Vedi prezzo",
     "price_unit_ht": "Prezzo unitario IVA esclusa",
-    "price_per_sqm": "Prezzo al m²",
+    "price_per_sqm": "Prezzo al mÂ²",
     "colibri_h170": "Per finestre altezza 170 cm",
     "colibri_h250": "Per finestre altezza 170,1 cm a 250 cm",
-    "sidney_w160": "Porte larghezza ≤ 160 cm",
+    "sidney_w160": "Porte larghezza â‰¤ 160 cm",
     "sidney_w200": "Porte larghezza 160,1 a 200 cm",
     "sidney_ac_w320": "Larghezza fino a 320 cm",
     "sidney_ac_w400": "Larghezza fino a 400 cm",
     "large_openings_title": "Per grandi aperture (> 200cm di larghezza)",
-    "large_openings_desc": "Scopri il Sidney 50 AC — fino a 400cm di larghezza.",
-    "see_sidney_ac": "Vedi Sidney 50 AC →",
+    "large_openings_desc": "Scopri il Sidney 50 AC â€” fino a 400cm di larghezza.",
+    "see_sidney_ac": "Vedi Sidney 50 AC â†’",
     "elba_glass": "Fibra di vetro",
     "elba_alu": "Alluminio",
     "elba_inox": "Acciaio inox",
     "col_width": "Larghezza (cm)",
     "col_height": "Altezza (cm)",
-    "tva_notice": "Questi prezzi sono IVA esclusa. Il 19% IVA sarà aggiunto nel preventivo finale.",
+    "tva_notice": "Questi prezzi sono IVA esclusa. Il 19% IVA sarÃ  aggiunto nel preventivo finale.",
     "cta_quote": "Calcola il mio preventivo",
     "ask_alu": "Chiedi a Mohamed",
-    "tooltip_wh": "Prezzo per {{w}}cm × {{h}}cm",
-    "tooltip_max_wh": "Prezzo per ≤{{maxW}}cm × {{h}}cm",
-    "tooltip_exact_wh": "Prezzo per {{w}}cm × {{h}}cm",
-    "availability_label": "Disponibilità",
-    "availability_status": "Installazione entro 3–7 giorni lavorativi",
+    "tooltip_wh": "Prezzo per {{w}}cm Ã— {{h}}cm",
+    "tooltip_max_wh": "Prezzo per â‰¤{{maxW}}cm Ã— {{h}}cm",
+    "tooltip_exact_wh": "Prezzo per {{w}}cm Ã— {{h}}cm",
+    "availability_label": "DisponibilitÃ ",
+    "availability_status": "Installazione entro 3â€“7 giorni lavorativi",
     "availability_zone": "Tunis & Grande Tunisi"
   },
   "measureGuide": {
@@ -144,43 +144,43 @@
     "stepOf": "Passo {{current}} / {{total}}",
     "prev": "Precedente",
     "next": "Passo successivo",
-    "saved": "💾 Misure salvate",
-    "inputLabel": "Inserisci le tue 3 misure (mm)",
+    "saved": "ðŸ’¾ Misure salvate",
+    "inputLabel": "Inserisci le tue 3 misure (cm)",
     "yourDimension": "La tua {{dim}} da ordinare:",
-    "commander": "Ordina {{l}}×{{h}} mm",
+    "commander": "Ordina {{l}}Ã—{{h}} cm",
     "accessDevis": "Vai al modulo di preventivo",
-    "downloadMemo": "📄 Scarica il mio promemoria misure",
-    "noMeasures": "⬅ Inserisci le tue misure nei passi 3 e 4 per vedere il riepilogo qui",
+    "downloadMemo": "ðŸ“„ Scarica il mio promemoria misure",
+    "noMeasures": "â¬… Inserisci le tue misure nei passi 3 e 4 per vedere il riepilogo qui",
     "steps": {
       "tools": {
         "sub": "Preparati",
         "title": "Gli strumenti necessari",
-        "desc": "Per misurare correttamente la tua apertura, prepara:\n\n• Un metro a nastro (minimo 3 metri)\n• Una matita e un taccuino\n• Una livella a bolla (opzionale ma consigliata)"
+        "desc": "Per misurare correttamente la tua apertura, prepara:\n\nâ€¢ Un metro a nastro (minimo 3 metri)\nâ€¢ Una matita e un taccuino\nâ€¢ Una livella a bolla (opzionale ma consigliata)"
       },
       "embrasure": {
         "sub": "Comprendere lo spazio",
         "title": "Identificare il vano",
-        "desc": "Il vano è lo spazio vuoto tra i due bordi interni del muro — è qui che verrà fissata la zanzariera."
+        "desc": "Il vano Ã¨ lo spazio vuoto tra i due bordi interni del muro â€” Ã¨ qui che verrÃ  fissata la zanzariera."
       },
       "mistakes": {
         "sub": "Errori da evitare",
         "title": "NON fare questi errori",
-        "desc": "❌ NON misurare sul telaio della finestra esistente.\n✅ Misura SEMPRE all'interno del vano.\n⚠️ Un errore di 2 cm può rendere la zanzariera inutilizzabile."
+        "desc": "âŒ NON misurare sul telaio della finestra esistente.\nâœ… Misura SEMPRE all'interno del vano.\nâš ï¸ Un errore di 2 cm puÃ² rendere la zanzariera inutilizzabile."
       },
       "largeur": {
         "sub": "Misura 1/2",
-        "title": "Misurare la Larghezza — L",
-        "desc": "Prendi 3 misure (in alto, al centro, in basso) e mantieni la più piccola.\nEsempio per il tuo {{type}} : {{example}} mm."
+        "title": "Misurare la Larghezza â€” L",
+        "desc": "Prendi 3 misure (in alto, al centro, in basso) e mantieni la piÃ¹ piccola.\nEsempio per il tuo {{type}} : {{example}} cm."
       },
       "hauteur": {
         "sub": "Misura 2/2",
-        "title": "Misurare l'Altezza — H",
-        "desc": "Prendi 3 misure (sinistra, centro, destra) e mantieni la più piccola.\nEsempio : {{example}} mm."
+        "title": "Misurare l'Altezza â€” H",
+        "desc": "Prendi 3 misure (sinistra, centro, destra) e mantieni la piÃ¹ piccola.\nEsempio : {{example}} cm."
       },
       "recap": {
-        "sub": "Tutto è pronto!",
+        "sub": "Tutto Ã¨ pronto!",
         "title": "Le tue dimensioni finali",
-        "desc": "Il tuo ordine : {{l}} × {{h}} mm\n\nIl nostro team verifica gratuitamente le tue misure dopo l'ordine."
+        "desc": "Il tuo ordine : {{l}} Ã— {{h}} cm\n\nIl nostro team verifica gratuitamente le tue misure dopo l'ordine."
       }
     },
     "clientStep": {
@@ -193,7 +193,7 @@
       "phonePlaceholder": "Es: 55 123 456",
       "submitBtn": "Invia la mia richiesta",
       "successTitle": "Richiesta inviata!",
-      "successDesc": "La tua richiesta è stata inviata con successo. Il nostro team ti contatterà a breve."
+      "successDesc": "La tua richiesta Ã¨ stata inviata con successo. Il nostro team ti contatterÃ  a breve."
     }
   },
   "contact_page": {
@@ -204,7 +204,7 @@
     "whatsapp_title": "WhatsApp",
     "email_title": "Email",
     "hours_title": "Orari",
-    "hours_value": "Lun–Ven: 08:00–17:00 | Sab: 08:00–12:00"
+    "hours_value": "Lunâ€“Ven: 08:00â€“17:00 | Sab: 08:00â€“12:00"
   },
   "devis_page": {
     "title": "Richiedi un Preventivo",
@@ -217,7 +217,7 @@
     "step4": "Riepilogo",
     "width": "Larghezza",
     "height": "Altezza",
-    "quantity": "Quantità",
+    "quantity": "QuantitÃ ",
     "mesh_type": "Tipo di rete",
     "calculate": "Calcola il preventivo",
     "download_pdf": "Scarica PDF",
@@ -225,7 +225,7 @@
     "full_name": "Nome completo",
     "phone": "Telefono",
     "email": "Email (opzionale)",
-    "address": "Indirizzo di consegna / città",
+    "address": "Indirizzo di consegna / cittÃ ",
     "notes": "Note / osservazioni",
     "price_estimate": "Prezzo stimato (IVA esclusa)",
     "total_price": "Totale IVA inclusa",
@@ -238,7 +238,7 @@
     "mesh_type_label": "Tipo di rete",
     "dimensions_title": "Dimensioni della tua apertura",
     "updated_product": "Prodotto aggiornato: {{name}}",
-    "dimensions_notice": "Le tue dimensioni superano i 200cm. Il Sidney 50 AC supporta fino a 400×260 cm.",
+    "dimensions_notice": "Le tue dimensioni superano i 200cm. Il Sidney 50 AC supporta fino a 400Ã—260 cm.",
     "min_price_notice": "Prezzo calcolato per la dimensione minima disponibile.",
     "custom_quote_notice": "Contattaci per un preventivo personalizzato.",
     "whatsapp_contact": "Contatta su WhatsApp",
@@ -257,7 +257,7 @@
     "validity": "Valido per {{days}} giorni",
     "placeholder_wh": "Inserisci le tue dimensioni per vedere la stima del prezzo",
     "client_title": "I tuoi dati",
-    "summary_banner": "Il tuo preventivo: {{count}} articolo(i) — Totale IVA escl.: {{total}}",
+    "summary_banner": "Il tuo preventivo: {{count}} articolo(i) â€” Totale IVA escl.: {{total}}",
     "phone_format": "Formato: 8 cifre",
     "notes_placeholder": "Dettagli aggiuntivi, preferenze di installazione...",
     "privacy_note": "I tuoi dati sono al sicuro e verranno utilizzati solo per contattarti in merito a questo preventivo."
@@ -273,12 +273,12 @@
     "phone": "(+216) 53 186 611",
     "email": "contact@aluminiumspace.com",
     "partner": "Partner certificato Grifo Flex Tunisia",
-    "copyright": "© 2026 Aluminium Space",
+    "copyright": "Â© 2026 Aluminium Space",
     "quick_links": "Link Rapidi",
     "slogan": "Progetta. Visualizza. Realizza.",
-    "vr_sub": "Vivi le tue finestre in realtà virtuale",
+    "vr_sub": "Vivi le tue finestre in realtÃ  virtuale",
     "motto": "Essere tra i migliori con un tocco fuori dall'ordinario.",
-    "brand_desc": "Specialista in infissi in alluminio a Mghira, Tunis. Produciamo e installiamo zanzariere su misura di alta qualità per il tuo comfort.",
+    "brand_desc": "Specialista in infissi in alluminio a Mghira, Tunis. Produciamo e installiamo zanzariere su misura di alta qualitÃ  per il tuo comfort.",
     "see_maps": "Vedi su Google Maps",
     "powered_by": "Powered by Grifo Flex",
     "brand_subtitle": "FALEGNAMERIA IN ALLUMINIO"
@@ -287,7 +287,7 @@
     "client": "Cliente",
     "phone_short": "Tel",
     "email_short": "Email",
-    "qty_short": "Qtà",
+    "qty_short": "QtÃ ",
     "color_frame": "Colore del telaio",
     "selected": "Selezionato",
     "white": "Bianco",
@@ -298,18 +298,18 @@
     "processing": "Elaborazione in corso..."
   },
   "header": {
-    "installed": "Installata ✓",
+    "installed": "Installata âœ“",
     "install_app": "Installa l'app",
     "install": "Installa",
     "menu": "Menu",
     "contact_us_upper": "CONTATTACI",
     "pwa_chrome_title": "Chrome / Edge",
-    "pwa_chrome_step1": "Apri il menu ⋮ (3 punti in alto a destra)",
+    "pwa_chrome_step1": "Apri il menu â‹® (3 punti in alto a destra)",
     "pwa_chrome_step2": "Clicca su \"Installa Aluminium Space\"",
     "pwa_chrome_step3": "Conferma l'installazione",
     "pwa_safari_title": "Safari (iPhone / iPad)",
-    "pwa_safari_step1": "Tocca il pulsante Condividi 📤 in basso",
-    "pwa_safari_step2": "Scorri → \"Aggiungi alla schermata Home\"",
+    "pwa_safari_step1": "Tocca il pulsante Condividi ðŸ“¤ in basso",
+    "pwa_safari_step2": "Scorri â†’ \"Aggiungi alla schermata Home\"",
     "pwa_safari_step3": "Tocca Aggiungi"
   },
   "portal": {

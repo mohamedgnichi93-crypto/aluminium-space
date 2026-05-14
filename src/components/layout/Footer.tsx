@@ -129,14 +129,6 @@ const Footer = () => {
               ))}
             </ul>
 
-            <div style={{ marginTop: '32px', paddingTop: '20px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-              <p style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '13px', letterSpacing: '2px', color: '#81C063', textTransform: 'uppercase', marginBottom: '6px' }}>
-                {t('footer.slogan')}
-              </p>
-              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '12px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>
-                {t('footer.vr_sub')}
-              </p>
-            </div>
           </div>
 
           {/* Contact Info */}

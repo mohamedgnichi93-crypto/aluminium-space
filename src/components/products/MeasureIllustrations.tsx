@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 
 // Common animation styles for illustrations
 export const IllustrationStyles = () => (
@@ -67,7 +67,7 @@ export const ToolsSVG: React.FC<{ k: number }> = ({ k }) => (
       ))}
       <text x="36" y="34" fontSize="8" fill="#A06800" textAnchor="middle" fontWeight="700">50 cm</text>
       <rect x="64" y="27" width="12" height="10" rx="2" fill="#C8780A" />
-      <text x="36" y="78" fontSize="11" fill="#3D5166" textAnchor="middle" fontWeight="600">Mètre ruban</text>
+      <text x="36" y="78" fontSize="11" fill="#3D5166" textAnchor="middle" fontWeight="600">MÃ¨tre ruban</text>
     </g>
 
     {/* Level */}
@@ -79,7 +79,7 @@ export const ToolsSVG: React.FC<{ k: number }> = ({ k }) => (
       <ellipse cx="50" cy="26" rx="3" ry="3" fill="#7FFFD4" />
       <line x1="14" y1="26" x2="30" y2="26" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" />
       <line x1="70" y1="26" x2="86" y2="26" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" />
-      <text x="50" y="56" fontSize="11" fill="#3D5166" textAnchor="middle" fontWeight="600">Niveau à bulle</text>
+      <text x="50" y="56" fontSize="11" fill="#3D5166" textAnchor="middle" fontWeight="600">Niveau Ã  bulle</text>
     </g>
 
     {/* Pencil */}
@@ -98,13 +98,13 @@ export const ToolsSVG: React.FC<{ k: number }> = ({ k }) => (
       <rect x="0" y="0" width="280" height="75" rx="8" fill="white" stroke="#E8EDF5" strokeWidth="1.5" />
       <rect x="0" y="0" width="280" height="18" rx="8" fill="#1A5DA8" />
       <rect x="0" y="10" width="280" height="8" fill="#1A5DA8" />
-      <text x="140" y="13" fontSize="10" fill="white" textAnchor="middle" fontWeight="700" letterSpacing="1">CARNET DE NOTES — MESURES</text>
+      <text x="140" y="13" fontSize="10" fill="white" textAnchor="middle" fontWeight="700" letterSpacing="1">CARNET DE NOTES â€” MESURES</text>
       <text x="70" y="42" fontSize="13" fill="#1A5DA8" textAnchor="middle" fontWeight="800">L (Largeur)</text>
       <rect x="20" y="48" width="100" height="18" rx="4" fill="#F4F7FB" stroke="#D0D9E8" strokeWidth="1" />
-      <text x="70" y="61" fontSize="12" fill="#7A8FA6" textAnchor="middle">______ mm</text>
+      <text x="70" y="61" fontSize="12" fill="#7A8FA6" textAnchor="middle">______ cm</text>
       <text x="210" y="42" fontSize="13" fill="#1A5DA8" textAnchor="middle" fontWeight="800">H (Hauteur)</text>
       <rect x="160" y="48" width="100" height="18" rx="4" fill="#F4F7FB" stroke="#D0D9E8" strokeWidth="1" />
-      <text x="210" y="61" fontSize="12" fill="#7A8FA6" textAnchor="middle">______ mm</text>
+      <text x="210" y="61" fontSize="12" fill="#7A8FA6" textAnchor="middle">______ cm</text>
     </g>
   </svg>
 );
@@ -123,7 +123,7 @@ export const EmbrasureSVG: React.FC<{ k: number; isDoor: boolean }> = ({ k, isDo
       <rect x="115" y="70" width="90" height="70" fill="#E8F0FF" stroke="#1A5DA8" strokeWidth="2" strokeDasharray="4 2" />
       <text x="160" y="92" fontSize="10" fill="#1A5DA8" textAnchor="middle" fontWeight="700">EMBRASURE</text>
       <text x="160" y="108" fontSize="9" fill="#3D7DC8" textAnchor="middle">(Vue de dessus)</text>
-      <text x="160" y="128" fontSize="18" textAnchor="middle">👁</text>
+      <text x="160" y="128" fontSize="18" textAnchor="middle">ðŸ‘</text>
     </g>
 
     {/* Arrows showing interior */}
@@ -137,7 +137,7 @@ export const EmbrasureSVG: React.FC<{ k: number; isDoor: boolean }> = ({ k, isDo
     <g className="e2">
       <rect x="20" y="175" width="280" height="28" rx="6" fill="#EEF4FF" />
       <text x="160" y="193" fontSize="11" fill="#1A5DA8" textAnchor="middle" fontWeight="600">
-        {isDoor ? '📐 Mesure de l\'embrasure de porte (sol → haut)' : '📐 Mesure de l\'embrasure de fenêtre'}
+        {isDoor ? 'ðŸ“ Mesure de l\'embrasure de porte (sol â†’ haut)' : 'ðŸ“ Mesure de l\'embrasure de fenÃªtre'}
       </text>
     </g>
   </svg>
@@ -150,7 +150,7 @@ export const MistakesSVG: React.FC<{ k: number }> = ({ k }) => (
     {/* Left Panel: Wrong (Frame) */}
     <g className="m0" transform="translate(15, 20)">
       <rect x="0" y="0" width="135" height="150" rx="8" fill="#FEF2F2" stroke="#FCA5A5" strokeWidth="1.5" />
-      <text x="67" y="25" fontSize="14" textAnchor="middle">❌</text>
+      <text x="67" y="25" fontSize="14" textAnchor="middle">âŒ</text>
       
       {/* Window representation */}
       <rect x="25" y="45" width="85" height="80" rx="2" fill="white" stroke="#EF4444" strokeWidth="2" />
@@ -165,7 +165,7 @@ export const MistakesSVG: React.FC<{ k: number }> = ({ k }) => (
     {/* Right Panel: Correct (Embrasure) */}
     <g className="m1" transform="translate(170, 20)">
       <rect x="0" y="0" width="135" height="150" rx="8" fill="#F0FDF4" stroke="#86EFAC" strokeWidth="1.5" />
-      <text x="67" y="25" fontSize="14" textAnchor="middle">✅</text>
+      <text x="67" y="25" fontSize="14" textAnchor="middle">âœ…</text>
       
       {/* Opening representation */}
       <rect x="25" y="45" width="85" height="80" rx="2" fill="#EFF6FF" stroke="#22C55E" strokeWidth="2" strokeDasharray="4 2" />
@@ -225,7 +225,7 @@ export const LargeurSVG: React.FC<{ k: number; isDoor: boolean }> = ({ k, isDoor
       <g className="wbadge">
         <rect x="20" y={isDoor ? 195 : 178} width="280" height="22" rx="5" fill="#FEF3CD" />
         <text x="160" y={isDoor ? 210 : 193} fontSize="11" fill="#8A6A00" textAnchor="middle" fontWeight="700">
-          ⚠️  Retenez la valeur la plus petite → c'est votre L
+          âš ï¸  Retenez la valeur la plus petite â†’ c'est votre L
         </text>
       </g>
     </svg>
@@ -277,7 +277,7 @@ export const HauteurSVG: React.FC<{ k: number; isDoor: boolean }> = ({ k, isDoor
       <g className="hbadge">
         <rect x="20" y={isDoor ? 190 : 172} width="280" height="22" rx="5" fill="#FEF3CD" />
         <text x="160" y={isDoor ? 205 : 187} fontSize="11" fill="#8A6A00" textAnchor="middle" fontWeight="700">
-          ⚠️  Retenez la valeur la plus petite → c'est votre H
+          âš ï¸  Retenez la valeur la plus petite â†’ c'est votre H
         </text>
       </g>
     </svg>
@@ -290,7 +290,7 @@ export const FormulaSVG: React.FC<{ k: number; exampleL?: string; exampleH?: str
     <g className="o0">
       <rect x="35" y="15" width="250" height="68" rx="12" fill="#EEF4FF" stroke="#1A5DA8" strokeWidth="2" />
       <text x="160" y="42" fontSize="13" fill="#7A8FA6" textAnchor="middle" fontWeight="600">Votre commande en une formule</text>
-      <text x="160" y="72" fontSize="26" fill="#0D1B2A" textAnchor="middle" fontWeight="900">L  ×  H</text>
+      <text x="160" y="72" fontSize="26" fill="#0D1B2A" textAnchor="middle" fontWeight="900">L  Ã—  H</text>
       <text x="107" y="84" fontSize="10" fill="#1A5DA8" textAnchor="middle">Largeur min.</text>
       <text x="213" y="84" fontSize="10" fill="#1A5DA8" textAnchor="middle">Hauteur min.</text>
     </g>
@@ -298,17 +298,17 @@ export const FormulaSVG: React.FC<{ k: number; exampleL?: string; exampleH?: str
     <g className="o1">
       <rect x="55" y="92" width="210" height="40" rx="8" fill="#F4F7FB" stroke="#D0D9E8" strokeWidth="1.5" />
       <text x="160" y="107" fontSize="10" fill="#7A8FA6" textAnchor="middle">Exemple :</text>
-      <text x="160" y="124" fontSize="14" fill="#0D1B2A" textAnchor="middle" fontWeight="800">{exampleL} mm  ×  {exampleH} mm</text>
+      <text x="160" y="124" fontSize="14" fill="#0D1B2A" textAnchor="middle" fontWeight="800">{exampleL} mm  Ã—  {exampleH} mm</text>
     </g>
 
     <g className="o2">
       <rect x="20" y="142" width="280" height="28" rx="7" fill="#E8F5E9" stroke="#86EFAC" strokeWidth="1.5" />
-      <text x="160" y="160" fontSize="12" fill="#1B5E20" textAnchor="middle" fontWeight="700">📞 Notre équipe valide vos mesures gratuitement</text>
+      <text x="160" y="160" fontSize="12" fill="#1B5E20" textAnchor="middle" fontWeight="700">ðŸ“ž Notre Ã©quipe valide vos mesures gratuitement</text>
     </g>
 
     <g className="o3" transform="translate(130, 175)">
       <rect x="0" y="0" width="60" height="28" rx="14" fill="#1A5DA8" />
-      <text x="30" y="19" fontSize="13" fill="white" textAnchor="middle" fontWeight="800">✓ OK !</text>
+      <text x="30" y="19" fontSize="13" fill="white" textAnchor="middle" fontWeight="800">âœ“ OK !</text>
     </g>
   </svg>
 );
@@ -317,10 +317,10 @@ export const TipsSVG: React.FC<{ k: number }> = ({ k }) => (
   <svg key={k} viewBox="0 0 320 210" style={{ width: '100%', maxWidth: '320px', height: 'auto' }}>
     <IllustrationStyles />
     {[
-      { icon: '📏', color: '#EEF4FF', border: '#B8D0F0', text: 'Mesurez toujours DANS l\'embrasure, entre les deux bords du mur', dy: 0 },
-      { icon: '⬇️', color: '#FFF8EE', border: '#F5D27A', text: 'Arrondissez toujours au millimètre INFÉRIEUR (ex: 1203mm → 1203mm)', dy: 46 },
-      { icon: '📐', color: '#F0FFF4', border: '#86EFAC', text: 'Un écart > 5mm entre vos mesures = défaut d\'aplomb. Signalez-le !', dy: 92 },
-      { icon: '🔩', color: '#FFF0F0', border: '#FCA5A5', text: 'Pour fixation mural : prévoyez au moins 50mm de tableau accessible', dy: 138 },
+      { icon: 'ðŸ“', color: '#EEF4FF', border: '#B8D0F0', text: 'Mesurez toujours DANS l\'embrasure, entre les deux bords du mur', dy: 0 },
+      { icon: 'â¬‡ï¸', color: '#FFF8EE', border: '#F5D27A', text: 'Arrondissez toujours au millimÃ¨tre INFÃ‰RIEUR (ex: 1203mm â†’ 1203mm)', dy: 46 },
+      { icon: 'ðŸ“', color: '#F0FFF4', border: '#86EFAC', text: 'Un Ã©cart > 0.5cm entre vos mesures = dÃ©faut d\'aplomb. Signalez-le !', dy: 92 },
+      { icon: 'ðŸ”©', color: '#FFF0F0', border: '#FCA5A5', text: 'Pour fixation mural : prÃ©voyez au moins 50mm de tableau accessible', dy: 138 },
     ].map(({ icon, color, border, text, dy }, i) => (
       <g key={i} className={`tip${i}`} transform={`translate(16, ${10 + dy})`}>
         <rect x="0" y="0" width="288" height="38" rx="7" fill={color} stroke={border} strokeWidth="1.5" />
@@ -389,7 +389,7 @@ export const RecapSVG = ({
           fontSize={10} fontWeight={700} 
           fill="#2563EB"
         >
-          {L ? `L = ${L} mm` : 'L = ?'}
+          {L ? `L = ${L} cm` : 'L = ?'}
         </text>
       </g>
 
@@ -407,7 +407,7 @@ export const RecapSVG = ({
           fill="#059669"
           transform={`rotate(-90, ${x+w+30}, ${y + h/2})`}
         >
-          {H ? `H = ${H} mm` : 'H = ?'}
+          {H ? `H = ${H} cm` : 'H = ?'}
         </text>
       </g>
 
