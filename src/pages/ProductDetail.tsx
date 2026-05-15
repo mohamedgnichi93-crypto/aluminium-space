@@ -107,16 +107,37 @@ const ProductDetail = () => {
         <div className="container mx-auto px-4">
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             {/* Breadcrumb */}
-            <nav style={{ fontSize: '14px', color: 'rgba(255,255,255,0.85)', marginBottom: '20px', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '4px', fontFamily: 'DM Sans, sans-serif' }}>
-              <Link to="/" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none' }} onMouseEnter={(e) => e.currentTarget.style.color = '#81C063'} onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.85)')}>
+            <nav style={{ 
+              fontSize: '12px', 
+              color: 'rgba(255,255,255,0.7)', 
+              marginBottom: '20px', 
+              display: 'flex', 
+              alignItems: 'center', 
+              flexWrap: 'wrap', 
+              gap: '6px', 
+              fontFamily: 'DM Sans, sans-serif',
+              lineHeight: '1'
+            }}>
+              <Link to="/" style={{ color: 'rgba(255,255,255,0.7)', textDecoration: 'none', transition: 'color 0.2s', display: 'flex', alignItems: 'center' }} onMouseEnter={(e) => e.currentTarget.style.color = '#81C063'} onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.7)')}>
                 {t('product_detail.breadcrumb_home')}
               </Link>
-              <span>›</span>
-              <Link to="/produits" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none' }} onMouseEnter={(e) => e.currentTarget.style.color = '#81C063'} onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.85)')}>
+              <span style={{ opacity: 0.5, display: 'flex', alignItems: 'center', height: '12px' }}>›</span>
+              <Link to="/produits" style={{ color: 'rgba(255,255,255,0.7)', textDecoration: 'none', transition: 'color 0.2s', display: 'flex', alignItems: 'center' }} onMouseEnter={(e) => e.currentTarget.style.color = '#81C063'} onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.7)')}>
                 {t('product_detail.breadcrumb_products')}
               </Link>
-              <span>›</span>
-              <span style={{ color: '#81C063', fontWeight: 600 }}>{product.name}</span>
+              <span style={{ opacity: 0.5, display: 'flex', alignItems: 'center', height: '12px' }}>›</span>
+              <span style={{
+                color: '#81C063',
+                fontWeight: 600,
+                maxWidth: '150px',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                display: 'flex',
+                alignItems: 'center'
+              }}>
+                {product.name}
+              </span>
             </nav>
             <h1 style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: 'clamp(28px, 6vw, 48px)', color: '#FFFFFF', letterSpacing: '2px', textTransform: 'uppercase', margin: 0, marginBottom: '12px' }}>
               {product.name}
@@ -241,35 +262,37 @@ const ProductDetail = () => {
 
 
                 {/* Toggle tarif */}
-                <button
-                  onClick={() => setShowPrices(!showPrices)}
-                  style={{
-                    background: 'white',
-                    border: `1px solid ${showPrices ? '#81C063' : '#DBDADA'}`,
-                    color: showPrices ? '#81C063' : '#296788',
-                    borderRadius: '8px',
-                    padding: '10px 20px',
-                    fontSize: '14px',
-                    fontWeight: 700,
-                    fontFamily: 'Rajdhani, sans-serif',
-                    letterSpacing: '1px',
-                    textTransform: 'uppercase',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    marginBottom: '16px',
-                    transition: 'all 0.2s',
-                    cursor: 'pointer',
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#81C063'; e.currentTarget.style.color = '#81C063'; }}
-                  onMouseLeave={(e) => { if (!showPrices) { e.currentTarget.style.borderColor = '#DBDADA'; e.currentTarget.style.color = '#296788'; } }}
-                >
-                  📋 {t('product_detail.see_price')}
-                  <ChevronDown className="w-4 h-4 transition-transform duration-300" style={{ transform: showPrices ? 'rotate(180deg)' : 'rotate(0deg)' }} />
-                </button>
+                {product.id !== 'elba' && (
+                  <button
+                    onClick={() => setShowPrices(!showPrices)}
+                    style={{
+                      background: 'white',
+                      border: `1px solid ${showPrices ? '#81C063' : '#DBDADA'}`,
+                      color: showPrices ? '#81C063' : '#296788',
+                      borderRadius: '8px',
+                      padding: '10px 20px',
+                      fontSize: '14px',
+                      fontWeight: 700,
+                      fontFamily: 'Rajdhani, sans-serif',
+                      letterSpacing: '1px',
+                      textTransform: 'uppercase',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      marginBottom: '16px',
+                      transition: 'all 0.2s',
+                      cursor: 'pointer',
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#81C063'; e.currentTarget.style.color = '#81C063'; }}
+                    onMouseLeave={(e) => { if (!showPrices) { e.currentTarget.style.borderColor = '#DBDADA'; e.currentTarget.style.color = '#296788'; } }}
+                  >
+                    📋 {t('product_detail.see_price')}
+                    <ChevronDown className="w-4 h-4 transition-transform duration-300" style={{ transform: showPrices ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+                  </button>
+                )}
 
                 <AnimatePresence>
-                  {showPrices && (
+                  {(showPrices || product.id === 'elba') && (
                     <motion.div
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: 'auto', opacity: 1 }}
@@ -403,57 +426,52 @@ const ProductDetail = () => {
                             </div>
                           </div>
                         )}
+
                         {product.id === 'elba' && (
-                          <div className="mb-4">
-                            <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#296788', marginBottom: '8px', fontFamily: 'Rajdhani, sans-serif', letterSpacing: '1px', textTransform: 'uppercase' }}>{t('product_detail.price_per_sqm')}</h4>
-                            <div style={{
-                              overflowX: 'scroll',
-                              width: '100%',
-                              maxWidth: '100%',
-                              minWidth: 0,
-                              marginBottom: '16px',
+                          <div style={{ padding: '16px 0' }}>
+                            <div style={{ 
+                              background: 'linear-gradient(135deg, rgba(29,62,97,0.04), rgba(129,192,99,0.06))',
+                              borderRadius: '12px', 
+                              padding: '20px 24px',
+                              border: '1px solid rgba(129,192,99,0.2)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '16px'
                             }}>
-                              <table style={{
-                                borderCollapse: 'collapse',
-                                tableLayout: 'auto',
-                                whiteSpace: 'nowrap',
-                              }}>
-                                <thead>
-                                  <tr style={{ background: '#1A5DA8' }}>
-                                    <th style={{ padding: '12px 16px', color: 'white', textAlign: 'center', fontWeight: 600, fontSize: '13px', whiteSpace: 'nowrap', minWidth: '100px', borderRight: '1px solid rgba(255,255,255,0.2)' }}>
-                                      {t('product_detail.elba_glass')}
-                                    </th>
-                                    <th style={{ padding: '12px 16px', color: 'white', textAlign: 'center', fontWeight: 600, fontSize: '13px', whiteSpace: 'nowrap', minWidth: '100px', borderRight: '1px solid rgba(255,255,255,0.2)' }}>
-                                      {t('product_detail.elba_alu')}
-                                    </th>
-                                    <th style={{ padding: '12px 16px', color: 'white', textAlign: 'center', fontWeight: 600, fontSize: '13px', whiteSpace: 'nowrap', minWidth: '100px' }}>
-                                      {t('product_detail.elba_inox')}
-                                    </th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  <tr>
-                                    <td style={{ padding: '14px 16px', textAlign: 'center', whiteSpace: 'nowrap', background: 'white', borderRight: '1px solid #E8EDF5' }}>
-                                      <span style={{ color: '#27AE60', fontWeight: 700, fontSize: '15px' }}>
-                                        {(priceTables.elba.fibre / 1000).toFixed(3)}
-                                      </span>
-                                      <span style={{ color: '#7A8FA6', fontSize: '11px', marginLeft: '3px' }}>DT</span>
-                                    </td>
-                                    <td style={{ padding: '14px 16px', textAlign: 'center', whiteSpace: 'nowrap', background: '#F8FAFD', borderRight: '1px solid #E8EDF5' }}>
-                                      <span style={{ color: '#27AE60', fontWeight: 700, fontSize: '15px' }}>
-                                        {(priceTables.elba.aluminium / 1000).toFixed(3)}
-                                      </span>
-                                      <span style={{ color: '#7A8FA6', fontSize: '11px', marginLeft: '3px' }}>DT</span>
-                                    </td>
-                                    <td style={{ padding: '14px 16px', textAlign: 'center', whiteSpace: 'nowrap', background: 'white' }}>
-                                      <span style={{ color: '#27AE60', fontWeight: 700, fontSize: '15px' }}>
-                                        {(priceTables.elba.inox / 1000).toFixed(3)}
-                                      </span>
-                                      <span style={{ color: '#7A8FA6', fontSize: '11px', marginLeft: '3px' }}>DT</span>
-                                    </td>
-                                  </tr>
-                                </tbody>
-                              </table>
+                              <div style={{ flexShrink: 0 }}>
+                                <div style={{ 
+                                  width: '56px', height: '56px', borderRadius: '12px',
+                                  background: 'rgba(129,192,99,0.12)',
+                                  display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                }}>
+                                  <span style={{ fontSize: '24px' }}>📐</span>
+                                </div>
+                              </div>
+                              <div>
+                                <div style={{ 
+                                  fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, 
+                                  fontSize: '13px', color: '#7A8FA6', letterSpacing: '1.5px',
+                                  textTransform: 'uppercase', marginBottom: '4px'
+                                }}>
+                                  Prix au m²
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                                  <span style={{ 
+                                    fontFamily: 'Rajdhani, sans-serif', fontWeight: 800,
+                                    fontSize: '36px', color: '#81C063', lineHeight: 1
+                                  }}>326</span>
+                                  <span style={{ 
+                                    fontFamily: 'DM Sans, sans-serif', fontSize: '14px', 
+                                    color: '#7A8FA6', fontWeight: 600
+                                  }}>DT / m² HT</span>
+                                </div>
+                                <div style={{ 
+                                  fontFamily: 'DM Sans, sans-serif', fontSize: '12px', 
+                                  color: '#7A8FA6', marginTop: '4px'
+                                }}>
+                                  Sur mesure — sans limite de dimensions
+                                </div>
+                              </div>
                             </div>
                           </div>
                         )}

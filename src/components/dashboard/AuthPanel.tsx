@@ -1,24 +1,34 @@
-import React from 'react';
-import { LayoutDashboard } from 'lucide-react';
+import React, { useState } from 'react';
+import { LayoutDashboard, Loader2 } from 'lucide-react';
 
 interface AuthPanelProps {
+  email: string;
+  setEmail: (val: string) => void;
   password: string;
-  lockoutTimer: number | null;
   setPassword: (val: string) => void;
   handleLogin: (e: React.FormEvent) => void;
+  authError: string;
+  loading: boolean;
 }
 
 const AuthPanel: React.FC<AuthPanelProps> = ({
+  email,
+  setEmail,
   password,
-  lockoutTimer,
   setPassword,
-  handleLogin
+  handleLogin,
+  authError,
 }) => {
-  const formatLockoutTime = (seconds: number): string => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m}:${s.toString().padStart(2, '0')}`;
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    await handleLogin(e);
+    setIsSubmitting(false);
   };
+
+  const isDisabled = email.trim() === '' || password.trim() === '' || isSubmitting;
 
   return (
     <div style={{ minHeight: '100vh', background: '#0D1B2A', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
@@ -33,43 +43,67 @@ const AuthPanel: React.FC<AuthPanelProps> = ({
           🔒 Connexion sécurisée — Aluminium Space Admin
         </div>
 
-        {lockoutTimer !== null ? (
-          <div style={{ background: '#FEE2E2', color: '#991B1B', padding: '16px', borderRadius: '12px', marginBottom: '20px', fontSize: '14px', fontWeight: 600 }}>
-            Trop de tentatives. Réessayez dans {formatLockoutTime(lockoutTimer)}
+        {authError && (
+          <div style={{ background: '#FEE2E2', color: '#991B1B', padding: '12px 16px', borderRadius: '12px', marginBottom: '16px', fontSize: '14px', fontWeight: 500, textAlign: 'left' }}>
+            {authError}
           </div>
-        ) : (
-          <form onSubmit={handleLogin}>
-            <input
-              type="password"
-              placeholder="Mot de passe"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              style={{ width: '100%', padding: '14px 20px', borderRadius: '12px', border: '1px solid #E8EDF5', fontFamily: 'Inter, sans-serif', fontSize: '15px', marginBottom: '20px', outline: 'none' }}
-              required
-            />
-
-            <button
-              type="submit"
-              disabled={password.trim() === ''}
-              style={{
-                width: '100%',
-                background: password.trim() === '' ? '#C8D9F0' : '#1D3E61',
-                color: 'white',
-                padding: '14px',
-                borderRadius: '12px',
-                border: 'none',
-                fontFamily: 'Inter, sans-serif',
-                fontWeight: 600,
-                fontSize: '16px',
-                cursor: password.trim() === '' ? 'not-allowed' : 'pointer',
-                transition: 'background 0.3s'
-              }}
-            >
-              Se connecter
-            </button>
-          </form>
         )}
+
+        <form onSubmit={onSubmit}>
+          <input
+            type="email"
+            placeholder="Adresse e-mail"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={{ width: '100%', padding: '14px 20px', borderRadius: '12px', border: '1px solid #E8EDF5', fontFamily: 'Inter, sans-serif', fontSize: '15px', marginBottom: '12px', outline: 'none', boxSizing: 'border-box' }}
+            required
+            autoComplete="email"
+          />
+
+          <input
+            type="password"
+            placeholder="Mot de passe"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            style={{ width: '100%', padding: '14px 20px', borderRadius: '12px', border: '1px solid #E8EDF5', fontFamily: 'Inter, sans-serif', fontSize: '15px', marginBottom: '20px', outline: 'none', boxSizing: 'border-box' }}
+            required
+            autoComplete="current-password"
+          />
+
+          <button
+            type="submit"
+            disabled={isDisabled}
+            style={{
+              width: '100%',
+              background: isDisabled ? '#C8D9F0' : '#1D3E61',
+              color: 'white',
+              padding: '14px',
+              borderRadius: '12px',
+              border: 'none',
+              fontFamily: 'Inter, sans-serif',
+              fontWeight: 600,
+              fontSize: '16px',
+              cursor: isDisabled ? 'not-allowed' : 'pointer',
+              transition: 'background 0.3s',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px'
+            }}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} />
+                Connexion...
+              </>
+            ) : (
+              'Se connecter'
+            )}
+          </button>
+        </form>
       </div>
+
+      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 };

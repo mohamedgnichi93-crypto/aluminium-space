@@ -64,8 +64,8 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
 
   useEffect(() => {
     if (productId !== 'sidney-50') return;
-    const w = parseFloat(width);
-    const h = parseFloat(height);
+    const w = Number(width);
+    const h = Number(height);
     if (isNaN(w) || isNaN(h)) return;
 
     if (w > 200) {
@@ -79,7 +79,7 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
     if (productId !== 'sidney-50-ac') return;
     if (originalProductId.current !== 'sidney-50') return;
 
-    const w = parseFloat(width);
+    const w = Number(width);
     if (isNaN(w)) return;
 
     if (w <= 200) {
@@ -116,7 +116,7 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
       } else if (productId === 'sidney-50-ac') {
         minW = 70; maxW = 400; minH = 70; maxH = 260;
       } else if (productId === 'elba') {
-        minW = 30; maxW = 120; minH = 30; maxH = 250;
+        minW = 10; maxW = 9999; minH = 10; maxH = 9999;
       } else if (productId === 'plisse31') {
         minW = 125; maxW = 500; minH = 120; maxH = 300;
       }
@@ -144,12 +144,11 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
         if (height < 220) currentIsMin = true;
       }
       setIsMinimumPrice(currentIsMin);
-
       const priceResult = calculatePrice({
         productId,
         width: Number(width),
         height: Number(height),
-        meshType,
+        meshType: meshType as any,
         color
       });
 
@@ -186,7 +185,7 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
       }
       case 'sidney-50': return { minW: 35, maxW: 200, minH: 70, maxH: 260 };
       case 'sidney-50-ac': return { minW: 70, maxW: 400, minH: 70, maxH: 260 };
-      case 'elba': return { minW: 30, maxW: 120, minH: 30, maxH: 250 };
+      case 'elba': return { minW: 10, maxW: 9999, minH: 10, maxH: 9999 };
       case 'plisse31': return { minW: 125, maxW: 500, minH: 120, maxH: 300 };
       default: return { minW: 30, maxW: 200, minH: 30, maxH: 250 };
     }
@@ -233,7 +232,7 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
               {t('quote.dimensions_title', 'Dimensions de votre ouverture')}
             </h3>
 
-            {autoSwitched && (
+            {autoSwitched && productId !== 'elba' && (
               <div style={{
                 background: 'rgba(29,62,97,0.05)',
                 border: '1.5px solid #1D3E61',
@@ -417,9 +416,15 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
                   onFocus={handleFocus}
                   onBlur={(e) => handleBlur(e, !!errors.width)}
                 />
-                <div style={{ fontSize: '12px', color: '#8896A5', marginTop: '6px' }}>
-                  Min: {minW}cm — Max: {maxW}cm
-                </div>
+                {productId !== 'elba' ? (
+                  <div style={{ fontSize: '12px', color: '#8896A5', marginTop: '6px' }}>
+                    Min: {minW}cm — Max: {maxW}cm
+                  </div>
+                ) : (
+                  <div style={{ fontSize: '12px', color: '#81C063', marginTop: '6px', fontWeight: 600 }}>
+                    Sur mesure — sans limite
+                  </div>
+                )}
                 {errors.width && <span style={{ color: '#EF4444', fontSize: '12px', marginTop: '4px', display: 'block' }}>{errors.width.message as string}</span>}
               </div>
 
@@ -445,9 +450,15 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
                   onFocus={handleFocus}
                   onBlur={(e) => handleBlur(e, !!errors.height)}
                 />
-                <div style={{ fontSize: '12px', color: '#8896A5', marginTop: '6px' }}>
-                  Min: {minH}cm — Max: {maxH}cm
-                </div>
+                {productId !== 'elba' ? (
+                  <div style={{ fontSize: '12px', color: '#8896A5', marginTop: '6px' }}>
+                    Min: {minH}cm — Max: {maxH}cm
+                  </div>
+                ) : (
+                  <div style={{ fontSize: '12px', color: '#81C063', marginTop: '6px', fontWeight: 600 }}>
+                    Sur mesure — sans limite
+                  </div>
+                )}
                 {errors.height && <span style={{ color: '#EF4444', fontSize: '12px', marginTop: '4px', display: 'block' }}>{errors.height.message as string}</span>}
               </div>
 
@@ -994,20 +1005,20 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
                       </a>
                     </div>
                   ) : (
-                    <div style={{ background: 'rgba(29,62,97,0.04)', border: '1px solid rgba(29,62,97,0.15)', borderRadius: '16px', padding: '28px' }}>
+                    <div style={{ background: 'rgba(29,62,97,0.04)', border: '1px solid rgba(29,62,97,0.15)', borderRadius: '16px', padding: '24px' }}>
                       <h4 style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '16px', letterSpacing: '1.5px', textTransform: 'uppercase', color: '#1D3E61', marginBottom: '16px' }}>
                         {t('quote.estimation_title', 'Estimation du Prix')}
                       </h4>
 
-                      <div style={{ height: '1px', background: 'rgba(29,62,97,0.18)', marginBottom: '20px' }} />
+                      <div style={{ height: '1px', background: 'rgba(29,62,97,0.18)', marginBottom: '16px' }} />
 
-                      <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                        <div style={{ fontSize: '14px', color: '#4A5568', fontFamily: 'Inter, sans-serif' }}>{t('quote.unit_price_ht', 'Prix unitaire (HT)')} :</div>
-                        <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'baseline', gap: '4px' }}>
-                          <span style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '18px', color: '#1D3E61', lineHeight: 1 }}>
+                      <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', gap: '8px' }}>
+                        <div style={{ fontSize: '14px', color: '#4A5568', fontFamily: 'Inter, sans-serif', fontWeight: 500, maxWidth: '50%' }}>{t('quote.unit_price_ht', 'Prix unitaire (HT)')} :</div>
+                        <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'baseline', gap: '4px', flexShrink: 0 }}>
+                          <span style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '16px', color: '#1D3E61', lineHeight: 1 }}>
                             {unitPrice > 0 ? (unitPrice / 1000).toFixed(3) : '0.000'}
                           </span>
-                          <span style={{ fontSize: 16, color: '#1D3E61', fontWeight: 600 }}>DT</span>
+                          <span style={{ fontSize: 14, color: '#1D3E61', fontWeight: 600 }}>DT</span>
                         </div>
                       </div>
 
@@ -1016,7 +1027,7 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
                           productId,
                           width: Number(width),
                           height: Number(height),
-                          meshType,
+                          meshType: meshType as any,
                           color
                         });
 
@@ -1026,29 +1037,32 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
                               display: 'flex',
                               flexDirection: isRTL ? 'row-reverse' : 'row',
                               justifyContent: 'space-between',
+                              alignItems: 'center',
                               color: '#92400E',
                               background: '#FEF3C7',
                               padding: '6px 10px',
                               borderRadius: 8,
                               fontSize: 13,
                               marginTop: -4,
-                              marginBottom: 16,
+                              marginBottom: 12,
                               fontFamily: 'Inter, sans-serif',
-                              fontWeight: 500
+                              fontWeight: 500,
+                              gap: '8px'
                             }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                <span>Supplément couleur</span>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', maxWidth: '50%' }}>
+                                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Supplément couleur</span>
                                 <span style={{
                                   fontSize: 10,
                                   background: '#FEF3C7',
                                   color: '#92400E',
-                                  padding: '1px 6px',
+                                  padding: '1px 4px',
                                   borderRadius: 4,
                                   fontWeight: 600,
-                                  border: '1px solid #FDE68A'
+                                  border: '1px solid #FDE68A',
+                                  flexShrink: 0
                                 }}>+{priceResult.colorSurchargePct}%</span>
                               </div>
-                              <span>
+                              <span style={{ flexShrink: 0, whiteSpace: 'nowrap' }}>
                                 + {formatPrice((priceResult.colorSurchargeAmount ?? 0) * quantity)} DT
                               </span>
                             </div>
@@ -1058,42 +1072,42 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
                       })()}
 
                       {quantity > 1 && (
-                        <div style={{ marginBottom: '12px', display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#4A5568' }}>
-                          <span>{t('quote.subtotal_ht', 'Sous-total HT')} (×{quantity}):</span>
-                          <span style={{ color: '#0D1B2A', fontWeight: 500 }}>{(totalPrice / 1000).toFixed(3)} DT</span>
+                        <div style={{ marginBottom: '12px', display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#4A5568', gap: '8px' }}>
+                          <span style={{ maxWidth: '50%' }}>{t('quote.subtotal_ht', 'Sous-total HT')} (×{quantity}):</span>
+                          <span style={{ color: '#1D3E61', fontWeight: 600, flexShrink: 0, whiteSpace: 'nowrap' }}>{(totalPrice / 1000).toFixed(3)} DT</span>
                         </div>
                       )}
 
-                      <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: '12px', fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#EF4444' }}>
-                        <span>{t('quote.remise_label', 'Remise {{percent}}%', { percent: cfg.remisePercent })}:</span>
-                        <span style={{ fontWeight: 600 }}>-{(remise20 / 1000).toFixed(3)} DT</span>
+                      <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#EF4444', fontWeight: 600, gap: '8px' }}>
+                        <span style={{ maxWidth: '50%' }}>{t('quote.remise_label', 'Remise {{percent}}%', { percent: cfg.remisePercent })}:</span>
+                        <span style={{ flexShrink: 0, whiteSpace: 'nowrap' }}>-{(remise20 / 1000).toFixed(3)} DT</span>
                       </div>
 
-                      <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: '20px', fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#0D1B2A', fontWeight: 600 }}>
-                        <span>{t('quote.net_ht', 'Prix après remise')} :</span>
-                        <span>{(priceAfterRemise / 1000).toFixed(3)} DT</span>
+                      <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#1D3E61', fontWeight: 700, gap: '8px' }}>
+                        <span style={{ maxWidth: '50%' }}>Après remise :</span>
+                        <span style={{ flexShrink: 0, whiteSpace: 'nowrap' }}>{(priceAfterRemise / 1000).toFixed(3)} DT</span>
                       </div>
 
-                      <div style={{ height: '1px', background: 'rgba(29,62,97,0.18)', marginBottom: '20px' }} />
+                      <div style={{ height: '1px', background: 'rgba(29,62,97,0.18)', marginBottom: '16px' }} />
 
-                      <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: '12px', fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#4A5568' }}>
-                        <span>{t('quote.fodec', 'FODEC ({{percent}}%)', { percent: 1 })}:</span>
-                        <span>{(fodec / 1000).toFixed(3)} DT</span>
+                      <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#64748B', gap: '8px' }}>
+                        <span style={{ maxWidth: '50%' }}>{t('quote.fodec', 'FODEC ({{percent}}%)', { percent: 1 })}:</span>
+                        <span style={{ flexShrink: 0, whiteSpace: 'nowrap' }}>{(fodec / 1000).toFixed(3)} DT</span>
                       </div>
 
-                      <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: '12px', fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#4A5568' }}>
-                        <span>{t('quote.tva', 'TVA ({{percent}}%)', { percent: 19 })}:</span>
-                        <span>{(tva / 1000).toFixed(3)} DT</span>
+                      <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#64748B', gap: '8px' }}>
+                        <span style={{ maxWidth: '50%' }}>{t('quote.tva', 'TVA ({{percent}}%)', { percent: 19 })}:</span>
+                        <span style={{ flexShrink: 0, whiteSpace: 'nowrap' }}>{(tva / 1000).toFixed(3)} DT</span>
                       </div>
 
-                      <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: '20px', fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#4A5568' }}>
-                        <span>{t('quote.timbre', 'Timbre fiscal')} :</span>
-                        <span>1.000 DT</span>
+                      <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#64748B', gap: '8px' }}>
+                        <span style={{ maxWidth: '50%' }}>{t('quote.timbre', 'Timbre fiscal')} :</span>
+                        <span style={{ flexShrink: 0, whiteSpace: 'nowrap' }}>1.000 DT</span>
                       </div>
 
-                      <div style={{ background: '#1D3E61', borderRadius: '10px', padding: '14px 20px', display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 4px 12px rgba(29,62,97,0.20)' }}>
-                        <span style={{ color: 'white', fontSize: '11px', letterSpacing: '2px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, textTransform: 'uppercase' }}>{t('quote.total_ttc', 'TOTAL TTC')}</span>
-                        <span style={{ color: 'white', fontSize: '28px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700 }}>{(ttc / 1000).toFixed(3)} DT</span>
+                      <div style={{ background: '#1D3E61', borderRadius: '12px', padding: '14px 20px', display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'center', alignItems: 'center', gap: '8px', flexWrap: 'wrap', boxShadow: '0 4px 12px rgba(29,62,97,0.20)' }}>
+                        <span style={{ color: 'white', fontSize: '11px', letterSpacing: '2px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, textTransform: 'uppercase', flexShrink: 0 }}>{t('quote.total_ttc', 'TOTAL TTC')}</span>
+                        <span style={{ color: 'white', fontSize: '28px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, flexShrink: 0, whiteSpace: 'nowrap' }}>{(ttc / 1000).toFixed(3)} DT</span>
                       </div>
                     </div>
                   )}

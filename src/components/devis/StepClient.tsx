@@ -35,7 +35,7 @@ const StepClient = ({ register, errors, onPrev, onSubmit, itemsCount, items }: P
     e.currentTarget.style.boxShadow = 'none';
   };
 
-  const inputProps = (name: string, error: any) => ({
+  const inputProps = (name: any, error: any) => ({
     ...register(name),
     onFocus: handleFocus,
     onBlur: (e: any) => handleBlur(e, error),

@@ -30,7 +30,7 @@ export function getColorSurchargePct(color?: string): number {
 }
 
 // Returns price object in millimes
-export const calculatePrice = ({ productId, width, height, meshType, color }: PriceCalculationParams): PriceResult | null => {
+export const calculatePrice = ({ productId, width, height, color }: PriceCalculationParams): PriceResult | null => {
   if (!width || !height) return null;
 
   let basePrice: number | null = null;
@@ -78,7 +78,6 @@ export const calculatePrice = ({ productId, width, height, meshType, color }: Pr
       break;
     }
     case 'elba': {
-      if (width > 120 || height > 250) break;
       const areaCm = (width / 100) * (height / 100);
       const billableM2 = Math.ceil(areaCm);
       const finalM2 = Math.max(1, billableM2);

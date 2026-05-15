@@ -222,29 +222,6 @@ export function useAIAgentLogic(
     }
   }, [isListening, language, startListening, stopListening]);
 
-  const rateMessage = useCallback(async (id: string, rating: 'up' | 'down') => {
-    setMessages(prev => prev.map(m => m.id === id ? { ...m, rating } : m));
-    
-    const message = messagesRef.current.find(m => m.id === id);
-    if (!message) return;
-
-    try {
-      await fetch('/.netlify/functions/feedback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messageId: id,
-          feedback: rating === 'up' ? 'positive' : 'negative',
-          messageText: message.content.slice(0, 100),
-          timestamp: new Date().toISOString(),
-          language: language
-        })
-      });
-    } catch (err) {
-      console.warn('Failed to save feedback', err);
-    }
-  }, [language]);
-
   const clearHistory = useCallback(() => {
     sessionStorage.removeItem('alu_chat_history');
     resetSessionCount(language);
@@ -273,6 +250,5 @@ export function useAIAgentLogic(
     clearHistory,
     executeAction,
     transcript,
-    rateMessage,
   };
 }

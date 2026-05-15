@@ -99,7 +99,7 @@ const OrderDetailModal = ({ order, onClose, onStatusChange, onDownloadPDF }: Pro
 
         {/* Body */}
         <div style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
-          
+
           {/* Section: Produit */}
           <div>
             <h3 style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600, fontSize: '16px', color: '#0D1B2A', borderBottom: '1px solid #E8EDF5', paddingBottom: '8px', marginBottom: '16px' }}>
@@ -230,7 +230,7 @@ const OrderDetailModal = ({ order, onClose, onStatusChange, onDownloadPDF }: Pro
               </button>
             </div>
           </div>
-          
+
         </div>
 
         {/* Footer */}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, Ruler, Award, CheckCircle, XCircle, Link as LinkIcon, X as XIcon, FileText } from 'lucide-react';
+import { Shield, Ruler, Award, CheckCircle, XCircle, Link as LinkIcon, FileText, X as XIcon } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { products } from '../data/products';
 import ProductCard from '../components/products/ProductCard';
@@ -53,9 +53,9 @@ const comparisonData = [
     image: '/images/elba.png',
     type: { fr: 'Panneau fixe', ar: 'لوح ثابت', tn: 'بانو ثابت', en: 'Fixed panel', it: 'Pannello fisso' },
     usage: { fr: 'Fenêtre / Porte', ar: 'نافذة / باب', tn: 'شباك / بيب', en: 'Window / Door', it: 'Finestra / Porta' },
-    maxW: '120 cm',
-    maxH: '250 cm',
-    priceFrom: '143',
+    maxW: '—',
+    maxH: '—',
+    priceFrom: '326',
     features: { cassette: false, poignee: false, doubleVantail: false, fixe: true },
   },
   {
@@ -83,8 +83,11 @@ const Products = () => {
 
   useEffect(() => {
     const pid = searchParams.get('produit');
-    if (pid) { setDevisProductId(pid); setShowDevis(true); }
-  }, [searchParams]);
+    if (pid && (pid !== devisProductId || !showDevis)) { 
+      setDevisProductId(pid); 
+      setShowDevis(true); 
+    }
+  }, [searchParams, devisProductId, showDevis]);
 
   useEffect(() => {
     if (showDevis) {

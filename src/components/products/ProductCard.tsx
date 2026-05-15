@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
@@ -11,7 +10,6 @@ interface ProductCardProps {
 
 const ProductCard = ({ product, index }: ProductCardProps) => {
   const { t } = useTranslation();
-  const [showDevis, setShowDevis] = useState(false);
 
   return (
     <Link to={`/produits/${product.id}`} style={{ textDecoration: 'none', display: 'block', height: '100%' }}>

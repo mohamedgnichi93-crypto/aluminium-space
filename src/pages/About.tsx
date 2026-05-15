@@ -54,7 +54,7 @@ const About = () => {
       icon: Award,
       title: { fr: 'Expertise reconnue', ar: 'خبرة معترف بها', tn: 'خبرة معترف بها', en: 'Recognized expertise', it: 'Competenza riconosciuta' },
       desc: {
-        fr: 'Partenaire agréé Grifo Flex en Tunisie — nous maîtrisons chaque détail de nos produits pour vous garantir la meilleure installation.',
+        fr: 'Partenaire Grifo Flex en Tunisie — nous maîtrisons chaque détail de nos produits pour vous garantir la meilleure installation.',
         ar: 'الشريك المعتمد لـ Grifo Flex في تونس — نتقن كل تفاصيل منتجاتنا لضمان أفضل تركيب لكم.',
         tn: 'الشريك المعتمد لـ Grifo Flex في تونس — نتقن كل تفاصيل منتاجاتنا باش نضمنلكم أحسن تركيب.',
         en: 'Certified Grifo Flex partner in Tunisia — we master every detail for the best installation.',
@@ -96,7 +96,7 @@ const About = () => {
       year: '2020',
       title: { fr: 'Partenariat Grifo Flex', ar: 'شراكة Grifo Flex', tn: 'شراكة Grifo Flex', en: 'Grifo Flex Partnership', it: 'Partnership Grifo Flex' },
       desc: {
-        fr: 'Aluminium Space devient le **partenaire agréé de Grifo Flex** en Tunisie. Une marque italienne de référence mondiale en moustiquaires rétractables, fabriquée à Fano.',
+        fr: 'Aluminium Space devient le **partenaire de Grifo Flex** en Tunisie. Une marque italienne de référence mondiale en moustiquaires rétractables, fabriquée à Fano.',
         ar: 'أصبح Aluminium Space **الشريك المعتمد لـ Grifo Flex** في تونس. علامة إيطالية مرجعية عالمياً في المستيكارات القابلة للطي، مصنوعة في فانو.',
         tn: 'Aluminium Space يصبح **الشريك المعتمد لـ Grifo Flex** في تونس. علامة إيطالية مرجعية عالمياً في الموستيكار، مصنوعة في فانو.',
         en: 'Aluminium Space becomes the **certified Grifo Flex partner** in Tunisia. A world-reference Italian brand in retractable screens, made in Fano.',
@@ -137,10 +137,10 @@ const About = () => {
     <div className="pb-24" style={{ background: '#F5F7FA', minHeight: '100vh' }}>
       <PageSEO
         path="/about"
-        titleFr="À Propos — Aluminium Space | Partenaire agréé Grifo Flex Tunisie"
+        titleFr="À Propos — Aluminium Space | Partenaire Grifo Flex Tunisie"
         titleAr="من نحن — Aluminium Space | الشريك المعتمد Grifo Flex تونس"
         titleEn="About Us — Aluminium Space | Certified Grifo Flex Partner Tunisia"
-        descFr="Aluminium Space, partenaire agréé Grifo Flex en Tunisie depuis 2018. Moustiquaires sur mesure, installation professionnelle, garantie 3 ans."
+        descFr="Aluminium Space, partenaire Grifo Flex en Tunisie depuis 2018. Moustiquaires sur mesure, installation professionnelle, garantie 3 ans."
         descAr="Aluminium Space، الشريك المعتمد لـ Grifo Flex في تونس منذ 2018. مستيكارات على المقاس، تركيب احترافي، ضمان 3 سنوات."
         descEn="Aluminium Space, certified Grifo Flex partner in Tunisia since 2018. Custom screens, professional installation, 3-year warranty."
       />
@@ -162,7 +162,7 @@ const About = () => {
               fontFamily: 'Rajdhani, sans-serif',
               marginBottom: '16px',
             }}>
-              <ItalyFlag /> Partenaire agréé Grifo Flex · Mghira, Tunisie
+              <ItalyFlag /> Partenaire Grifo Flex · Mghira, Tunisie
             </div>
             <h1 style={{
               fontFamily: 'Rajdhani, sans-serif',
@@ -253,7 +253,7 @@ const About = () => {
                 lineHeight: 1.8,
               }}>
                 {loc({
-                  fr: 'En tant que **partenaire agréé Grifo Flex** en Tunisie, nous proposons des moustiquaires de haute technologie italiennes — mesurées, fabriquées sur mesure et installées par nos techniciens qualifiés.',
+                  fr: 'En tant que **partenaire Grifo Flex** en Tunisie, nous proposons des moustiquaires de haute technologie italiennes — mesurées, fabriquées sur mesure et installées par nos techniciens qualifiés.',
                   ar: 'بوصفنا **الشريك المعتمد لـ Grifo Flex** في تونس، نقدم مستيكارات إيطالية عالية التقنية — مقاسة، مصنعة على المقاس ومركبة من قبل تقنيينا المؤهلين.',
                   tn: 'بوصفنا **الشريك المعتمد لـ Grifo Flex** في تونس، نقدموا موستيكار إيطالية عالية التقنية — تُقاس، تُصنع على المقاس وتُركب من طرف تقنيين متخصصين.',
                   en: 'As the **certified Grifo Flex partner** in Tunisia, we offer high-tech Italian mosquito screens — measured, custom-made and installed by our qualified technicians.',

@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect, type KeyboardEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  X, Mic, MicOff,
-  Send, RotateCcw, Loader2, Bot, ChevronDown, ThumbsUp, ThumbsDown, Camera,
+  X,
+  Send, RotateCcw, Loader2, Bot, ChevronDown,
 } from 'lucide-react';
 import { useAIAgentContext } from '../../context/AIAgentContext';
 import { useAIAgentLogic } from '../../hooks/useAIAgent';
@@ -84,12 +84,11 @@ export default function AIAgent() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
     messages, isLoading, loadingMessage, streamingMessage, sendMessage,
-    handleVoiceInput, isListening, interimTranscript,
-    voiceSupported, sttError, clearHistory, executeAction, transcript, rateMessage,
+    sttError, clearHistory, executeAction, transcript,
+    isListening, interimTranscript,
   } = useAIAgentLogic(
     currentLanguage, pendingMessage, clearPendingMessage, closeAgent, setLanguage,
   );
@@ -146,32 +145,8 @@ export default function AIAgent() {
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
-  const IMAGE_PROMPTS: Record<Lang, string> = {
-    fr: "J'ai partagé une photo de mon ouverture (fenêtre/porte/terrasse). Quelle moustiquaire me recommandez-vous ?",
-    ar: "التقطت صورة لفتحتي (نافذة/باب/شرفة). ما الناموسية التي تنصحني بها؟",
-    tn: "عندي صورة للفتحة متاعتي (شباك/باب/تراس). شنية الموستيكارة اللي تنصحني بيها؟",
-    en: "I shared a photo of my opening (window/door/terrace). Which mosquito screen do you recommend?",
-    it: "Ho condiviso una foto della mia apertura (finestra/porta/terrazza). Quale zanzariera mi consiglia?",
-  };
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      alert("La taille de l'image ne doit pas dépasser 5MB.");
-      e.target.value = '';
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      setImagePreview(ev.target?.result as string);
-      if (!inputValue.trim()) {
-        setInputValue(IMAGE_PROMPTS[currentLanguage] || IMAGE_PROMPTS.fr);
-      }
-    };
-    reader.readAsDataURL(file);
-    e.target.value = '';
-  };
+
 
   const handleSend = (overrideText?: string) => {
     const textToSanitize = overrideText || inputValue;
@@ -433,34 +408,7 @@ export default function AIAgent() {
                           </div>
                         )}
 
-                        <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end' }}>
-                          <button
-                            onClick={() => rateMessage(msg.id, 'up')}
-                            style={{
-                              background: msg.rating === 'up' ? '#D1FAE5' : 'transparent',
-                              border: '1px solid',
-                              borderColor: msg.rating === 'up' ? '#27AE60' : '#E8EDF5',
-                              borderRadius: 6, padding: '2px 6px', cursor: 'pointer',
-                              color: msg.rating === 'up' ? '#27AE60' : '#AABBCC',
-                            }}
-                            title="Utile"
-                          >
-                            <ThumbsUp className="w-3 h-3" />
-                          </button>
-                          <button
-                            onClick={() => rateMessage(msg.id, 'down')}
-                            style={{
-                              background: msg.rating === 'down' ? '#FEE2E2' : 'transparent',
-                              border: '1px solid',
-                              borderColor: msg.rating === 'down' ? '#EF4444' : '#E8EDF5',
-                              borderRadius: 6, padding: '2px 6px', cursor: 'pointer',
-                              color: msg.rating === 'down' ? '#EF4444' : '#AABBCC',
-                            }}
-                            title="Pas utile"
-                          >
-                            <ThumbsDown className="w-3 h-3" />
-                          </button>
-                        </div>
+
                       </div>
                     )}
                   </div>
@@ -591,50 +539,6 @@ export default function AIAgent() {
               )}
 
               <div className="flex items-end gap-2 p-3">
-                {voiceSupported && (
-                  <div style={{ position: 'relative', flexShrink: 0 }}>
-                    {isListening && (
-                      <span className="animate-ping" style={{
-                        position: 'absolute', inset: '-4px', borderRadius: '50%',
-                        border: '2px solid #EF4444', opacity: 0.5,
-                        pointerEvents: 'none',
-                      }} />
-                    )}
-                    <button
-                      onClick={handleVoiceInput}
-                      className="w-9 h-9 rounded-full flex items-center justify-center transition-all"
-                      style={{
-                        background: isListening ? '#EF4444' : '#F1F5F9',
-                        color: isListening ? 'white' : '#64748B',
-                        border: 'none', cursor: 'pointer',
-                      }}
-                      title={isListening ? 'Arrêter l\'enregistrement' : 'Envoyer un message vocal'}
-                    >
-                      {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-                    </button>
-                  </div>
-                )}
-
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  capture={isMobile ? 'environment' : undefined}
-                  style={{ display: 'none' }}
-                  onChange={handleImageSelect}
-                />
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center transition-all"
-                  style={{
-                    background: imagePreview ? 'rgba(129,192,99,0.15)' : 'transparent',
-                    color: imagePreview ? '#81C063' : '#94A3B8',
-                    border: imagePreview ? '1px solid rgba(129,192,99,0.4)' : 'none',
-                  }}
-                >
-                  <Camera className="w-4 h-4" />
-                </button>
-
                 <textarea
                   ref={inputRef}
                   value={inputValue}
@@ -658,7 +562,12 @@ export default function AIAgent() {
                     el.style.height = 'auto';
                     el.style.height = Math.min(el.scrollHeight, 96) + 'px';
                   }}
-                  onFocus={e => (e.currentTarget.style.borderColor = '#1A5DA8')}
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = '#1A5DA8';
+                    setTimeout(() => {
+                      inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 300);
+                  }}
                   onBlur={e => (e.currentTarget.style.borderColor = '#E8EDF5')}
                   disabled={isLoading}
                 />

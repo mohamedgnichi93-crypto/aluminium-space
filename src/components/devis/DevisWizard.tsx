@@ -228,7 +228,7 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
       // Calculate total remise
       const totalRemise = items.reduce((sum, item) => sum + (item.totalPrice * (cfg.remisePercent / 100)), 0);
 
-      const savedOrder = saveOrder({
+      const savedOrder = await saveOrder({
         clientInfo: {
           fullName: data.fullName,
           phone: data.phone,
@@ -238,6 +238,7 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
         },
         items: items,
         totalHT: globalTotalHT,
+        netHT: globalTotalHT, // Net HT is total after remise
         remise: totalRemise,
         remisePercent: cfg.remisePercent,
         fodec: cfg.fodecPercent,
@@ -430,7 +431,7 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
             padding: '6px 14px',
             borderRadius: '20px'
           }}>
-            {t('devis_steps.step_x_of_y', { defaultValue: 'Étape {{step}} sur {{total}}' }, { step, total: stepLabels.length })} : {stepLabels[step - 1]}
+            {t('devis_steps.step_x_of_y', { step, total: stepLabels.length, defaultValue: 'Étape {{step}} sur {{total}}' })} : {stepLabels[step - 1]}
           </span>
         </div>
       </div>

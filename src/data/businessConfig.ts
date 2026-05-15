@@ -3,4 +3,5 @@ export const BUSINESS_CONFIG = {
   fodecPct: 1,        // FODEC tax
   tvaPct: 19,         // TVA tax
   quoteValidityDays: 10,
+  WHATSAPP: '+21657099070',
 } as const;

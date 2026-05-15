@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import { AIAgentProvider, useAIAgentContext, type Lang } from './context/AIAgentContext';
 import AIAgent from './components/ai/AIAgent';
+import { loadSettings } from './store/settingsStore';
 
 const pageVariants = {
   initial: { opacity: 0, y: 20 },
@@ -70,6 +71,10 @@ function App() {
     document.documentElement.dir = dir;
     document.documentElement.lang = i18n.language;
   }, [i18n.language]);
+
+  useEffect(() => {
+    loadSettings(); // load business settings once at app start
+  }, []);
 
   return (
     <Router>

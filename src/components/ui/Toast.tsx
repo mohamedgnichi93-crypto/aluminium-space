@@ -23,7 +23,7 @@ const colors = {
 
 const ToastContainer = ({ toasts, onRemove }: ToastContainerProps) => {
   return (
-    <div className="fixed bottom-6 right-6 z-[9998] flex flex-col gap-3 pointer-events-none max-w-sm w-full">
+    <div className="fixed bottom-[24px] left-1/2 -translate-x-1/2 z-[9998] flex flex-col items-center gap-3 pointer-events-none w-full max-w-[90vw] md:max-w-[400px]">
       <AnimatePresence>
         {toasts.map((t) => {
           const Icon = icons[t.type];
@@ -31,11 +31,11 @@ const ToastContainer = ({ toasts, onRemove }: ToastContainerProps) => {
           return (
             <motion.div
               key={t.id}
-              initial={{ opacity: 0, x: 80, scale: 0.95 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              exit={{ opacity: 0, x: 80, scale: 0.95 }}
+              initial={{ opacity: 0, y: 40, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.9 }}
               transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-              className="pointer-events-auto flex items-center gap-3 px-5 py-4 rounded-[12px] shadow-xl"
+              className="pointer-events-auto flex items-center gap-3 px-5 py-4 rounded-[16px] shadow-[0_12px_40px_rgba(0,0,0,0.12)] w-full"
               style={{
                 background: color.bg,
                 border: `1px solid ${color.border}`,

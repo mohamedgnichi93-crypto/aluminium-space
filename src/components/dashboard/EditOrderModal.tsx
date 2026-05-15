@@ -1,39 +1,12 @@
-import React from 'react';
 import { X as XIcon, Plus, Minus } from 'lucide-react';
 import { toast } from '../../hooks/useToast';
+import type { Order } from '../../store/ordersStore';
 
-interface OrderItem {
-  id: string;
-  productId: string;
-  productName: string;
-  width: number;
-  height: number;
-  quantity: number;
-  meshType: string;
-  unitPrice: number;
-  totalPrice: number;
-}
-
-interface Order {
-  id: string;
-  clientInfo: {
-    fullName: string;
-    phone: string;
-    email: string;
-    address: string;
-  };
-  remise: number;
-  remisePercent?: number;
-  fodec: number;
-  tva: number;
-  items: OrderItem[];
-  status: 'en_attente' | 'confirmee' | 'en_cours' | 'livree' | 'annulee';
-}
 
 interface EditOrderModalProps {
   editingOrder: Order;
-  setEditingOrder: (order: Order | null) => void;
-  updateOrder: (id: string, order: Order) => boolean;
+  setEditingOrder: React.Dispatch<React.SetStateAction<Order | null>> | ((order: Order | null) => void);
+  updateOrder: (id: string, order: Order) => Promise<any>;
   loadData: () => void;
 }
 
@@ -191,12 +164,16 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({
               Annuler
             </button>
             <button
-              onClick={() => {
-                const saved = updateOrder(editingOrder.id, editingOrder);
-                if (saved) {
-                  loadData();
-                  setEditingOrder(null);
-                  toast.success('Commande modifiée avec succès');
+              onClick={async () => {
+                try {
+                  const saved = await updateOrder(editingOrder.id, editingOrder as any);
+                  if (saved) {
+                    await loadData();
+                    setEditingOrder(null);
+                    toast.success('Commande modifiée avec succès');
+                  }
+                } catch (err) {
+                  toast.error('Erreur lors de la modification');
                 }
               }}
               style={{ padding: '10px 24px', border: 'none', borderRadius: '9px', background: '#1D3E61', color: 'white', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '13px', letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer', boxShadow: '0 2px 8px rgba(29,62,97,0.25)' }}

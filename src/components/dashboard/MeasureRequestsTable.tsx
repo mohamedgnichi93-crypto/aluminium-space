@@ -1,12 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getMeasureRequests, updateMeasureRequestStatus, type MeasureRequest } from '../../store/measureRequestsStore';
 
 const MeasureRequestsTable = () => {
   const [requests, setRequests] = useState<MeasureRequest[]>([]);
 
-  const loadRequests = () => {
-    const data = getMeasureRequests();
-    setRequests(data.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+  const loadRequests = async () => {
+    try {
+      const data = await getMeasureRequests();
+      setRequests(data.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+    } catch (err) {
+      console.error('Failed to load measure requests:', err);
+    }
   };
 
   useEffect(() => {
@@ -24,7 +28,7 @@ const MeasureRequestsTable = () => {
   return (
     <div style={{ background: '#fff', borderRadius: '16px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)', padding: '24px' }}>
       <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', marginBottom: '20px' }}>📐 Demandes de mesure</h2>
-      
+
       <div style={{ overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
           <thead>

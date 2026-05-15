@@ -9,8 +9,8 @@ interface SettingsPanelProps {
   setSettings: React.Dispatch<React.SetStateAction<BusinessSettings>>;
   settingsSection: 'finances' | 'contact' | 'horaires' | 'legales';
   setSettingsSection: (section: 'finances' | 'contact' | 'horaires' | 'legales') => void;
-  saveSettings: (s: BusinessSettings) => void;
-  resetSettings: () => void;
+  saveSettings: (s: BusinessSettings) => void | Promise<void>;
+  resetSettings: () => void | Promise<void>;
   getSettings: () => BusinessSettings;
   settingsSaved: boolean;
   setSettingsSaved: (saved: boolean) => void;

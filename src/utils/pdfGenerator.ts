@@ -25,11 +25,11 @@ const CONTENT_W = PAGE_W - MARGIN.left - MARGIN.right; // 182mm
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
 function resolveAssetUrl(path: string): string {
   if (path.startsWith('http')) return path;
-  
+
   // Vite exposes BASE_URL (defaults to "/")
   const base = import.meta.env.BASE_URL || '/';
   const absoluteBase = base.startsWith('http') ? base : `${window.location.origin}${base}`;
-  
+
   const cleanBase = absoluteBase.endsWith('/') ? absoluteBase.slice(0, -1) : absoluteBase;
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
   return `${cleanBase}${cleanPath}`;
@@ -179,8 +179,8 @@ async function drawItemsTable(doc: jsPDF, order: Order, startY: number): Promise
     (item.color ? '\nCouleur :    ' + item.color + ((item.colorSurchargePct ?? 0) > 0 ? ` (+${item.colorSurchargePct}%)` : '') : ''),
     `${item.width}\u00A0×\u00A0${item.height}\u00A0cm`,
     String(item.quantity || 1),
-    formatDTWithUnit(item.unitPrice),
-    formatDTWithUnit(item.unitPrice * (item.quantity || 1) * (remisePct / 100)),
+    formatDTWithUnit(item.baseUnitPrice),
+    formatDTWithUnit(item.unitPrice * (remisePct / 100)),
     formatDTWithUnit(item.unitPrice * (item.quantity || 1) * (1 - remisePct / 100)),
   ]);
 
@@ -347,7 +347,7 @@ function drawTotals(doc: jsPDF, order: Order, startY: number): number {
   const remise = order.remise;
   // order.totalHT is already net of remise (saved by DevisWizard)
   const netHT = order.totalHT;
-  
+
   // Use pre-calculated amounts if available, otherwise fallback to standard formula
   const fodecAmount = order.fodecAmount ?? (netHT * 0.01);
   const baseTVA = netHT + fodecAmount;
@@ -361,7 +361,7 @@ function drawTotals(doc: jsPDF, order: Order, startY: number): number {
   const baseBrutHT = brutHT - totalSurcharge;
 
   const rows: [string, string, boolean, boolean][] = [
-    ['Total brut HT :', formatDTWithUnit(baseBrutHT), false, false],
+    ['Base HT (hors couleur) :', formatDTWithUnit(baseBrutHT), false, false],
   ];
 
   if (totalSurcharge > 0) {
@@ -369,6 +369,7 @@ function drawTotals(doc: jsPDF, order: Order, startY: number): number {
   }
 
   rows.push(
+    ['Total brut HT :', formatDTWithUnit(brutHT), true, false],
     [`Remise (${remisePct}%) :`, `- ${formatDTWithUnit(remise)}`, false, true],
     ['Total net HT :', formatDTWithUnit(netHT), true, false],
     ['FODEC (1%) :', formatDTWithUnit(fodecAmount), false, false],

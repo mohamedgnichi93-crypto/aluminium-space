@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { X, ChevronLeft, ChevronRight, Ruler, CheckCircle2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { saveMeasureRequest } from '../../store/measureRequestsStore';
 import {
@@ -23,8 +22,7 @@ interface Props {
   onCommande?: (largeur: number, hauteur: number) => void;
 }
 
-const MeasurementGuide: React.FC<Props> = ({ productId, productName, onClose, onCommande }) => {
-  const navigate = useNavigate();
+const MeasurementGuide: React.FC<Props> = ({ productId, productName, onClose }) => {
   const { t } = useTranslation();
   const [step, setStep] = useState(0);
   const [animKey, setAnimKey] = useState(0);
@@ -280,21 +278,47 @@ const MeasurementGuide: React.FC<Props> = ({ productId, productName, onClose, on
         }
       `}</style>
 
-      <div
-        style={{
-          background: '#fff',
-          borderRadius: 24,
-          width: '100%',
-          maxWidth: 480,
-          maxHeight: '90vh',
-          display: 'flex',
-          flexDirection: 'column',
-          boxShadow: '0 24px 80px rgba(0,0,0,0.3)',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-        onClick={e => e.stopPropagation()}
-      >
+        <div
+          style={{
+            background: '#fff',
+            borderRadius: 24,
+            width: '100%',
+            maxWidth: 480,
+            maxHeight: '90vh',
+            display: 'flex',
+            flexDirection: 'column',
+            boxShadow: '0 24px 80px rgba(0,0,0,0.3)',
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+          onClick={e => e.stopPropagation()}
+        >
+          {/* Always-visible absolute Close Button */}
+          <button
+            onClick={onClose}
+            style={{
+              position: 'absolute',
+              top: '16px',
+              right: '16px',
+              zIndex: 100,
+              background: 'white',
+              border: '1px solid #E5E7EB',
+              cursor: 'pointer',
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#6B7280',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.1)'; e.currentTarget.style.color = '#EF4444'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.color = '#6B7280'; }}
+          >
+            <X size={20} />
+          </button>
         {/* HEADER — fixed */}
         <div style={{
           padding: '20px 24px 16px',
@@ -314,18 +338,28 @@ const MeasurementGuide: React.FC<Props> = ({ productId, productName, onClose, on
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 12,
+            overflowX: 'auto',
+            paddingBottom: '4px',
+            msOverflowStyle: 'none',
+            scrollbarWidth: 'none',
+            WebkitOverflowScrolling: 'touch'
+          }}>
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'nowrap' }}>
               {steps.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => gotoStep(i)}
                   style={{
-                    width: 26, height: 26,
+                    width: 'clamp(26px, 6vw, 32px)', 
+                    height: 'clamp(26px, 6vw, 32px)',
                     borderRadius: '50%',
                     border: 'none',
                     cursor: 'pointer',
-                    fontSize: 10,
+                    fontSize: 'clamp(10px, 3vw, 12px)',
                     fontWeight: 800,
                     background: i < step
                       ? '#16A34A'
@@ -340,7 +374,7 @@ const MeasurementGuide: React.FC<Props> = ({ productId, productName, onClose, on
                     justifyContent: 'center',
                   }}
                 >
-                  {i < step ? <CheckCircle2 size={14} /> : i + 1}
+                  {i < step ? <CheckCircle2 size={16} /> : i + 1}
                 </button>
               ))}
             </div>

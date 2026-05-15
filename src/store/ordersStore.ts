@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabase';
 
 export interface Order {
-  id: string;
+  id: string; // This will be the human-readable code (AS-XXXX)
   date: string;
   clientInfo: {
     fullName: string;
@@ -10,287 +10,222 @@ export interface Order {
     address: string;
     notes?: string;
   };
-  items: Array<{
-    id: string;
-    productId: string;
-    productName: string;
-    width: number;
-    height: number;
-    quantity: number;
-    meshType?: string;
-    color?: string;
-    openingType?: 'fenetre' | 'porte' | null;
-    baseUnitPrice: number;
-    colorSurchargeAmount: number;
-    colorSurchargePct: number;
-    unitPrice: number;
-    totalPrice: number;
-  }>;
-  totalHT: number; // This is Total Brut HT
-  remise: number;
-  remisePercent?: number;
+  items: any[];
+  totalHT: number;
   netHT: number;
-  fodec: number; // This is the percentage
+  remisePercent: number;
+  remise: number;
+  fodec: number;
   fodecAmount: number;
   baseForTVA: number;
-  tva: number; // This is the percentage
+  tva: number;
   tvaAmount: number;
   timbre: number;
   totalTTC: number;
-  status: 'pending' | 'confirmed' | 'en_fabrication' | 'pret' | 'installe' | 'cancelled' | 'livree';
-  deletedAt?: string;
+  status: 'pending' | 'confirmed' | 'en_fabrication' | 'pret' | 'installe' | 'livree' | 'cancelled';
+  deletedAt?: string | null;
+  // Fields for backward compatibility or direct row access
+  brutHT?: number;
+  baseTVA?: number;
+  totalSurcharge?: number;
+  baseBrutHT?: number;
 }
 
-// ─── Supabase row shape ────────────────────────────────────────────────────────
-interface OrderRow {
-  id: string;
-  date: string;
-  client_info: Order['clientInfo'];
-  items: Order['items'];
-  total_ht: number;
-  remise: number;
-  remise_percent?: number;
-  net_ht: number;
-  fodec: number;
-  fodec_amount: number;
-  base_for_tva: number;
-  tva: number;
-  tva_amount: number;
-  timbre: number;
-  total_ttc: number;
-  status: Order['status'];
-  deleted_at: string | null;
-}
+// ─── Mappers ─────────────────────────────────────────────────────────────────
 
-function rowToOrder(row: OrderRow): Order {
+function orderToRow(order: Order): any {
   return {
-    id: row.id,
-    date: row.date,
-    clientInfo: row.client_info,
-    items: row.items,
-    totalHT: row.total_ht,
-    remise: row.remise,
-    remisePercent: row.remise_percent,
-    netHT: row.net_ht,
-    fodec: row.fodec,
-    fodecAmount: row.fodec_amount,
-    baseForTVA: row.base_for_tva,
-    tva: row.tva,
-    tvaAmount: row.tva_amount,
-    timbre: row.timbre,
-    totalTTC: row.total_ttc,
-    status: row.status,
-    ...(row.deleted_at ? { deletedAt: row.deleted_at } : {}),
+    id: crypto.randomUUID(), // DB internal UUID
+    order_number: order.id,  // App-side ID (AS-XXXX)
+    client_name: order.clientInfo?.fullName || '',
+    client_phone: order.clientInfo?.phone || '',
+    client_email: order.clientInfo?.email || '',
+    client_address: order.clientInfo?.address || '',
+    client_info: order.clientInfo || {},
+    items: order.items || [],
+    total_ht: order.totalHT || 0,
+    net_ht: order.netHT || order.totalHT || 0,
+    remise_percent: order.remisePercent || 0,
+    remise: order.remise || 0,
+    fodec_amount: order.fodecAmount || 0,
+    tva_amount: order.tvaAmount || 0,
+    base_for_tva: order.baseForTVA || 0,
+    total_ttc: order.totalTTC || 0,
+    total_price: order.totalTTC || 0, // for legacy views
+    timbre: order.timbre || 1000,
+    status: order.status || 'pending',
+    notes: order.clientInfo?.notes || '',
+    created_at: order.date || new Date().toISOString(),
+    deleted_at: order.deletedAt || null,
   };
 }
 
-function orderToRow(order: Order): OrderRow {
+export function rowToOrder(row: any): Order {
+  // Handle nested client_info or flattened columns
+  const clientInfo = row.client_info || {
+    fullName: row.client_name || '',
+    phone: row.client_phone || '',
+    email: row.client_email || '',
+    address: row.client_address || '',
+    notes: row.notes || ''
+  };
+
   return {
-    id: order.id,
-    date: order.date,
-    client_info: order.clientInfo,
-    items: order.items,
-    total_ht: order.totalHT,
-    remise: order.remise,
-    remise_percent: order.remisePercent,
-    net_ht: order.netHT,
-    fodec: order.fodec,
-    fodec_amount: order.fodecAmount,
-    base_for_tva: order.baseForTVA,
-    tva: order.tva,
-    tva_amount: order.tvaAmount,
-    timbre: order.timbre,
-    total_ttc: order.totalTTC,
-    status: order.status,
-    deleted_at: order.deletedAt ?? null,
+    id: row.order_number || row.id,
+    date: row.created_at || row.date,
+    clientInfo,
+    items: row.items || [],
+    totalHT: row.total_ht || row.brut_ht || 0,
+    netHT: row.net_ht || row.total_ht || 0,
+    remisePercent: row.remise_percent || 0,
+    remise: row.remise || 0,
+    fodec: 1, // default 1%
+    fodecAmount: row.fodec_amount || 0,
+    baseForTVA: row.base_for_tva || 0,
+    tva: 19, // default 19%
+    tvaAmount: row.tva_amount || 0,
+    timbre: row.timbre || 1000,
+    totalTTC: row.total_ttc || row.total_price || 0,
+    status: row.status || 'pending',
+    deletedAt: row.deleted_at,
+    // extra fields for PDF
+    brutHT: row.total_ht || row.brut_ht || 0,
+    baseTVA: row.base_for_tva || 0,
   };
 }
 
-// ─── localStorage keys ────────────────────────────────────────────────────────
-const STORAGE_KEY = 'aluminium_space_orders';
-const TRASH_KEY = 'aluminium_space_trash';
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
-// ─── Sync helpers (fire-and-forget — never block UI) ─────────────────────────
-async function upsertToSupabase(order: Order): Promise<void> {
-  try {
-    await supabase.from('orders').upsert(orderToRow(order));
-  } catch { /* offline gracefully */ }
-}
-
-async function updateStatusInSupabase(id: string, status: Order['status']): Promise<void> {
-  try {
-    await supabase.from('orders').update({ status }).eq('id', id);
-  } catch { /* offline gracefully */ }
-}
-
-// ─── Sync from Supabase → localStorage (call on Dashboard mount) ──────────────
-export async function syncOrdersFromSupabase(): Promise<boolean> {
-  try {
-    const { data, error } = await supabase
-      .from('orders')
-      .select('*')
-      .is('deleted_at', null)
-      .order('date', { ascending: false });
-
-    if (error || !data) return false;
-
-    const orders: Order[] = (data as OrderRow[]).map(rowToOrder);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
-    return true;
-  } catch {
-    return false;
+function generateOrderCode(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
   }
+  return `AS-${code}`;
 }
 
-export async function syncTrashedFromSupabase(): Promise<boolean> {
-  try {
-    const { data, error } = await supabase
-      .from('orders')
-      .select('*')
-      .not('deleted_at', 'is', null)
-      .order('deleted_at', { ascending: false });
+// ─── Supabase-only API ────────────────────────────────────────────────────────
 
-    if (error || !data) return false;
+export const getOrders = async (): Promise<Order[]> => {
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*')
+    .is('deleted_at', null)
+    .order('created_at', { ascending: false });
 
-    const trash: Order[] = (data as OrderRow[]).map(rowToOrder);
-    localStorage.setItem(TRASH_KEY, JSON.stringify(trash));
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-// ─── Synchronous localStorage API (unchanged for all existing callers) ────────
-export const getOrders = (): Order[] => {
-  const data = localStorage.getItem(STORAGE_KEY);
-  return data ? JSON.parse(data) : [];
+  if (error) throw error;
+  return (data || []).map(rowToOrder);
 };
 
-export const getTrashedOrders = (): Order[] => {
-  const data = localStorage.getItem(TRASH_KEY);
-  return data ? JSON.parse(data) : [];
+export const getTrashOrders = async (): Promise<Order[]> => {
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*')
+    .not('deleted_at', 'is', null)
+    .order('deleted_at', { ascending: false });
+
+  if (error) throw error;
+  return (data || []).map(rowToOrder);
 };
 
-export const saveOrder = (order: Omit<Order, 'id' | 'date' | 'status'>): Order => {
-  const orders = getOrders();
+export const getOrderById = async (id: string): Promise<Order | null> => {
+  // Search by order_number (AS-XXXX) primarily
+  const { data } = await supabase
+    .from('orders')
+    .select('*')
+    .eq('order_number', id)
+    .maybeSingle();
+
+  if (data) return rowToOrder(data);
+
+  // Fallback to ID if it looks like a UUID
+  if (id.length > 20) {
+    const { data: dataById } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+    if (dataById) return rowToOrder(dataById);
+  }
+
+  return null;
+};
+
+export const saveOrder = async (order: Omit<Order, 'id' | 'date' | 'status'>): Promise<Order> => {
   const newOrder: Order = {
     ...order,
-    id: crypto.randomUUID(),
+    id: generateOrderCode(),
     date: new Date().toISOString(),
     status: 'pending',
   };
-  orders.push(newOrder);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
-  upsertToSupabase(newOrder); // async sync — non-blocking
+
+  const { error } = await supabase.from('orders').insert(orderToRow(newOrder));
+  if (error) throw error;
+
   return newOrder;
 };
 
-export const updateOrderStatus = (id: string, status: Order['status']): void => {
-  const orders = getOrders();
-  const idx = orders.findIndex(o => o.id === id);
-  if (idx >= 0) {
-    orders[idx].status = status;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
-    updateStatusInSupabase(id, status); // async sync
-  }
+export const updateOrder = async (id: string, updates: Partial<Order>): Promise<void> => {
+  // Use order_number for lookup
+  const { error } = await supabase
+    .from('orders')
+    .update({
+      status: updates.status,
+      client_name: updates.clientInfo?.fullName,
+      client_phone: updates.clientInfo?.phone,
+      client_address: updates.clientInfo?.address,
+      notes: updates.clientInfo?.notes,
+      items: updates.items,
+      total_ttc: updates.totalTTC,
+      total_price: updates.totalTTC
+    })
+    .eq('order_number', id);
+
+  if (error) throw error;
 };
 
-export const updateOrder = (id: string, updates: Partial<Order>): Order | null => {
-  const orders = getOrders();
-  const idx = orders.findIndex(o => o.id === id);
-  if (idx < 0) return null;
-  const updated: Order = { ...orders[idx], ...updates, id };
-  // Recalculate totals when items or remisePercent change
-  if (updates.items || updates.remise !== undefined || updates.remisePercent !== undefined) {
-    const items = updated.items;
-    const totalHT = items.reduce((sum, it) => sum + it.unitPrice * it.quantity, 0);
-    const remisePct = updates.remisePercent ?? updated.remisePercent ?? 0;
-    const remise = Math.round(totalHT * (remisePct / 100));
-    const fodec = updated.fodec ?? 1; // Default to 1% if not specified
-    const tva = updated.tva ?? 19;    // Default to 19% if not specified
-    const timbre = updated.timbre ?? 1; // Default to 1.000 DT
+export const updateOrderStatus = async (id: string, status: Order['status']): Promise<void> => {
+  const { error } = await supabase
+    .from('orders')
+    .update({ status })
+    .eq('order_number', id);
 
-    // 5-Step Tunisian Fiscal Formula
-    const netHT = totalHT - remise;
-    const fodecAmount = netHT * (fodec / 100);
-    const baseForTVA = netHT + fodecAmount;
-    const tvaAmount = baseForTVA * (tva / 100);
-    const totalTTC = Math.round(baseForTVA + tvaAmount + timbre);
-
-    updated.totalHT = totalHT;
-    updated.remise = remise;
-    updated.remisePercent = remisePct;
-    updated.netHT = netHT;
-    updated.fodecAmount = fodecAmount;
-    updated.baseForTVA = baseForTVA;
-    updated.tvaAmount = tvaAmount;
-    updated.totalTTC = totalTTC;
-    updated.timbre = timbre;
-    updated.fodec = fodec;
-    updated.tva = tva;
-  }
-  orders[idx] = updated;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
-  upsertToSupabase(updated);
-  return updated;
+  if (error) throw error;
 };
 
-export const moveToTrash = (id: string): void => {
-  const orders = getOrders();
-  const idx = orders.findIndex(o => o.id === id);
-  if (idx >= 0) {
-    const order = orders[idx];
-    order.deletedAt = new Date().toISOString();
-    orders.splice(idx, 1);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
-    const trash = getTrashedOrders();
-    trash.push(order);
-    localStorage.setItem(TRASH_KEY, JSON.stringify(trash));
-    upsertToSupabase(order); // update deleted_at in Supabase
-  }
+export const moveToTrash = async (id: string): Promise<void> => {
+  const { error } = await supabase
+    .from('orders')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('order_number', id);
+
+  if (error) throw error;
 };
 
-export const restoreFromTrash = (id: string): void => {
-  const trash = getTrashedOrders();
-  const idx = trash.findIndex(o => o.id === id);
-  if (idx >= 0) {
-    const order = trash[idx];
-    delete order.deletedAt;
-    trash.splice(idx, 1);
-    localStorage.setItem(TRASH_KEY, JSON.stringify(trash));
-    const orders = getOrders();
-    orders.push(order);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
-    upsertToSupabase(order);
-  }
+export const restoreFromTrash = async (id: string): Promise<void> => {
+  const { error } = await supabase
+    .from('orders')
+    .update({ deleted_at: null })
+    .eq('order_number', id);
+
+  if (error) throw error;
 };
 
-export const permanentlyDelete = (id: string): void => {
-  const trash = getTrashedOrders();
-  const updatedTrash = trash.filter(o => o.id !== id);
-  localStorage.setItem(TRASH_KEY, JSON.stringify(updatedTrash));
-  try { supabase.from('orders').delete().eq('id', id); } catch { /**/ }
+export const permanentlyDeleteOrder = async (id: string): Promise<void> => {
+  const { error } = await supabase
+    .from('orders')
+    .delete()
+    .eq('order_number', id);
+
+  if (error) throw error;
 };
 
-export const emptyTrash = (): void => {
-  const trash = getTrashedOrders();
-  localStorage.setItem(TRASH_KEY, JSON.stringify([]));
-  trash.forEach(o => {
-    try { supabase.from('orders').delete().eq('id', o.id); } catch { /**/ }
-  });
-};
+export const emptyTrash = async (): Promise<void> => {
+  const { error } = await supabase
+    .from('orders')
+    .delete()
+    .not('deleted_at', 'is', null);
 
-export const getOrderById = (id: string): Order | undefined => {
-  const orders = getOrders();
-  return orders.find(o => o.id.toUpperCase() === id.trim().toUpperCase());
-};
-
-export const cleanOldTrash = (): void => {
-  const trash = getTrashedOrders();
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-  const updated = trash.filter(o => o.deletedAt && new Date(o.deletedAt) >= thirtyDaysAgo);
-  if (updated.length !== trash.length) {
-    localStorage.setItem(TRASH_KEY, JSON.stringify(updated));
-  }
+  if (error) throw error;
 };

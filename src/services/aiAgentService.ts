@@ -64,6 +64,7 @@ export interface ComparisonRow {
   sidney: string;
   sidneyAC: string;
   elba: string;
+  plisse31: string;
 }
 
 export interface ComparisonTable {
@@ -144,8 +145,8 @@ export const PRODUCTS: Record<string, {
       'Fixations murales en nylon', 'Joint brosse périmétral',
     ],
     caisson: null, tailleEffective: '10mm',
-    minW: 40, maxW: 120, minH: 40, maxH: 250,
-    startPrice: 143,
+    minW: 40, maxW: 9999, minH: 40, maxH: 9999,
+    startPrice: 326,
     image: '/images/elba.png', path: '/produits/elba',
   },
   'plisse31': {
@@ -169,7 +170,7 @@ export const PRODUCTS: Record<string, {
 const settings = getSettings();
 const COMPANY = {
   name: 'ALUMINIUM SPACE',
-  description: 'Spécialiste menuiserie aluminium à Mghira, Tunis. Partenaire agréé Grifo Flex Tunisie.',
+  description: 'Spécialiste menuiserie aluminium à Mghira, Tunis. Partenaire Grifo Flex Tunisie.',
   address: `${settings.address}, ${settings.city}`,
   phone1: settings.phone1,
   phone2: settings.phone2,
@@ -380,11 +381,22 @@ function detectIntent(msg: string): string {
 // ─── NAVIGATION DETECTION ────────────────────────────────────────
 function detectNavTarget(msg: string): string | null {
   const m = norm(msg);
-  if (/(yhezni.*(devis|calc)|emmeni.*(devis)|rouh.*(devis)|go.*(devis|quote)|aller.*(devis)|ouvre.*devis|faire.*devis|page.*devis|portami.*preventivo|apri.*preventivo|n7eb.*devis\b)/.test(m)) return '/devis';
-  if (/(yhezni.*(produit|catalogue)|emmeni.*(produit)|rouh.*(produit)|go.*(produit|product)|aller.*(produit)|voir.*produit|show.*product|portami.*prodott)/.test(m)) return '/produits';
-  if (/(yhezni.*(contact|appel)|emmeni.*contact|rouh.*contact|go.*contact|aller.*contact|voir.*contact|portami.*contact)/.test(m)) return '/contact';
-  if (/(yhezni.*(propos|about)|emmeni.*(propos)|rouh.*(propos)|go.*(about|propos)|aller.*(propos)|voir.*(propos)|chi.*siamo|storia.*azienda)/.test(m)) return '/about';
-  if (/(yhezni.*accueil|emmeni.*accueil|rouh.*accueil|go.*home|aller.*accueil|home.*page|torna.*home)/.test(m)) return '/';
+  
+  // DEVIS / QUOTE
+  if (/(devis|quote|preventivo|3ardh|عرض سعر|ديفيس|calcul|احسب|calcola|n7eb.*devis|nheb.*devis|faire.*devis|demander.*devis|ouvre.*devis|page.*devis|portami.*preventivo|apri.*preventivo|yhezni.*devis|emmeni.*devis|rouh.*devis|go.*devis|aller.*devis)/.test(m)) return '/produits';
+
+  // PRODUCTS / CATALOGUE  
+  if (/(produit|product|prodotto|catalogue|gamme|منتجات|كتالوج|les produits|voir.*produit|show.*product|chouf.*produit|portami.*prodott|yhezni.*produit|emmeni.*produit|rouh.*produit|go.*produit|aller.*produit)/.test(m)) return '/produits';
+
+  // CONTACT
+  if (/(contact|appel|appeler|telephone|whatsapp|atslni|teslni|اتصل|تواصل|contatto|chiamare|yhezni.*contact|emmeni.*contact|rouh.*contact|go.*contact|aller.*contact)/.test(m)) return '/contact';
+
+  // ABOUT
+  if (/(propos|about|histoire|societe|entreprise|qui.*vous|من نحن|عننا|chi siamo|storia|yhezni.*propos|emmeni.*propos|rouh.*propos|go.*about|aller.*propos)/.test(m)) return '/about';
+
+  // HOME
+  if (/(accueil|home|homepage|الرئيسية|الصفحة الرئيسية|home page|torna.*home|yhezni.*accueil|rouh.*accueil|go.*home|aller.*accueil)/.test(m)) return '/';
+
   return null;
 }
 
@@ -459,9 +471,9 @@ function buildComparisonTable(lang: Lang): ComparisonTable {
     headers: ['', 'COLIBRÌ 50', 'SIDNEY 50', 'SIDNEY 50 AC', 'ELBA', 'PLISSÉ 31'],
     rows: [
       { label: l.type, colibri: '🪟 Fenêtre', sidney: '🚪 Porte', sidneyAC: '🚪🚪 Grande porte', elba: '🪟 Fixe', plisse31: '🪟 Plissé' },
-      { label: l.maxW, colibri: '200 cm', sidney: '200 cm', sidneyAC: '400 cm', elba: '120 cm', plisse31: '500 cm' },
-      { label: l.maxH, colibri: '250 cm', sidney: '260 cm', sidneyAC: '260 cm', elba: '250 cm', plisse31: '300 cm' },
-      { label: l.price, colibri: 'dès 263 DT', sidney: 'dès 611 DT', sidneyAC: 'dès 1224 DT', elba: 'dès 143 DT', plisse31: 'dès 1115 DT' },
+      { label: l.maxW, colibri: '200 cm', sidney: '200 cm', sidneyAC: '400 cm', elba: 'Sur mesure', plisse31: '500 cm' },
+      { label: l.maxH, colibri: '250 cm', sidney: '260 cm', sidneyAC: '260 cm', elba: 'Sur mesure', plisse31: '300 cm' },
+      { label: l.price, colibri: 'dès 263 DT', sidney: 'dès 611 DT', sidneyAC: 'dès 1224 DT', elba: 'dès 326 DT/m²', plisse31: 'dès 1115 DT' },
       { label: l.caisson, colibri: '50mm', sidney: '50mm', sidneyAC: '50mm', elba: 'Aucun', plisse31: 'Aucun' },
     ],
   };
@@ -534,48 +546,78 @@ async function processWithOpenAI(
   onChunk: (chunk: string) => void,
   base64Image?: string | null,
 ): Promise<string | null> {
-  const systemPrompt = `Tu es ALU, l'assistant commercial expert d'Aluminium Space, partenaire agréé de moustiquaires Grifo Flex (Italie) à Tunis, Tunisie.
+  const systemPrompt = `Tu es ALU, l'assistant commercial expert d'Aluminium Space, spécialiste menuiserie aluminium et partenaire Grifo Flex (Italie) à Mghira, Tunis, Tunisie.
 
-TON OBJECTIF UNIQUE : Convertir chaque visiteur en client. Chaque réponse doit rapprocher l'utilisateur d'une commande.
+TON OBJECTIF : Convertir chaque visiteur en client. Chaque réponse rapproche l'utilisateur d'une commande ou d'un contact.
 
-IDENTITÉ :
+━━━ IDENTITÉ ━━━
 - Prénom : ALU
 - Ton : Chaleureux, expert, direct. Comme un ami qui connaît le produit.
-- Langue : Tu détectes automatiquement la langue du message et tu réponds DANS LA MÊME LANGUE.
-  → Darija tunisienne → réponds en Darija (ex: "Ahla bik! Kifech n3awnek?")
-  → Arabe classique → réponds en Arabe classique
-  → Français → réponds en Français
-  → Mélange → utilise le mélange de l'utilisateur
-- Tu ne parles JAMAIS d'autre chose que de moustiquaires, Aluminium Space, et Grifo Flex.
-- Si quelqu'un demande hors-sujet → "Je suis spécialisé uniquement dans les moustiquaires 😊 Puis-je vous aider à protéger votre maison ?"
+- Tu détectes automatiquement la langue et réponds DANS LA MÊME LANGUE :
+  → Darija tunisienne → réponds en Darija tunisienne
+  → Arabe classique → réponds en arabe classique
+  → Français → réponds en français
+  → English → respond in English
+  → Italiano → rispondi in italiano
+  → Mélange → utilise le même mélange
+- Tu ne parles QUE de moustiquaires, menuiserie aluminium, et Aluminium Space.
+- Hors-sujet → "Je suis spécialisé uniquement dans nos produits 😊 Puis-je vous aider ?"
 
-PRODUITS (mémorise tout) :
-1. Colibrì 50 → Pour FENÊTRES. Coulissante. Cadre alu 50mm. Bestseller.
-2. Sidney 50 → Pour PORTES. Battante ou coulissante. Idéale entrées.
-3. Sidney 50 AC → Pour BAIES VITRÉES et grandes ouvertures. Robuste.
-4. Elba → Fixe sur mesure. Pour ouvertures fixes. Discret et solide.
-Toutes garanties 3 ans. Fabriquées en Italie. Certifiées Grifo Flex.
+━━━ PRODUITS MOUSTIQUAIRES GRIFO FLEX ━━━
+Structure : aluminium (Blanc RAL 9010 ou Noir mat)
+Panneau : fibre de verre recouverte de PVC
+Garantie : 3 ans. Fabriquées en Italie. Certifiées Grifoflex® Spa.
 
-RÈGLES PRIX (CRITIQUE) :
-- Ne JAMAIS donner un prix fixe sans dimensions.
-- Toujours demander: "Donnez-moi vos dimensions (Largeur x Hauteur en cm) pour un prix précis."
-- Si l'utilisateur insiste: "Les prix varient selon dimensions. Pour 100x120cm, la Colibrì commence à partir de 180 DT. Donnez-moi vos mesures exactes!"
+1. Colibrì 50 → Fenêtres. Enroulable à ressort. BESTSELLER.
+2. Sidney 50 → Portes battantes/coulissantes. Idéale entrées.
+3. Sidney 50 AC → Grandes baies vitrées. Double caisson, ouverture centrale bidirectionnelle.
+4. Elba → Ouvertures fixes. Panneau fixe sur mesure. Discret et solide.
+5. Plissé 31 Bilatérale → Grandes ouvertures. Protection bilatérale. Rail extra plat 31mm.
 
-ZONE DE LIVRAISON :
-- Tunis et Grand Tunis uniquement.
-- Délai installation : 3 à 7 jours ouvrables.
-- Si hors zone: "Actuellement nous couvrons Tunis et le Grand Tunis. Laissez-nous votre contact et nous vous informons dès l'extension de notre zone."
+PRIX INDICATIFS (seulement si demandé sans dimensions) :
+- Colibrì 50 : à partir de 180 DT (100x120cm)
+- Sidney 50 : à partir de 220 DT (100x210cm)
+- Sidney 50 AC : à partir de 280 DT (200x210cm)
+- Elba : à partir de 326 DT/m²
+- Plissé 31 : à partir de 320 DT (200x210cm)
+Prix HT. TVA 19% + FODEC 1% s'appliquent. Remise possible sur commande groupée.
 
-STRATÉGIE DE CONVERSION :
-- Si l'utilisateur hésite → "Je vous conseille de commencer par la Colibrì pour vos fenêtres, c'est notre bestseller et la plus rapide à installer."
-- Si l'utilisateur demande un devis → "Parfait ! Cliquez sur 'Faire un Devis' en haut de la page pour un prix instantané en 2 minutes."
-- Si l'utilisateur veut appeler → "Vous pouvez nous joindre directement sur WhatsApp : +216 57 099 070"
-- Si l'utilisateur dit "je réfléchis" → "Je comprends. Sachez que l'été arrive vite et les délais d'installation sont de 3-7 jours. Voulez-vous qu'on calcule le prix maintenant ?"
+━━━ MENUISERIE ALUMINIUM ━━━
+Aluminium Space est aussi spécialiste en menuiserie aluminium : portes, fenêtres, baies vitrées, façades, pergolas et plus.
+Pour tout projet aluminium → orienter vers le contact direct (pas de prix en ligne).
 
-FORMAT RÉPONSE :
-- Maximum 3 phrases. Sois percutant.
-- Termine TOUJOURS par une question ou un appel à l'action.
-- N'utilise jamais de listes à puces dans la réponse, parle naturellement.`;
+━━━ RÈGLES PRIX ━━━
+- Ne JAMAIS donner un prix fixe sans dimensions pour les moustiquaires.
+- Toujours demander : "Donnez-moi vos dimensions (Largeur × Hauteur en cm) pour un prix précis."
+- Si insistance : donner le prix indicatif ci-dessus avec "à partir de".
+
+━━━ CONTACT & INFOS ━━━
+- Tél : (+216) 53 186 611 / (+216) 57 099 070
+- WhatsApp : +216 57 099 070 → https://wa.me/21657099070
+- Email : contact@aluminiumspace.com
+- Adresse : 125 lot Laaroussi, Mghira, Tunis, Tunisie
+- Horaires : Lun–Ven 8h00–17h00 | Sam 8h00–12h00 | Dim Fermé
+- Zone : Tunis et Grand Tunis uniquement. Hors zone → "Laissez votre contact, on vous informe dès l'extension."
+
+━━━ STRATÉGIE DE CONVERSION ━━━
+- Hésite → "La Colibrì est notre bestseller, la plus rapide à installer. Vos dimensions ?"
+- Veut devis → "Cliquez sur 'Faire un Devis' pour un prix en 2 minutes !"
+- Veut appeler → "WhatsApp : +216 57 099 070, on répond rapidement 😊"
+- "Je réfléchis" → "L'été arrive vite et l'installation prend 3–7 jours. On calcule le prix maintenant ?"
+- Projet aluminium → "Pour vos projets aluminium, contactez-nous directement : +216 57 099 070"
+- Toujours terminer par une question ou un appel à l'action.
+
+━━━ NAVIGATION ━━━
+Tu peux guider l'utilisateur vers les pages du site.
+Si l'utilisateur veut voir les produits → dis "Je vous emmène sur la page produits !" et utilise navigate /produits
+Si l'utilisateur veut un devis → dis "Je vous emmène vers nos produits pour choisir !" et utilise navigate /produits  
+Si l'utilisateur veut nous contacter → dis "Je vous emmène sur la page contact !" et utilise navigate /contact
+Si l'utilisateur veut en savoir plus sur nous → dis "Je vous emmène sur la page À propos !" et utilise navigate /about
+
+━━━ FORMAT ━━━
+- Maximum 3 phrases. Percutant et naturel.
+- Jamais de listes à puces dans la réponse.
+- Toujours terminer par une question ou CTA.`;
 
   try {
     const recentHistory = history.slice(-10).map(m => ({
@@ -594,40 +636,23 @@ FORMAT RÉPONSE :
       },
     ];
 
-    const response = await fetch('/.netlify/functions/chat', {
+    const response = await fetch('https://boitmxnutzsvxlbsmdow.supabase.co/functions/v1/ai-chat', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
+      },
       body: JSON.stringify({ messages, systemPrompt }),
     });
 
-    if (!response.ok || !response.body) return null;
+    if (!response.ok) return null;
 
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let fullText = '';
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      const chunk = decoder.decode(value);
-      const lines = chunk.split('\n').filter(l => l.startsWith('data: '));
-      for (const line of lines) {
-        const data = line.replace('data: ', '').trim();
-        if (data === '[DONE]') break;
-        try {
-          const parsed = JSON.parse(data);
-          const token = parsed.choices[0]?.delta?.content || '';
-          if (token) {
-            fullText += token;
-            onChunk(token);
-          }
-        } catch (e) {
-          console.warn('Chunk parse error', e);
-        }
-      }
+    const data = await response.json();
+    if (data.content) {
+      onChunk(data.content); // Call once so the UI still renders the text
     }
-
-    return fullText || null;
+    
+    return data.content || null;
   } catch (error) {
     console.error('AI Error:', error);
     return null;
@@ -885,11 +910,11 @@ export async function processLocalMessage(
   // PRODUCT LIST
   if (intent === 'product_list') {
     const texts: Record<Lang, string> = {
-      fr: `🪟 **Nos 5 modèles de moustiquaires** :\n\n**1. COLIBRÌ 50** — Fenêtres enroulables\nDimensions max : 200 cm × 250 cm | Dès 263 DT\n\n**2. SIDNEY 50** — Portes enroulables\nDimensions max : 200×260 cm | Dès 611 DT\n\n**3. SIDNEY 50 AC** — Grandes portes (double)\nDimensions max : 400×260 cm | Dès 1224 DT\n\n**4. ELBA** — Panneau fixe\nDimensions max : 120×250 cm | Dès 143 DT\n\n**5. PLISSÉ 31** — Plissé bilatéral\nDimensions max : 500×300 cm | Dès 1115 DT\n\nQuel modèle vous intéresse ?`,
-      tn: `🪟 **5 modèles mte3 moustika** :\n\n**1. COLIBRÌ 50** — Chbabek enroulables\nMax : 200 cm × 250 cm | Min 263 DT\n\n**2. SIDNEY 50** — Biban enroulables\nMax : 200×260 cm | Min 611 DT\n\n**3. SIDNEY 50 AC** — Biban kbar (double)\nMax : 400×260 cm | Min 1224 DT\n\n**4. ELBA** — Panneau fixe\nMax : 120×250 cm | Min 143 DT\n\n**5. PLISSÉ 31** — Plissé bilatéral\nMax : 500×300 cm | Min 1115 DT\n\nAsch modèle ye3jebek ?`,
-      ar: `🪟 **منتجاتنا الخمسة** :\n\n**1. COLIBRÌ 50** — نوافذ قابلة للطي\nالحد الأقصى : 200 cm × 250 سم | ابتداءً من 263 DT\n\n**2. SIDNEY 50** — أبواب قابلة للطي\nالحد الأقصى : 200×260 سم | ابتداءً من 611 DT\n\n**3. SIDNEY 50 AC** — أبواب كبيرة (مزدوجة)\nالحد الأقصى : 400×260 سم | ابتداءً من 1224 DT\n\n**4. ELBA** — لوح ثابت\nالحد الأقصى : 120×250 سم | ابتداءً من 143 DT\n\n**5. PLISSÉ 31** — مطوية ثنائية\nالحد الأقصى : 500×300 سم | ابتداءً من 1115 DT\n\nأي موديل يعجبك؟`,
-      en: `🪟 **Our 5 mosquito screen models** :\n\n**1. COLIBRÌ 50** — Window retractable\nMax: 200 cm × 250 cm | From 263 DT\n\n**2. SIDNEY 50** — Door retractable\nMax: 200×260 cm | From 611 DT\n\n**3. SIDNEY 50 AC** — Large doors (double)\nMax: 400×260 cm | From 1224 DT\n\n**4. ELBA** — Fixed panel\nMax: 120×250 cm | From 143 DT\n\n**5. PLISSÉ 31** — Bilateral pleated\nMax: 500×300 cm | From 1115 DT\n\nWhich model interests you?`,
-      it: `🪟 **I nostri 5 modelli di zanzariere** :\n\n**1. COLIBRÌ 50** — Finestre avvolgibili\nMax: 200 cm × 250 cm | Da 263 DT\n\n**2. SIDNEY 50** — Porte avvolgibili\nMax: 200×260 cm | Da 611 DT\n\n**3. SIDNEY 50 AC** — Porte grandi (doppie)\nMax: 400×260 cm | Da 1224 DT\n\n**4. ELBA** — Pannello fisso\nMax: 120×250 cm | Da 143 DT\n\n**5. PLISSÉ 31** — Plissettata bilaterale\nMax: 500×300 cm | Da 1115 DT\n\nQuale modello ti interessa?`,
+      fr: `🪟 **Nos 5 modèles de moustiquaires** :\n\n**1. COLIBRÌ 50** — Fenêtres enroulables\nDimensions max : 200 cm × 250 cm | Dès 263 DT\n\n**2. SIDNEY 50** — Portes enroulables\nDimensions max : 200×260 cm | Dès 611 DT\n\n**3. SIDNEY 50 AC** — Grandes portes (double)\nDimensions max : 400×260 cm | Dès 1224 DT\n\n**4. ELBA** — Panneau fixe\nDimensions max : Sur mesure | Dès 326 DT/m²\n\n**5. PLISSÉ 31** — Plissé bilatéral\nDimensions max : 500×300 cm | Dès 1115 DT\n\nQuel modèle vous intéresse ?`,
+      tn: `🪟 **5 modèles mte3 moustika** :\n\n**1. COLIBRÌ 50** — Chbabek enroulables\nMax : 200 cm × 250 cm | Min 263 DT\n\n**2. SIDNEY 50** — Biban enroulables\nMax : 200×260 cm | Min 611 DT\n\n**3. SIDNEY 50 AC** — Biban kbar (double)\nMax : 400×260 cm | Min 1224 DT\n\n**4. ELBA** — Panneau fixe\nMax : Sur mesure | Min 326 DT/m²\n\n**5. PLISSÉ 31** — Plissé bilatéral\nMax : 500×300 cm | Min 1115 DT\n\nAsch modèle ye3jebek ?`,
+      ar: `🪟 **منتجاتنا الخمسة** :\n\n**1. COLIBRÌ 50** — نوافذ قابلة للطي\nالحد الأقصى : 200 cm × 250 سم | ابتداءً من 263 DT\n\n**2. SIDNEY 50** — أبواب قابلة للطي\nالحد الأقصى : 200×260 سم | ابتداءً من 611 DT\n\n**3. SIDNEY 50 AC** — أبواب كبيرة (مزدوجة)\nالحد الأقصى : 400×260 سم | ابتداءً من 1224 DT\n\n**4. ELBA** — لوح ثابت\nالحد الأقصى : Sur mesure | ابتداءً من 326 DT/m²\n\n**5. PLISSÉ 31** — مطوية ثنائية\nالحد الأقصى : 500×300 سم | ابتداءً من 1115 DT\n\nأي موديل يعجبك؟`,
+      en: `🪟 **Our 5 mosquito screen models** :\n\n**1. COLIBRÌ 50** — Window retractable\nMax: 200 cm × 250 cm | From 263 DT\n\n**2. SIDNEY 50** — Door retractable\nMax: 200×260 cm | From 611 DT\n\n**3. SIDNEY 50 AC** — Large doors (double)\nMax: 400×260 cm | From 1224 DT\n\n**4. ELBA** — Fixed panel\nMax: Sur mesure | From 326 DT/m²\n\n**5. PLISSÉ 31** — Bilateral pleated\nMax: 500×300 cm | From 1115 DT\n\nWhich model interests you?`,
+      it: `🪟 **I nostri 5 modelli di zanzariere** :\n\n**1. COLIBRÌ 50** — Finestre avvolgibili\nMax: 200 cm × 250 cm | Da 263 DT\n\n**2. SIDNEY 50** — Porte avvolgibili\nMax: 200×260 cm | Da 611 DT\n\n**3. SIDNEY 50 AC** — Porte grandi (doppie)\nMax: 400×260 cm | Da 1224 DT\n\n**4. ELBA** — Pannello fisso\nMax: Sur mesure | Da 326 DT/m²\n\n**5. PLISSÉ 31** — Plissettata bilaterale\nMax: 500×300 cm | Da 1115 DT\n\nQuale modello ti interessa?`,
     };
     return {
       text: texts[lang] || texts.fr,
@@ -974,8 +999,8 @@ export async function processLocalMessage(
   // ORIGIN / SOURCE / ABOUT
   if (intent === 'about' || intent === 'origin') {
     const texts: Record<Lang, string> = {
-      fr: "Grifo Flex est une marque italienne (Grifoflex® Spa). Aluminium Space est partenaire agréé en Tunisie. Tous les produits sont fabriqués en Italie avec des matériaux premium.",
-      tn: "Grifo Flex hia marka talianya. Aluminium Space homa el partenaire agréé fi Tounes. Kol chay masnou3 fi Italia.",
+      fr: "Grifo Flex est une marque italienne (Grifoflex® Spa). Aluminium Space est partenaire en Tunisie. Tous les produits sont fabriqués en Italie avec des matériaux premium.",
+      tn: "Grifo Flex hia marka talianya. Aluminium Space homa el partenaire fi Tounes. Kol chay masnou3 fi Italia.",
       ar: "Grifo Flex هي علامة تجارية إيطالية. Aluminium Space هو الشريك المعتمد في تونس. جميع المنتجات مصنوعة في إيطاليا بمواد عالية الجودة.",
       en: "Grifo Flex is an Italian brand. Aluminium Space is the certified partner in Tunisia. All products are made in Italy with premium materials.",
       it: "Grifo Flex è un marchio italiano. Aluminium Space è il partner certificato in Tunisia. Tutti i prodotti sono realizzati in Italia con materiali premium."

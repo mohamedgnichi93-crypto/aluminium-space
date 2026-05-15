@@ -5,9 +5,9 @@ import { useState, useRef } from 'react';
 import emailjs from '@emailjs/browser';
 import PageSEO from '../components/ui/PageSEO';
 
-const SERVICE_ID  = import.meta.env.VITE_EMAILJS_SERVICE_ID  || '';
+const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || '';
 const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || '';
-const PUBLIC_KEY  = import.meta.env.VITE_EMAILJS_PUBLIC_KEY  || '';
+const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || '';
 
 type LangKey = 'fr' | 'ar' | 'tn' | 'en' | 'it';
 
@@ -23,12 +23,12 @@ const Contact = () => {
   const loc = (obj: Record<string, string>) => obj[lang] ?? obj.fr;
 
   const LABELS: Record<string, Record<string, string>> = {
-    name:    { fr: 'Nom complet *', ar: 'الاسم الكامل *', tn: 'الاسم الكامل *', en: 'Full name *', it: 'Nome completo *' },
-    phone:   { fr: 'Téléphone *', ar: 'الهاتف *', tn: 'الهاتف *', en: 'Phone *', it: 'Telefono *' },
-    email:   { fr: 'Email (optionnel)', ar: 'البريد الإلكتروني', tn: 'البريد الإلكتروني', en: 'Email (optional)', it: 'Email (opzionale)' },
+    name: { fr: 'Nom complet *', ar: 'الاسم الكامل *', tn: 'الاسم الكامل *', en: 'Full name *', it: 'Nome completo *' },
+    phone: { fr: 'Téléphone *', ar: 'الهاتف *', tn: 'الهاتف *', en: 'Phone *', it: 'Telefono *' },
+    email: { fr: 'Email (optionnel)', ar: 'البريد الإلكتروني', tn: 'البريد الإلكتروني', en: 'Email (optional)', it: 'Email (opzionale)' },
     subject: { fr: 'Sujet', ar: 'الموضوع', tn: 'الموضوع', en: 'Subject', it: 'Oggetto' },
     message: { fr: 'Message *', ar: 'الرسالة *', tn: 'الرسالة *', en: 'Message *', it: 'Messaggio *' },
-    send:    { fr: 'Envoyer le message', ar: 'إرسال الرسالة', tn: 'ابعث الرسالة', en: 'Send message', it: 'Invia messaggio' },
+    send: { fr: 'Envoyer le message', ar: 'إرسال الرسالة', tn: 'ابعث الرسالة', en: 'Send message', it: 'Invia messaggio' },
   };
   const L = (key: string) => LABELS[key]?.[lang] || LABELS[key]?.fr || '';
 
@@ -90,6 +90,14 @@ const Contact = () => {
       title: 'Email',
       lines: ['contact@aluminiumspace.com'],
       href: 'mailto:contact@aluminiumspace.com',
+    },
+    {
+      icon: Globe,
+      color: '#81C063',
+      bg: 'rgba(129,192,99,0.10)',
+      title: loc({ fr: 'Site Web', ar: 'الموقع الإلكتروني', tn: 'الموقع', en: 'Website', it: 'Sito Web' }),
+      lines: ['aluminiumspace.pro'],
+      href: 'https://aluminiumspace.pro/',
     },
     {
       icon: Clock,
@@ -177,46 +185,32 @@ const Contact = () => {
             <h2 style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '22px', color: '#1D3E61', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '20px' }}>
               {loc({ fr: 'Nos coordonnées', ar: 'معلومات الاتصال', tn: 'معلومات الاتصال', en: 'Our details', it: 'I nostri contatti' })}
             </h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {infoItems.map((item, i) => (
-                <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <motion.a
-                    href={item.href}
-                    target={item.href.startsWith('http') ? '_blank' : undefined}
-                    rel={item.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                    initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 + i * 0.06 }}
-                    style={{ display: 'flex', alignItems: 'flex-start', gap: '14px', background: 'white', borderRadius: '14px', padding: '16px 18px', border: '1px solid #E8EDF5', textDecoration: 'none', boxShadow: '0 1px 6px rgba(29,62,97,0.05)', transition: 'all 0.2s' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = item.color; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; (e.currentTarget as HTMLElement).style.boxShadow = `0 6px 20px rgba(29,62,97,0.10)`; }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#E8EDF5'; (e.currentTarget as HTMLElement).style.transform = 'none'; (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 6px rgba(29,62,97,0.05)'; }}
-                  >
-                    <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: item.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <item.icon size={18} style={{ color: item.color }} />
+                <motion.a
+                  key={i}
+                  href={item.href === '#' ? undefined : item.href}
+                  target={item.href?.startsWith('http') ? '_blank' : undefined}
+                  rel={item.href?.startsWith('http') ? 'noopener noreferrer' : undefined}
+                  initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 + i * 0.06 }}
+                  style={{ display: 'flex', alignItems: 'flex-start', gap: '14px', background: 'white', borderRadius: '14px', padding: '16px 18px', border: '1px solid #E8EDF5', textDecoration: 'none', boxShadow: '0 1px 6px rgba(29,62,97,0.05)', transition: 'all 0.2s', height: '100%', outline: 'none' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = item.color; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; (e.currentTarget as HTMLElement).style.boxShadow = `0 6px 20px rgba(29,62,97,0.10)`; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#E8EDF5'; (e.currentTarget as HTMLElement).style.transform = 'none'; (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 6px rgba(29,62,97,0.05)'; }}
+                >
+                  <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: item.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <item.icon size={18} style={{ color: item.color }} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '13px', color: '#7A8FA6', letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: '4px' }}>
+                      {item.title}
                     </div>
-                    <div>
-                      <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '13px', color: '#7A8FA6', letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: '4px' }}>
-                        {item.title}
-                      </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                       {item.lines.map((line, j) => (
                         <div key={j} style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '14px', color: '#2F2D2C', lineHeight: 1.6 }}>{line}</div>
                       ))}
                     </div>
-                  </motion.a>
-                  {item.icon === Mail && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '4px 18px' }}>
-                      <Globe size={18} style={{ color: '#81C063', flexShrink: 0 }} />
-                      <a 
-                        href="https://aluminiumspace.pro/" 
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ color: '#1D3E61', textDecoration: 'none', fontFamily: 'DM Sans, sans-serif' }}
-                        onMouseEnter={e => e.currentTarget.style.color = '#81C063'}
-                        onMouseLeave={e => e.currentTarget.style.color = '#1D3E61'}
-                      >
-                        aluminiumspace.pro
-                      </a>
-                    </div>
-                  )}
-                </div>
+                  </div>
+                </motion.a>
               ))}
             </div>
           </motion.div>
@@ -236,7 +230,7 @@ const Contact = () => {
 
             {!emailConfigured && (
               <div style={{ background: '#F0FFF4', border: '1px solid #86EFAC', borderRadius: '10px', padding: '12px 16px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" /></svg>
                 <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '13px', color: '#166534' }}>
                   {loc({ fr: 'Ce formulaire envoie votre message via WhatsApp', ar: 'هذا النموذج يرسل رسالتك عبر واتساب', tn: 'هذا النموذج يبعث رسالتك بواتساب', en: 'This form sends your message via WhatsApp', it: 'Questo modulo invia il messaggio via WhatsApp' })}
                 </span>
@@ -387,7 +381,7 @@ const Contact = () => {
         @keyframes spin { to { transform: rotate(360deg); } }
         .contact-grid { grid-template-columns: 1fr; }
         @media (min-width: 860px) {
-          .contact-grid { grid-template-columns: 340px 1fr; align-items: start; }
+          .contact-grid { grid-template-columns: 1fr 1fr; align-items: start; }
         }
         .form-row-2 { grid-template-columns: 1fr; }
         @media (min-width: 480px) {

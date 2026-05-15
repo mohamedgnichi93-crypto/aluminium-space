@@ -24,7 +24,7 @@ const defaults = {
   titleAr: `${BRAND} — مستيكارات Grifo Flex على المقاس في تونس`,
   titleEn: `${BRAND} — Custom Grifo Flex Screens in Tunisia`,
   titleIt: `${BRAND} — Zanzariere Grifo Flex su misura in Tunisia`,
-  descFr: 'Partenaire agréé Grifo Flex en Tunisie — moustiquaires sur mesure, installation professionnelle à Mghira, Tunis.',
+  descFr: 'Partenaire Grifo Flex en Tunisie — moustiquaires sur mesure, installation professionnelle à Mghira, Tunis.',
   descAr: 'الشريك المعتمد لـ Grifo Flex في تونس — مستيكارات على المقاس، تركيب احترافي في مغيرة، تونس.',
   descEn: 'Certified Grifo Flex partner in Tunisia — custom screens, professional installation in Mghira, Tunis.',
   descIt: 'Partner certificato Grifo Flex in Tunisia — zanzariere su misura, installazione professionale a Mghira.',

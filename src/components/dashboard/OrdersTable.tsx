@@ -1,6 +1,6 @@
 import React from 'react';
-import { 
-  Search, Eye, Pencil, FileText, Trash2, ChevronLeft, ChevronRight 
+import {
+  Search, Eye, Pencil, FileText, Trash2, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import type { Order } from '../../store/ordersStore';
 
@@ -20,8 +20,8 @@ interface OrdersTableProps {
   handleStatusChange: (orderId: string, status: Order['status']) => Promise<void>;
   handleMoveToTrash: (orderId: string) => Promise<void>;
   handleDownloadPDF: (order: Order) => void;
-  setSelectedOrder: (order: Order) => void;
-  setEditingOrder: (order: Order) => void;
+  setSelectedOrder: React.Dispatch<React.SetStateAction<Order | null>> | ((order: Order | null) => void);
+  setEditingOrder: React.Dispatch<React.SetStateAction<Order | null>> | ((order: Order | null) => void);
   formatDT: (num: number) => string;
 }
 
@@ -107,7 +107,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({
             {currentItems.map((order, idx) => (
               <tr key={order.id} style={{ borderBottom: '1px solid #F0F4F8', background: idx % 2 === 0 ? 'white' : '#FAFBFC', transition: 'background 0.2s' }}>
                 <td style={{ padding: '16px 24px', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600, fontSize: '13px', color: '#1D3E61' }}>
-                  AS-{order.id}
+                  {order.id}
                 </td>
                 <td style={{ padding: '16px' }}>
                   <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: '14px', color: '#0D1B2A' }}>{order.clientInfo?.fullName}</div>
