@@ -35,11 +35,9 @@ export interface Order {
 
 function orderToRow(order: Order): any {
   return {
-    id: crypto.randomUUID(), // DB internal UUID
-    order_number: order.id,  // App-side ID (AS-XXXX)
+    order_number: order.id,
     client_name: order.clientInfo?.fullName || '',
     client_phone: order.clientInfo?.phone || '',
-    client_email: order.clientInfo?.email || '',
     client_address: order.clientInfo?.address || '',
     client_info: order.clientInfo || {},
     items: order.items || [],
@@ -51,12 +49,10 @@ function orderToRow(order: Order): any {
     tva_amount: order.tvaAmount || 0,
     base_for_tva: order.baseForTVA || 0,
     total_ttc: order.totalTTC || 0,
-    total_price: order.totalTTC || 0, // for legacy views
     timbre: order.timbre || 1000,
     status: order.status || 'pending',
     notes: order.clientInfo?.notes || '',
     created_at: order.date || new Date().toISOString(),
-    deleted_at: order.deletedAt || null,
   };
 }
 
@@ -175,10 +171,10 @@ export const updateOrder = async (id: string, updates: Partial<Order>): Promise<
       client_name: updates.clientInfo?.fullName,
       client_phone: updates.clientInfo?.phone,
       client_address: updates.clientInfo?.address,
+      client_info: updates.clientInfo, // Update full JSON info too
       notes: updates.clientInfo?.notes,
       items: updates.items,
-      total_ttc: updates.totalTTC,
-      total_price: updates.totalTTC
+      total_ttc: updates.totalTTC
     })
     .eq('order_number', id);
 

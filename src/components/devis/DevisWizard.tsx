@@ -264,8 +264,9 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
       );
       setWaUrl(`https://wa.me/${cfg.whatsapp}?text=${waMsg}`);
       setIsSuccess(true);
-    } catch (error) {
-      toast.error('Une erreur est survenue. Veuillez réessayer.');
+    } catch (error: any) {
+      console.error('Order save error:', error);
+      toast.error(`Une erreur est survenue: ${error.message || 'Veuillez réessayer.'}`);
     } finally {
       setIsSubmitting(false);
     }
