@@ -49,7 +49,6 @@ function orderToRow(order: Order): any {
     total_price: order.totalTTC || 0,
     timbre: order.timbre || 1000,
     status: order.status || 'pending',
-    notes: order.clientInfo?.notes || '',
   };
 }
 
@@ -166,7 +165,6 @@ export const updateOrder = async (id: string, updates: Partial<Order>): Promise<
     .update({
       status: updates.status,
       client_info: updates.clientInfo,
-      notes: updates.clientInfo?.notes,
       items: updates.items,
       total_ttc: updates.totalTTC,
       total_price: updates.totalTTC
