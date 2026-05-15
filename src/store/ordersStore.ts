@@ -36,10 +36,6 @@ export interface Order {
 function orderToRow(order: Order): any {
   return {
     order_number: order.id,
-    client_name: order.clientInfo?.fullName || '',
-    client_phone: order.clientInfo?.phone || '',
-    client_email: order.clientInfo?.email || '',
-    client_address: order.clientInfo?.address || '',
     client_info: order.clientInfo || {},
     items: order.items || [],
     total_ht: order.totalHT || 0,
@@ -169,10 +165,6 @@ export const updateOrder = async (id: string, updates: Partial<Order>): Promise<
     .from('orders')
     .update({
       status: updates.status,
-      client_name: updates.clientInfo?.fullName,
-      client_phone: updates.clientInfo?.phone,
-      client_email: updates.clientInfo?.email,
-      client_address: updates.clientInfo?.address,
       client_info: updates.clientInfo,
       notes: updates.clientInfo?.notes,
       items: updates.items,
