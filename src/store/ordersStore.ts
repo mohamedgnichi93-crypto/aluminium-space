@@ -166,6 +166,14 @@ export const updateOrder = async (id: string, updates: Partial<Order>): Promise<
       status: updates.status,
       client_info: updates.clientInfo,
       items: updates.items,
+      total_ht: updates.totalHT,
+      net_ht: updates.netHT,
+      remise_percent: updates.remisePercent,
+      remise: updates.remise,
+      fodec_amount: updates.fodecAmount,
+      tva_amount: updates.tvaAmount,
+      base_for_tva: updates.baseForTVA,
+      timbre: updates.timbre,
       total_ttc: updates.totalTTC,
       total_price: updates.totalTTC
     })

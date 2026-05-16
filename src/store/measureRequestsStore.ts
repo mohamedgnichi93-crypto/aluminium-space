@@ -16,18 +16,9 @@ export interface MeasureRequest {
 }
 
 const reqToRow = (req: MeasureRequest) => ({
-  id: req.id,
-  product_id: req.productId,
-  product_name: req.productName,
   client_name: req.clientName || '',
   client_phone: req.clientPhone || '',
-  client_email: req.clientEmail || '',
-  client_address: req.clientAddress || '',
-  notes: req.notes || '',
   status: req.status || 'pending',
-  width: req.width || null,
-  height: req.height || null,
-  created_at: req.date || new Date().toISOString(),
 });
 
 const rowToRequest = (row: any): MeasureRequest => ({
