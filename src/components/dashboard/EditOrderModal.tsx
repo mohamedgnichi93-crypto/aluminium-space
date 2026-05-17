@@ -195,7 +195,7 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({
                     timbre
                   };
 
-                  const saved = await updateOrder(editingOrder.id, finalOrder as any);
+                  await updateOrder(editingOrder.id, finalOrder as any);
                   // updateOrder has void return type in ordersStore.ts, so if it didn't throw, we assume success
                   await loadData();
                   setEditingOrder(null);
