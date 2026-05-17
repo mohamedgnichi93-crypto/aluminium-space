@@ -250,7 +250,7 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
         totalTTC: totalTTC
       });
 
-      setSubmittedOrderId(savedOrder.id);
+      setSubmittedOrderId(savedOrder.order_number || savedOrder.id);
 
       // Generate and download PDF with order ID included
       generatePDF(savedOrder);

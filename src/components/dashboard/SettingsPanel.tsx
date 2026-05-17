@@ -92,7 +92,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                       onMouseLeave={e => { e.currentTarget.style.background = 'white'; e.currentTarget.style.borderColor = '#D0D9E8'; }}
                     >−</button>
                     <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: 'white', border: '1.5px solid #D0D9E8', borderRadius: '8px', overflow: 'hidden' }}>
-                      <input type="number" value={settings[field.key] as number} min={field.min} max={field.max} step={field.step}
+                      <input type="number" inputMode="numeric" value={settings[field.key] as number} min={field.min} max={field.max} step={field.step}
                         onChange={e => setSettings(s => ({ ...s, [field.key]: parseFloat(e.target.value) || 0 }))}
                         style={{ flex: 1, padding: '8px 4px', border: 'none', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '17px', color: '#1D3E61', textAlign: 'center', outline: 'none', background: 'transparent', minWidth: 0 }}
                       />
@@ -128,7 +128,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                   <button type="button" onClick={() => setSettings(s => ({ ...s, validityDays: Math.max(7, (s.validityDays || 10) - 1) }))}
                     style={{ width: '32px', height: '32px', borderRadius: '8px', border: '1.5px solid #D0D9E8', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '16px', color: '#1D3E61' }}>−</button>
                   <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: 'white', border: '1.5px solid #D0D9E8', borderRadius: '8px', overflow: 'hidden' }}>
-                    <input type="number" value={settings.validityDays || 10} min={7} max={90}
+                    <input type="number" inputMode="numeric" value={settings.validityDays || 10} min={7} max={90}
                       onChange={e => setSettings(s => ({ ...s, validityDays: parseInt(e.target.value) || 10 }))}
                       style={{ flex: 1, padding: '8px 4px', border: 'none', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '17px', color: '#1D3E61', textAlign: 'center', outline: 'none', background: 'transparent' }}
                     />
@@ -370,10 +370,14 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
       {/* SAVE BUTTONS */}
       <div style={{ display: 'flex', gap: '12px', marginTop: '28px' }}>
         <button
-          onClick={() => {
-            saveSettings(settings);
-            setSettingsSaved(true);
-            setTimeout(() => setSettingsSaved(false), 2500);
+          onClick={async () => {
+            try {
+              await saveSettings(settings);
+              setSettingsSaved(true);
+              setTimeout(() => setSettingsSaved(false), 2500);
+            } catch {
+              alert('Erreur lors de la sauvegarde');
+            }
           }}
           style={{
             flex: 1, background: settingsSaved ? '#81C063' : '#1D3E61', color: 'white', border: 'none', borderRadius: '12px',

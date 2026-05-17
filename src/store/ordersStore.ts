@@ -2,6 +2,7 @@ import { supabase } from '../lib/supabase';
 
 export interface Order {
   id: string; // This will be the human-readable code (AS-XXXX)
+  order_number?: string;
   date: string;
   clientInfo: {
     fullName: string;
@@ -22,7 +23,7 @@ export interface Order {
   tvaAmount: number;
   timbre: number;
   totalTTC: number;
-  status: 'pending' | 'confirmed' | 'en_fabrication' | 'pret' | 'installe' | 'livree' | 'cancelled';
+  status: 'pending' | 'confirmed' | 'mesure' | 'avance' | 'en_fabrication' | 'pret' | 'installe' | 'livree' | 'cancelled';
   deletedAt?: string | null;
   // Fields for backward compatibility or direct row access
   brutHT?: number;
@@ -64,6 +65,7 @@ export function rowToOrder(row: any): Order {
 
   return {
     id: row.order_number || row.id,
+    order_number: row.order_number,
     date: row.created_at || row.date,
     clientInfo,
     items: row.items || [],
@@ -145,9 +147,11 @@ export const getOrderById = async (id: string): Promise<Order | null> => {
 };
 
 export const saveOrder = async (order: Omit<Order, 'id' | 'date' | 'status'>): Promise<Order> => {
+  const code = generateOrderCode();
   const newOrder: Order = {
     ...order,
-    id: generateOrderCode(),
+    id: code,
+    order_number: code,
     date: new Date().toISOString(),
     status: 'pending',
   };

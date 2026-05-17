@@ -372,9 +372,9 @@ function drawTotals(doc: jsPDF, order: Order, startY: number): number {
     ['Total brut HT :', formatDTWithUnit(brutHT), true, false],
     [`Remise (${remisePct}%) :`, `- ${formatDTWithUnit(remise)}`, false, true],
     ['Total net HT :', formatDTWithUnit(netHT), true, false],
-    ['FODEC (1%) :', formatDTWithUnit(fodecAmount), false, false],
+    [`FODEC (${order.fodec ?? 1}%) :`, formatDTWithUnit(fodecAmount), false, false],
     ['Base TVA :', formatDTWithUnit(baseTVA), false, false],
-    ['TVA (19%) :', formatDTWithUnit(tvaAmount), false, false],
+    [`TVA (${order.tva ?? 19}%) :`, formatDTWithUnit(tvaAmount), false, false],
     ['Timbre fiscal :', formatDTWithUnit(timbre), false, false],
   );
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { Search, Download, ChevronRight, Package, Clock, CheckCircle, Wrench, Calendar, Star, XCircle, Copy, Check, User, ShoppingBag, MessageCircle } from 'lucide-react';
+import { Search, Download, ChevronRight, Package, Clock, CheckCircle, Wrench, Calendar, Star, XCircle, Copy, Check, User, ShoppingBag, MessageCircle, Ruler, CreditCard } from 'lucide-react';
 import { getOrderById, rowToOrder } from '../store/ordersStore';
 import { supabase } from '../lib/supabase';
 import { generatePDF } from '../utils/pdfGenerator';
@@ -28,9 +28,23 @@ const STATUS_STEPS = [
     color: '#1A5DA8',
   },
   {
+    key: 'mesure',
+    label: { fr: 'Mesure', ar: 'القياس', tn: 'المقاس', en: 'Measurement', it: 'Misurazione' },
+    desc: { fr: 'Prise de mesure en cours', ar: 'أخذ القياسات قيد التقدم', tn: 'قاعدين ناخذو فالمقاس', en: 'Measurement in progress', it: 'Misurazione in corso' },
+    icon: Ruler,
+    color: '#F59E0B',
+  },
+  {
+    key: 'avance',
+    label: { fr: 'Avance', ar: 'تسبقة', tn: 'التسبقة', en: 'Advance Payment', it: 'Anticipo' },
+    desc: { fr: 'Avance reçue, démarrage en cours', ar: 'تم استلام التسبقة، جاري البدء', tn: 'وصلت التسبقة، باش نبداو', en: 'Advance received, starting soon', it: 'Anticipo ricevuto, avvio in corso' },
+    icon: CreditCard,
+    color: '#1A5DA8',
+  },
+  {
     key: 'en_fabrication',
     label: { fr: 'Fabrication', ar: 'التصنيع', tn: 'في الصنع', en: 'Production', it: 'Produzione' },
-    desc: { fr: 'Votre moustiquaire est en cours de fabrication', ar: 'ناموسيتك قيد التصنيع الآن', tn: 'الموستيكار متاعك في الصنع', en: 'Your mosquito net is being manufactured', it: 'La tua zanzariera é in produzione' },
+    desc: { fr: 'Votre moustiquaire est en cours de fabrication', ar: 'ناموسيتك قيد التصنيع الآن', tn: 'المستيكار متاعك في الصنع', en: 'Your mosquito net is being manufactured', it: 'La tua zanzariera é in produzione' },
     icon: Wrench,
     color: '#8B5CF6',
   },
@@ -145,19 +159,36 @@ const ClientPortal = () => {
       setCode(urlCode);
       const fetchInitial = async () => {
         try {
+          // Search by order_number first
           const { data } = await supabase
             .from('orders')
             .select('*')
-            .or(`id.ilike.${urlCode},order_number.ilike.${urlCode}`)
-            .single();
+            .eq('order_number', urlCode.trim())
+            .maybeSingle();
 
           if (data) {
             setOrder(rowToOrder(data));
             setSearched(true);
-          } else {
-            setNotFound(true);
-            setSearched(true);
+            return;
           }
+
+          // Fallback: search by UUID id
+          if (urlCode.trim().length > 20) {
+            const { data: dataById } = await supabase
+              .from('orders')
+              .select('*')
+              .eq('id', urlCode.trim())
+              .maybeSingle();
+
+            if (dataById) {
+              setOrder(rowToOrder(dataById));
+              setSearched(true);
+              return;
+            }
+          }
+
+          setNotFound(true);
+          setSearched(true);
         } catch {
           setNotFound(true);
           setSearched(true);
@@ -231,6 +262,8 @@ const ClientPortal = () => {
                   onChange={e => setCode(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleSearch()}
                   placeholder={loc(content.placeholder)}
+                  inputMode="text"
+                  autoCapitalize="characters"
                   style={{
                     width: '100%', height: '52px', border: '2px solid transparent', borderRadius: '12px',
                     padding: isRTL ? '0 48px 0 16px' : '0 16px 0 48px', fontFamily: 'monospace', fontSize: '16px', color: '#1A5DA8',
@@ -458,7 +491,7 @@ const ClientPortal = () => {
                               </div>
 
                               <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', fontSize: '13px', color: '#6B7280', fontFamily: 'DM Sans, sans-serif', marginBottom: '4px' }}>
-                                <span>FODEC (1%)</span><span>{formatDT(order.fodecAmount)}</span>
+                                <span>FODEC ({order.fodec ?? 1}%)</span><span>{formatDT(order.fodecAmount)}</span>
                               </div>
 
                               <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', fontSize: '13px', color: '#6B7280', fontFamily: 'DM Sans, sans-serif', marginBottom: '4px' }}>
@@ -466,11 +499,11 @@ const ClientPortal = () => {
                               </div>
 
                               <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', fontSize: '13px', color: '#6B7280', fontFamily: 'DM Sans, sans-serif', marginBottom: '4px' }}>
-                                <span>TVA (19%)</span><span>{formatDT(order.tvaAmount)}</span>
+                                <span>TVA ({order.tva ?? 19}%)</span><span>{formatDT(order.tvaAmount)}</span>
                               </div>
 
                               <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', fontSize: '13px', color: '#6B7280', fontFamily: 'DM Sans, sans-serif', marginBottom: '4px' }}>
-                                <span>Timbre fiscal</span><span>1.000 DT</span>
+                                <span>Timbre fiscal</span><span>{formatDT(order.timbre)}</span>
                               </div>
                             </>
                           );

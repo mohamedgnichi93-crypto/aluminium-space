@@ -13,6 +13,43 @@ const languages = [
   { code: 'it', label: 'Italiano', dir: 'ltr', flag: 'https://flagcdn.com/16x12/it.png' },
 ];
 
+interface LangDropdownContentProps {
+  isRTL: boolean;
+  currentLanguage: string;
+  changeLanguage: (lng: string) => void;
+}
+
+const LangDropdownContent: React.FC<LangDropdownContentProps> = ({ isRTL, currentLanguage, changeLanguage }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 8, scale: 0.95 }}
+    animate={{ opacity: 1, y: 0, scale: 1 }}
+    exit={{ opacity: 0, y: 8, scale: 0.95 }}
+    transition={{ duration: 0.14 }}
+    className="bg-white rounded-xl shadow-xl overflow-hidden"
+    style={{ border: '1px solid #DBDADA', minWidth: '150px' }}
+  >
+    {languages.map((lang) => (
+      <button
+        key={lang.code}
+        onClick={() => changeLanguage(lang.code)}
+        className={`w-full ${isRTL ? 'text-end' : 'text-start'} px-4 py-3 text-sm transition-colors duration-150`}
+        style={{
+          fontFamily: 'DM Sans, sans-serif',
+          color: currentLanguage === lang.code ? '#81C063' : '#2F2D2C',
+          background: currentLanguage === lang.code ? '#F5F7FA' : 'transparent',
+        }}
+        onMouseEnter={e => { e.currentTarget.style.background = '#F5F7FA'; }}
+        onMouseLeave={e => { e.currentTarget.style.background = currentLanguage === lang.code ? '#F5F7FA' : 'transparent'; }}
+      >
+        <span style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: '8px' }}>
+          <img src={lang.flag} alt={lang.code} style={{ width: '16px', height: '12px', borderRadius: '2px' }} />
+          {lang.label}
+        </span>
+      </button>
+    ))}
+  </motion.div>
+);
+
 const Header = () => {
   const { t, i18n } = useTranslation();
   const isRTL = ['ar', 'tn'].includes(i18n.language);
@@ -82,37 +119,6 @@ const Header = () => {
 
   const currentLang = languages.find(l => l.code === i18n.language);
   const currentFlagUrl = currentLang?.flag || 'https://flagcdn.com/16x12/fr.png';
-
-  const LangDropdownContent = () => (
-    <motion.div
-      initial={{ opacity: 0, y: 8, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: 8, scale: 0.95 }}
-      transition={{ duration: 0.14 }}
-      className="bg-white rounded-xl shadow-xl overflow-hidden"
-      style={{ border: '1px solid #DBDADA', minWidth: '150px' }}
-    >
-      {languages.map((lang) => (
-        <button
-          key={lang.code}
-          onClick={() => changeLanguage(lang.code)}
-          className={`w-full ${isRTL ? 'text-end' : 'text-start'} px-4 py-3 text-sm transition-colors duration-150`}
-          style={{
-            fontFamily: 'DM Sans, sans-serif',
-            color: i18n.language === lang.code ? '#81C063' : '#2F2D2C',
-            background: i18n.language === lang.code ? '#F5F7FA' : 'transparent',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.background = '#F5F7FA'; }}
-          onMouseLeave={e => { e.currentTarget.style.background = i18n.language === lang.code ? '#F5F7FA' : 'transparent'; }}
-        >
-          <span style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: '8px' }}>
-            <img src={lang.flag} alt={lang.code} style={{ width: '16px', height: '12px', borderRadius: '2px' }} />
-            {lang.label}
-          </span>
-        </button>
-      ))}
-    </motion.div>
-  );
 
   return (
     <header
@@ -264,7 +270,7 @@ const Header = () => {
                 <img src={currentFlagUrl} alt={i18n.language} style={{ width: '16px', height: '12px', borderRadius: '2px' }} />
               </button>
               <AnimatePresence>
-                {langMenuOpen && <div className="lang-dropdown-safe"><LangDropdownContent /></div>}
+                {langMenuOpen && <div className="lang-dropdown-safe"><LangDropdownContent isRTL={isRTL} currentLanguage={i18n.language} changeLanguage={changeLanguage} /></div>}
               </AnimatePresence>
             </div>
 
@@ -299,7 +305,7 @@ const Header = () => {
               <Globe className="w-5 h-5" />
             </button>
             <AnimatePresence>
-              {langMenuOpen && <div className="lang-dropdown-safe"><LangDropdownContent /></div>}
+              {langMenuOpen && <div className="lang-dropdown-safe"><LangDropdownContent isRTL={isRTL} currentLanguage={i18n.language} changeLanguage={changeLanguage} /></div>}
             </AnimatePresence>
           </div>
 

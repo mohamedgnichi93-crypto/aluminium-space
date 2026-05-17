@@ -8,6 +8,9 @@ export interface ChatMessage {
   created_at: string;
   client_name?: string;
   read_by_admin?: boolean;
+  client_phone?: string;
+  client_email?: string;
+  subject?: string;
 }
 
 interface ChatPanelProps {
@@ -92,21 +95,54 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
         ) : (
           <>
             {/* Thread header */}
-            <div style={{ padding: '14px 20px', borderBottom: '1px solid #E8EDF5', display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
-              <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: 'rgba(29,62,97,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '14px', color: '#1D3E61' }}>
-                  {(sessions[activeSession]?.find(m => m.client_name)?.client_name || 'C')[0].toUpperCase()}
-                </span>
-              </div>
-              <div>
-                <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '15px', color: '#1D3E61' }}>
-                  {sessions[activeSession]?.find(m => m.client_name)?.client_name || 'Client'}
+            {(() => {
+              const activeMsgs = sessions[activeSession] || [];
+              const firstMsg = activeMsgs[0];
+              const phone = firstMsg?.client_phone;
+              const email = firstMsg?.client_email;
+              const clientName = activeMsgs.find(m => m.client_name)?.client_name || 'Client';
+              return (
+                <div style={{ padding: '14px 20px', borderBottom: '1px solid #E8EDF5', display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
+                  <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: 'rgba(29,62,97,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <span style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '14px', color: '#1D3E61' }}>
+                      {clientName[0].toUpperCase()}
+                    </span>
+                  </div>
+                  <div>
+                    <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '15px', color: '#1D3E61' }}>
+                      {clientName}
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', fontFamily: 'DM Sans, sans-serif', fontSize: '11px', color: '#818181', marginTop: '2px' }}>
+                      <span>{activeMsgs.length} message(s)</span>
+                      {phone && (
+                        <>
+                          <span style={{ color: '#E8EDF5' }}>|</span>
+                          <a href={`tel:${phone}`} style={{ color: '#D97706', textDecoration: 'none', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '2px' }} onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'} onMouseLeave={e => e.currentTarget.style.textDecoration = 'none'}>
+                            📞 {phone}
+                          </a>
+                        </>
+                      )}
+                      {email && (
+                        <>
+                          <span style={{ color: '#E8EDF5' }}>|</span>
+                          <a href={`mailto:${email}`} style={{ color: '#6B7280', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '2px' }} onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'} onMouseLeave={e => e.currentTarget.style.textDecoration = 'none'}>
+                            📧 {email}
+                          </a>
+                        </>
+                      )}
+                      {phone && (
+                        <>
+                          <span style={{ color: '#E8EDF5' }}>|</span>
+                          <a href={`https://wa.me/${phone.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" style={{ color: '#10B981', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '2px' }} onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'} onMouseLeave={e => e.currentTarget.style.textDecoration = 'none'}>
+                            💬 WhatsApp
+                          </a>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '11px', color: '#818181' }}>
-                  {sessions[activeSession]?.length || 0} message(s)
-                </div>
-              </div>
-            </div>
+              );
+            })()}
 
             {/* Messages */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>

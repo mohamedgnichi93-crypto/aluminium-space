@@ -22,6 +22,8 @@ const OrderDetailModal = ({ order, onClose, onStatusChange, onDownloadPDF }: Pro
   const statusConfig: Record<string, { bg: string; color: string; label: string }> = {
     pending: { bg: '#FEF3C7', color: '#92400E', label: 'En attente' },
     confirmed: { bg: '#D1FAE5', color: '#065F46', label: 'Confirmé' },
+    mesure: { bg: '#FEF3C7', color: '#92400E', label: 'Mesure en cours' },
+    avance: { bg: '#DBEAFE', color: '#1E40AF', label: 'Avance reçue' },
     en_fabrication: { bg: '#DBEAFE', color: '#1E40AF', label: 'En fabrication' },
     pret: { bg: '#EDE9FE', color: '#5B21B6', label: 'Prêt' },
     installe: { bg: '#D1FAE5', color: '#065F46', label: 'Installé' },
@@ -217,6 +219,8 @@ const OrderDetailModal = ({ order, onClose, onStatusChange, onDownloadPDF }: Pro
               >
                 <option value="pending">En attente</option>
                 <option value="confirmed">Confirmé</option>
+                <option value="mesure">Mesure en cours</option>
+                <option value="avance">Avance reçue</option>
                 <option value="en_fabrication">En fabrication</option>
                 <option value="pret">Prêt</option>
                 <option value="installe">Installé</option>

@@ -72,6 +72,8 @@ const OrdersTable: React.FC<OrdersTableProps> = ({
             <option value="all">Tous les statuts</option>
             <option value="pending">En attente</option>
             <option value="confirmed">Confirmée</option>
+            <option value="mesure">Mesure</option>
+            <option value="avance">Avance</option>
             <option value="en_fabrication">En fabrication</option>
             <option value="pret">Prêt</option>
             <option value="installe">Installé</option>
@@ -135,19 +137,23 @@ const OrdersTable: React.FC<OrdersTableProps> = ({
                       padding: '6px 10px', borderRadius: '20px', border: '1px solid #E8EDF5',
                       fontFamily: 'Inter, sans-serif', fontSize: '12px', fontWeight: 600, outline: 'none',
                       background: order.status === 'pending' || (order.status as any) === 'en_attente' ? '#FEF3C7' :
-                        order.status === 'confirmed' || (order.status as any) === 'confirme' ? '#D1FAE5' :
-                          order.status === 'en_fabrication' ? '#DBEAFE' :
-                            order.status === 'pret' ? '#EDE9FE' :
-                              order.status === 'installe' || order.status === 'livree' ? '#D1FAE5' : '#FEE2E2',
+                        order.status === 'mesure' ? '#FEF3C7' :
+                          order.status === 'confirmed' || (order.status as any) === 'confirme' ? '#D1FAE5' :
+                            order.status === 'avance' || order.status === 'en_fabrication' ? '#DBEAFE' :
+                              order.status === 'pret' ? '#EDE9FE' :
+                                order.status === 'installe' || order.status === 'livree' ? '#D1FAE5' : '#FEE2E2',
                       color: order.status === 'pending' || (order.status as any) === 'en_attente' ? '#92400E' :
-                        order.status === 'confirmed' || (order.status as any) === 'confirme' ? '#065F46' :
-                          order.status === 'en_fabrication' ? '#1E40AF' :
-                            order.status === 'pret' ? '#5B21B6' :
-                              order.status === 'installe' || order.status === 'livree' ? '#065F46' : '#991B1B'
+                        order.status === 'mesure' ? '#92400E' :
+                          order.status === 'confirmed' || (order.status as any) === 'confirme' ? '#065F46' :
+                            order.status === 'avance' || order.status === 'en_fabrication' ? '#1E40AF' :
+                              order.status === 'pret' ? '#5B21B6' :
+                                order.status === 'installe' || order.status === 'livree' ? '#065F46' : '#991B1B'
                     }}
                   >
                     <option value="pending">En attente</option>
                     <option value="confirmed">Confirmée</option>
+                    <option value="mesure">Mesure</option>
+                    <option value="avance">Avance</option>
                     <option value="en_fabrication">En fabrication</option>
                     <option value="pret">Prêt</option>
                     <option value="installe">Installé</option>

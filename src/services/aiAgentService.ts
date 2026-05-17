@@ -5,7 +5,7 @@
 
 import { calculatePrice } from '../utils/priceCalculator';
 import { BUSINESS_CONFIG } from '../data/businessConfig';
-import { getSettings } from '../store/settingsStore';
+import { getSettings, ensureSettingsLoaded } from '../store/settingsStore';
 
 export type Lang = 'fr' | 'ar' | 'tn' | 'en' | 'it';
 
@@ -167,22 +167,25 @@ export const PRODUCTS: Record<string, {
 };
 
 // ─── COMPANY ─────────────────────────────────────────────────────
-const settings = getSettings();
-const COMPANY = {
-  name: 'ALUMINIUM SPACE',
-  description: 'Spécialiste menuiserie aluminium à Mghira, Tunis. Partenaire Grifo Flex Tunisie.',
-  address: `${settings.address}, ${settings.city}`,
-  phone1: settings.phone1,
-  phone2: settings.phone2,
-  whatsapp: settings.whatsapp,
-  email: settings.email,
-  hours: 'Lundi–Samedi, 8h00–17h00',
-  installation: 'Installation sous 3-7 jours ouvrables. Zone de service: Tunis et Grand Tunis.',
-  garantie: '3 ans sur toutes les moustiquaires Grifo Flex.',
-  paiement: 'Paiement: espèces, virement bancaire. RIB: 11 05500 01215002788 56 - Agence BOUMHEL',
-  mapUrl: 'https://maps.google.com/?q=125+lot+Laaroussi+Mghira',
-  grifoFlex: 'Marque italienne fondée en Italie (Grifoflex® Spa). Présente en Tunisie depuis 2012. Grifo Flex Tunisie: succursale italienne à Mégrine, Ben Arous. 1200 m² de surface de production, 15 employés. 3 ans de garantie sur tous les produits. +200 km parcourus chaque mois pour livraisons. SAV: 71 434 209. Matériaux: aluminium + fibre de verre recouverte de PVC. Couleurs: Blanc RAL 9010, Noir mat. Qualité certifiée italienne.',
-};
+// Lazy getter — always returns fresh settings (not stale module-level snapshot)
+function getCompany() {
+  const settings = getSettings();
+  return {
+    name: 'ALUMINIUM SPACE',
+    description: 'Spécialiste menuiserie aluminium à Mghira, Tunis. Partenaire Grifo Flex Tunisie.',
+    address: `${settings.address}, ${settings.city}`,
+    phone1: settings.phone1,
+    phone2: settings.phone2,
+    whatsapp: settings.whatsapp,
+    email: settings.email,
+    hours: 'Lundi–Samedi, 8h00–17h00',
+    installation: 'Installation sous 3-7 jours ouvrables. Zone de service: Tunis et Grand Tunis.',
+    garantie: '3 ans sur toutes les moustiquaires Grifo Flex.',
+    paiement: 'Paiement: espèces, virement bancaire. RIB: 11 05500 01215002788 56 - Agence BOUMHEL',
+    mapUrl: 'https://maps.google.com/?q=125+lot+Laaroussi+Mghira',
+    grifoFlex: 'Marque italienne fondée en Italie (Grifoflex® Spa). Présente en Tunisie depuis 2012. Grifo Flex Tunisie: succursale italienne à Mégrine, Ben Arous. 1200 m² de surface de production, 15 employés. 3 ans de garantie sur tous les produits. +200 km parcourus chaque mois pour livraisons. SAV: 71 434 209. Matériaux: aluminium + fibre de verre recouverte de PVC. Couleurs: Blanc RAL 9010, Noir mat. Qualité certifiée italienne.',
+  };
+}
 
 // ─── FORMAT PRICE ─────────────────────────────────────────────────
 const fmt = (n: number) => n.toFixed(3).replace('.', ',') + ' DT';
@@ -205,7 +208,9 @@ function calcPriceBreakdown(productId: string, w: number, h: number, qty = 1): P
   if (!result) return null;
   const unitPrice = result.unitPrice / 1000; // convert millimes to DT
   const totalBrut = unitPrice * qty;
-  const remise = totalBrut * (BUSINESS_CONFIG.remisePct / 100);
+  const currentSettings = getSettings();
+  const remisePct = currentSettings.remisePercent ?? BUSINESS_CONFIG.remisePct ?? 0;
+  const remise = totalBrut * (remisePct / 100);
   const netHT = totalBrut - remise;
   const fodec = netHT * (BUSINESS_CONFIG.fodecPct / 100);
   const baseTVA = netHT + fodec;
@@ -217,7 +222,7 @@ function calcPriceBreakdown(productId: string, w: number, h: number, qty = 1): P
 
 // ─── MULTI-DIMENSION EXTRACTION ─────────────────────────────────
 function extractAllDimensions(msg: string): Array<{ w: number; h: number }> {
-  const regex = /(\d{2,4})\s*[x×X*]\s*(\d{2,4})/g;
+  const regex = /(\d{2,4})\s*(?:[x×X*]|sur|par|\s+)\s*(\d{2,4})/g;
   const results: Array<{ w: number; h: number }> = [];
   let m: RegExpExecArray | null;
   while ((m = regex.exec(msg)) !== null) {
@@ -337,6 +342,8 @@ function buildMemory(history: Message[]): ConvMemory {
 function detectIntent(msg: string): string {
   const m = norm(msg);
 
+  if (extractAllDimensions(msg).length > 0) return 'dimensions_provided';
+
   if (/(je m[''']appelle|mon nom est|my name is|mi chiamo|ismi\b|esmi\b|smiti\b|اسمي|ana ismi)/.test(m)) return 'name_provided';
   if (/(parle.*arabe|b arbi|a7ki.*arbi|en arabe|speak.*arabic|parle.*tounsi|b tounsi|speak.*tunisian|in english|speak.*english|in italiano|parla.*italiano|en français|parle.*français|speak.*french)/.test(m)) return 'switch_language';
   if (/(kif 7alek|kifech|comment.*vas|ca va\??|how are you|come stai|كيف حالك|لاباس|labes 3lik|labess\??|labas\??|labes\??|7alek|kifeha|kif enti|kif nta|kifentom|shnowa\??|chnowa\??|wesh\b|esh 5barak|ach 5bark)/.test(m)) return 'casual_howru';
@@ -350,7 +357,6 @@ function detectIntent(msg: string): string {
   if (/(porte\b|door\b|porta\b|باب|بيبان|sidney|bibia|للباب)/.test(m) && !/(ac\b|double|grande|400)/.test(m)) return 'product_sidney';
   if (/(plisse|plissé|plisse31|مطوية|بليسي)/.test(m)) return 'product_plisse31';
   if (/(fixe|fixed|elba|panneau|panel|pannello|ثابت|لوح|إلبا)/.test(m)) return 'product_elba';
-  if (extractAllDimensions(msg).length > 0) return 'dimensions_provided';
   if (/(devis|preventivo|quote|estimation|estimer|calcul|عرض.*سعر|تقدير|ديفيس|yehsibli|ahsibli|namel.*devis|n7eb.*devis|3ardh)/.test(m)) return 'devis_request';
   if (/(prix|tarif|combien|cout|coût|cher|price|cost|prezzo|quanto|thaman|ثمن|سعر|قداش|9adech|b9adech|becha|يكلف|ye5lef|thmen\b)/.test(m)) return 'price_inquiry';
   if (/(me contacter|rappel|rappelez|callback|اتصل بي|kallemni)/.test(m)) return 'callback_request';
@@ -412,13 +418,16 @@ function priceResponse(
 ): string {
   const qtyStr = qty > 1 ? ` × ${qty}` : '';
   const greet = clientName ? clientName + ', ' : '';
+  
+  const currentSettings = getSettings();
+  const remisePct = currentSettings.remisePercent ?? BUSINESS_CONFIG.remisePct ?? 0;
 
   const lines = {
-    fr: `Pour un **${productName}** en ${w}×${h} cm${qtyStr} :\n• Prix HT : ${fmt(b.unitPrice)}\n• Remise ${BUSINESS_CONFIG.remisePct}% : -${fmt(b.remise)}\n• Total TTC : ${fmt(b.totalTTC)}\n\n${greet}Voulez-vous passer au devis ?`,
-    tn: `Lel **${productName}** f ${w}×${h} cm${qtyStr} :\n• Prix HT : ${fmt(b.unitPrice)}\n• Remise ${BUSINESS_CONFIG.remisePct}% : -${fmt(b.remise)}\n• Total TTC : ${fmt(b.totalTTC)}\n\n${greet}T7eb namel devis ?`,
-    ar: `لـ **${productName}** بـ ${w}×${h} سم${qtyStr} :\n• السعر بدون TVA : ${fmt(b.unitPrice)}\n• خصم ${BUSINESS_CONFIG.remisePct}% : -${fmt(b.remise)}\n• الإجمالي مع TVA : ${fmt(b.totalTTC)}\n\n${greet}هل تريد إعداد عرض الأسعار؟`,
-    en: `For a **${productName}** in ${w}×${h} cm${qtyStr}:\n• Price excl. VAT: ${fmt(b.unitPrice)}\n• Discount ${BUSINESS_CONFIG.remisePct}%: -${fmt(b.remise)}\n• Total incl. VAT: ${fmt(b.totalTTC)}\n\n${greet}Would you like to proceed with a quote?`,
-    it: `Per una **${productName}** in ${w}×${h} cm${qtyStr}:\n• Prezzo IVA escl.: ${fmt(b.unitPrice)}\n• Sconto ${BUSINESS_CONFIG.remisePct}%: -${fmt(b.remise)}\n• Totale IVA incl.: ${fmt(b.totalTTC)}\n\n${greet}Vuoi procedere con un preventivo?`,
+    fr: `Pour un **${productName}** en ${w}×${h} cm${qtyStr} :\n─────────────────────────────\n• Prix HT :        ${fmt(b.unitPrice)}\n• Remise (${remisePct}%) :    -${fmt(b.remise)}\n• Net HT :         ${fmt(b.netHT)}\n• FODEC (1%) :     ${fmt(b.fodec)}\n• Base TVA :       ${fmt(b.baseTVA)}\n• TVA (19%) :      ${fmt(b.tva)}\n• Timbre fiscal :  ${fmt(b.timbre)}\n─────────────────────────────\n• Total TTC :      ${fmt(b.totalTTC)}\n\n${greet}Voulez-vous passer au devis ?`,
+    tn: `Lel **${productName}** f ${w}×${h} cm${qtyStr} :\n─────────────────────────────\n• Prix HT :        ${fmt(b.unitPrice)}\n• Remise (${remisePct}%) :    -${fmt(b.remise)}\n• Net HT :         ${fmt(b.netHT)}\n• FODEC (1%) :     ${fmt(b.fodec)}\n• Base TVA :       ${fmt(b.baseTVA)}\n• TVA (19%) :      ${fmt(b.tva)}\n• Timbre fiscal :  ${fmt(b.timbre)}\n─────────────────────────────\n• Total TTC :      ${fmt(b.totalTTC)}\n\n${greet}T7eb namel devis ?`,
+    ar: `لـ **${productName}** بـ ${w}×${h} سم${qtyStr} :\n─────────────────────────────\n• السعر بدون TVA : ${fmt(b.unitPrice)}\n• خصم (${remisePct}%) :      -${fmt(b.remise)}\n• صافي HT :         ${fmt(b.netHT)}\n• FODEC (1%) :     ${fmt(b.fodec)}\n• أساس TVA :       ${fmt(b.baseTVA)}\n• TVA (19%) :      ${fmt(b.tva)}\n• طابع جبائي :      ${fmt(b.timbre)}\n─────────────────────────────\n• الإجمالي مع TVA : ${fmt(b.totalTTC)}\n\n${greet}هل تريد إعداد عرض الأسعار؟`,
+    en: `For a **${productName}** in ${w}×${h} cm${qtyStr}:\n─────────────────────────────\n• Price excl. VAT: ${fmt(b.unitPrice)}\n• Discount (${remisePct}%):  -${fmt(b.remise)}\n• Net HT:          ${fmt(b.netHT)}\n• FODEC (1%):      ${fmt(b.fodec)}\n• Base VAT:        ${fmt(b.baseTVA)}\n• VAT (19%):       ${fmt(b.tva)}\n• Fiscal stamp:    ${fmt(b.timbre)}\n─────────────────────────────\n• Total incl. VAT: ${fmt(b.totalTTC)}\n\n${greet}Would you like to proceed with a quote?`,
+    it: `Per una **${productName}** in ${w}×${h} cm${qtyStr}:\n─────────────────────────────\n• Prezzo IVA escl.: ${fmt(b.unitPrice)}\n• Sconto (${remisePct}%):    -${fmt(b.remise)}\n• Netto HT:        ${fmt(b.netHT)}\n• FODEC (1%):      ${fmt(b.fodec)}\n• Base IVA:        ${fmt(b.baseTVA)}\n• IVA (19%):       ${fmt(b.tva)}\n• Marca da bollo:  ${fmt(b.timbre)}\n─────────────────────────────\n• Totale IVA incl.: ${fmt(b.totalTTC)}\n\n${greet}Vuoi procedere con un preventivo?`,
   };
   return lines[lang] || lines.fr;
 }
@@ -575,21 +584,37 @@ Garantie : 3 ans. Fabriquées en Italie. Certifiées Grifoflex® Spa.
 5. Plissé 31 Bilatérale → Grandes ouvertures. Protection bilatérale. Rail extra plat 31mm.
 
 PRIX INDICATIFS (seulement si demandé sans dimensions) :
-- Colibrì 50 : à partir de 180 DT (100x120cm)
-- Sidney 50 : à partir de 220 DT (100x210cm)
-- Sidney 50 AC : à partir de 280 DT (200x210cm)
-- Elba : à partir de 326 DT/m²
-- Plissé 31 : à partir de 320 DT (200x210cm)
-Prix HT. TVA 19% + FODEC 1% s'appliquent. Remise possible sur commande groupée.
+- Colibrì 50: à partir de 263 DT (prix HT de base)
+- Sidney 50: à partir de 611 DT (prix HT de base)
+- Sidney 50 AC: à partir de 1224 DT (prix HT de base)
+- Elba: à partir de 326 DT/m²
+- Plissé 31: à partir de 1115 DT (prix HT de base)
 
 ━━━ MENUISERIE ALUMINIUM ━━━
 Aluminium Space est aussi spécialiste en menuiserie aluminium : portes, fenêtres, baies vitrées, façades, pergolas et plus.
 Pour tout projet aluminium → orienter vers le contact direct (pas de prix en ligne).
 
-━━━ RÈGLES PRIX ━━━
-- Ne JAMAIS donner un prix fixe sans dimensions pour les moustiquaires.
-- Toujours demander : "Donnez-moi vos dimensions (Largeur × Hauteur en cm) pour un prix précis."
-- Si insistance : donner le prix indicatif ci-dessus avec "à partir de".
+RÈGLES PRIX STRICTES:
+- Sans dimensions → demander les dimensions OBLIGATOIREMENT
+- Avec dimensions → TOUJOURS utiliser le calcul exact:
+  * Prix HT de base selon le produit et dimensions
+  * Remise: 0% standard (mentionner si commande groupée)
+  * Net HT = Prix HT - Remise
+  * FODEC 1% = Net HT × 0.01
+  * Base TVA = Net HT + FODEC
+  * TVA 19% = Base TVA × 0.19
+  * Timbre fiscal = 1 DT
+  * Total TTC = Base TVA + TVA + Timbre
+  TOUJOURS afficher le détail complet dans ce format:
+  Prix HT: X DT
+  Remise: X DT
+  Net HT: X DT
+  FODEC (1%): X DT
+  Base TVA: X DT
+  TVA (19%): X DT
+  Timbre: 1 DT
+  ━━━━━━━━━━━
+  Total TTC: X DT
 
 ━━━ CONTACT & INFOS ━━━
 - Tél : (+216) 53 186 611 / (+216) 57 099 070
@@ -667,6 +692,8 @@ export async function processLocalMessage(
   preferredLang?: Lang,
   base64Image?: string | null,
 ): Promise<AIResponse> {
+  // Ensure business settings are loaded from Supabase before any calculation
+  await ensureSettingsLoaded();
   // Image handling forces OpenAI fallback immediately
   if (base64Image) {
     const aiText = await processWithOpenAI(userText, history, preferredLang || 'fr', onChunk, base64Image);
@@ -945,11 +972,11 @@ export async function processLocalMessage(
   // CONTACT
   if (intent === 'contact') {
     const texts: Record<Lang, string> = {
-      fr: `📞 **Contactez-nous** :\n\n📱 ${COMPANY.phone1}\n📱 ${COMPANY.phone2}\n💬 WhatsApp : +216 57 099 070\n📧 ${COMPANY.email}\n\n⏰ Horaires : ${COMPANY.hours}`,
-      tn: `📞 **Atslna** :\n\n📱 ${COMPANY.phone1}\n📱 ${COMPANY.phone2}\n💬 WhatsApp : +216 57 099 070\n📧 ${COMPANY.email}\n\n⏰ Wa9t : ${COMPANY.hours}`,
-      ar: `📞 **اتصل بنا** :\n\n📱 ${COMPANY.phone1}\n📱 ${COMPANY.phone2}\n💬 واتساب : +216 57 099 070\n📧 ${COMPANY.email}\n\n⏰ ساعات العمل : ${COMPANY.hours}`,
-      en: `📞 **Contact us** :\n\n📱 ${COMPANY.phone1}\n📱 ${COMPANY.phone2}\n💬 WhatsApp: +216 57 099 070\n📧 ${COMPANY.email}\n\n⏰ Hours: ${COMPANY.hours}`,
-      it: `📞 **Contattaci** :\n\n📱 ${COMPANY.phone1}\n📱 ${COMPANY.phone2}\n💬 WhatsApp: +216 57 099 070\n📧 ${COMPANY.email}\n\n⏰ Orari: ${COMPANY.hours}`,
+      fr: `📞 **Contactez-nous** :\n\n📱 ${getCompany().phone1}\n📱 ${getCompany().phone2}\n💬 WhatsApp : +216 57 099 070\n📧 ${getCompany().email}\n\n⏰ Horaires : ${getCompany().hours}`,
+      tn: `📞 **Atslna** :\n\n📱 ${getCompany().phone1}\n📱 ${getCompany().phone2}\n💬 WhatsApp : +216 57 099 070\n📧 ${getCompany().email}\n\n⏰ Wa9t : ${getCompany().hours}`,
+      ar: `📞 **اتصل بنا** :\n\n📱 ${getCompany().phone1}\n📱 ${getCompany().phone2}\n💬 واتساب : +216 57 099 070\n📧 ${getCompany().email}\n\n⏰ ساعات العمل : ${getCompany().hours}`,
+      en: `📞 **Contact us** :\n\n📱 ${getCompany().phone1}\n📱 ${getCompany().phone2}\n💬 WhatsApp: +216 57 099 070\n📧 ${getCompany().email}\n\n⏰ Hours: ${getCompany().hours}`,
+      it: `📞 **Contattaci** :\n\n📱 ${getCompany().phone1}\n📱 ${getCompany().phone2}\n💬 WhatsApp: +216 57 099 070\n📧 ${getCompany().email}\n\n⏰ Orari: ${getCompany().hours}`,
     };
     return {
       text: texts[lang] || texts.fr,
@@ -1080,11 +1107,11 @@ export async function processLocalMessage(
   // SHOWROOM
   if (intent === 'showroom') {
     const texts: Record<Lang, string> = {
-      fr: `🏪 **Visitez notre showroom** :\n\n${COMPANY.address}\n\n⏰ ${COMPANY.hours}\n\nVenez découvrir nos produits en avant-première ! Nos conseillers vous accueilleront.`,
-      tn: `🏪 **Zour showroom mte3na** :\n\n${COMPANY.address}\n\n⏰ ${COMPANY.hours}\n\nAji tchouf produits mte3na ! Jem3a fiha mohtarfin.`,
-      ar: `🏪 **زُر معرضنا** :\n\n${COMPANY.address}\n\n⏰ ${COMPANY.hours}\n\nتعال لرؤية منتجاتنا ! مستشارونا في انتظارك.`,
-      en: `🏪 **Visit our showroom** :\n\n${COMPANY.address}\n\n⏰ ${COMPANY.hours}\n\nCome see our products! Our advisors will welcome you.`,
-      it: `🏪 **Visita il nostro showroom** :\n\n${COMPANY.address}\n\n⏰ ${COMPANY.hours}\n\nVieni a scoprire i nostri prodotti! I nostri consulenti ti accoglieranno.`,
+      fr: `🏪 **Visitez notre showroom** :\n\n${getCompany().address}\n\n⏰ ${getCompany().hours}\n\nVenez découvrir nos produits en avant-première ! Nos conseillers vous accueilleront.`,
+      tn: `🏪 **Zour showroom mte3na** :\n\n${getCompany().address}\n\n⏰ ${getCompany().hours}\n\nAji tchouf produits mte3na ! Jem3a fiha mohtarfin.`,
+      ar: `🏪 **زُر معرضنا** :\n\n${getCompany().address}\n\n⏰ ${getCompany().hours}\n\nتعال لرؤية منتجاتنا ! مستشارونا في انتظارك.`,
+      en: `🏪 **Visit our showroom** :\n\n${getCompany().address}\n\n⏰ ${getCompany().hours}\n\nCome see our products! Our advisors will welcome you.`,
+      it: `🏪 **Visita il nostro showroom** :\n\n${getCompany().address}\n\n⏰ ${getCompany().hours}\n\nVieni a scoprire i nostri prodotti! I nostri consulenti ti accoglieranno.`,
     };
     return { text: texts[lang] || texts.fr, detectedLang: lang, suggestions: getSuggestions('contact', lang) };
   }

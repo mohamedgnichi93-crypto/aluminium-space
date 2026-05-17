@@ -1,5 +1,5 @@
 import { useState, Suspense, lazy } from 'react';
-import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
+import { useParams, Link, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calculator, ChevronDown, Ruler, Bot } from 'lucide-react';
@@ -75,7 +75,6 @@ type HeightRange = '120-180' | '180-240' | '240-300';
 type Plisse31Prices = Record<HeightRange, number>;
 
 const ProductDetail = () => {
-  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
   const { sendMessageToAgent } = useAIAgentContext();
@@ -565,16 +564,6 @@ const ProductDetail = () => {
               productId={product.id} 
               productName={product.name} 
               onClose={() => setShowMeasure(false)}
-              onCommande={(l: number, h: number) => {
-                setShowMeasure(false);
-                navigate('/devis', { 
-                  state: { 
-                    productId: product.id,
-                    width: Math.round(l / 10), // mm → cm
-                    height: Math.round(h / 10)
-                  } 
-                });
-              }}
             />
           </Suspense>
         )}

@@ -187,6 +187,7 @@ const Dashboard = () => {
         setSelectedOrder({ ...selectedOrder, status: newStatus });
       }
     } catch (err) {
+      console.error(err);
       toast.error('Erreur lors de la mise à jour du statut');
     }
   };
@@ -198,6 +199,7 @@ const Dashboard = () => {
         await loadData();
         toast.success('Commande déplacée vers la corbeille');
       } catch (err) {
+        console.error(err);
         toast.error('Erreur lors du déplacement vers la corbeille');
       }
     }
@@ -209,6 +211,7 @@ const Dashboard = () => {
       await loadData();
       toast.success('Commande restaurée');
     } catch (err) {
+      console.error(err);
       toast.error('Erreur lors de la restauration');
     }
   };
@@ -220,6 +223,7 @@ const Dashboard = () => {
         await loadData();
         toast.success('Commande supprimée définitivement');
       } catch (err) {
+        console.error(err);
         toast.error('Erreur lors de la suppression');
       }
     }
@@ -232,6 +236,7 @@ const Dashboard = () => {
         await loadData();
         toast.success('Corbeille vidée');
       } catch (err) {
+        console.error(err);
         toast.error('Erreur lors du vidage de la corbeille');
       }
     }
@@ -242,6 +247,7 @@ const Dashboard = () => {
       generatePDF(order);
       toast.success('PDF téléchargé');
     } catch (error) {
+      console.error(error);
       toast.error('Erreur lors de la génération du PDF');
     }
   };

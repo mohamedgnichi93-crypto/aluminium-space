@@ -68,8 +68,22 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({
               <label style={{ fontFamily: 'Inter, sans-serif', fontSize: '11px', color: '#6B7280', fontWeight: 600, textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>Remise (%)</label>
               <input
                 type="number" min="0" max="100" step="0.1"
+                inputMode="numeric"
                 value={remisePercent}
                 onChange={e => setEditingOrder({ ...editingOrder, remisePercent: parseFloat(e.target.value) || 0 })}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const grid = e.currentTarget.parentElement?.parentElement;
+                    if (grid) {
+                      const inputs = Array.from(grid.querySelectorAll('input'));
+                      const currentIndex = inputs.indexOf(e.currentTarget);
+                      if (currentIndex !== -1 && currentIndex < inputs.length - 1) {
+                        inputs[currentIndex + 1].focus();
+                      }
+                    }
+                  }
+                }}
                 style={{ width: '100%', padding: '8px 12px', border: '1px solid #E8EDF5', borderRadius: '8px', fontFamily: 'Inter, sans-serif', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
                 onFocus={e => e.currentTarget.style.borderColor = '#1D3E61'}
                 onBlur={e => e.currentTarget.style.borderColor = '#E8EDF5'}
@@ -80,8 +94,22 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({
                 <label style={{ fontFamily: 'Inter, sans-serif', fontSize: '11px', color: '#6B7280', fontWeight: 600, textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>{label}</label>
                 <input
                   type="number" min="0" max="100" step="0.1"
+                  inputMode="numeric"
                   value={editingOrder[key]}
                   onChange={e => setEditingOrder({ ...editingOrder, [key]: parseFloat(e.target.value) || 0 })}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      const grid = e.currentTarget.parentElement?.parentElement;
+                      if (grid) {
+                        const inputs = Array.from(grid.querySelectorAll('input'));
+                        const currentIndex = inputs.indexOf(e.currentTarget);
+                        if (currentIndex !== -1 && currentIndex < inputs.length - 1) {
+                          inputs[currentIndex + 1].focus();
+                        }
+                      }
+                    }
+                  }}
                   style={{ width: '100%', padding: '8px 12px', border: '1px solid #E8EDF5', borderRadius: '8px', fontFamily: 'Inter, sans-serif', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
                   onFocus={e => e.currentTarget.style.borderColor = '#1D3E61'}
                   onBlur={e => e.currentTarget.style.borderColor = '#E8EDF5'}
@@ -138,10 +166,24 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({
                         <label style={{ fontFamily: 'Inter, sans-serif', fontSize: '11px', color: '#6B7280', fontWeight: 600, textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>{label}</label>
                         <input
                           type="number" min="0"
+                          inputMode="numeric"
                           value={item[key]}
                           onChange={e => {
                             const val = parseFloat(e.target.value) || 0;
                             setEditingOrder({ ...editingOrder, items: editingOrder.items.map((it, i) => i === idx ? { ...it, [key]: val, totalPrice: key === 'unitPrice' ? val * it.quantity : key === 'quantity' ? it.unitPrice * val : it.totalPrice } : it) });
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              const grid = e.currentTarget.parentElement?.parentElement;
+                              if (grid) {
+                                const inputs = Array.from(grid.querySelectorAll('input'));
+                                const currentIndex = inputs.indexOf(e.currentTarget);
+                                if (currentIndex !== -1 && currentIndex < inputs.length - 1) {
+                                  inputs[currentIndex + 1].focus();
+                                }
+                              }
+                            }
                           }}
                           style={{ width: '100%', padding: '8px 12px', border: '1px solid #E8EDF5', borderRadius: '8px', fontFamily: 'Inter, sans-serif', fontSize: '14px', outline: 'none', boxSizing: 'border-box', background: 'white' }}
                           onFocus={e => e.currentTarget.style.borderColor = '#1D3E61'}
@@ -201,6 +243,7 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({
                   setEditingOrder(null);
                   toast.success('Commande modifiée avec succès');
                 } catch (err) {
+                  console.error('Error updating order:', err);
                   toast.error('Erreur lors de la modification');
                 }
               }}

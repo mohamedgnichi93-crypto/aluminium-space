@@ -23,7 +23,7 @@ export interface BusinessSettings {
 }
 
 const DEFAULTS: BusinessSettings = {
-  remisePercent: 20,
+  remisePercent: 0,
   tvaPercent: 19,
   fodecPercent: 1,
   timbreFiscal: 1.000,
@@ -45,71 +45,97 @@ const DEFAULTS: BusinessSettings = {
 };
 
 let cache: BusinessSettings = { ...DEFAULTS };
+let _loaded = false;
+let _loadPromise: Promise<BusinessSettings> | null = null;
 
 /** Mapping from App (camelCase) to DB (snake_case) */
 const toDB = (s: Partial<BusinessSettings>) => {
-  const patch: any = {};
-  if (s.tvaPercent !== undefined) patch.tax_rate = s.tvaPercent;
-  if (s.fodecPercent !== undefined) patch.fodec_rate = s.fodecPercent;
-  if (s.remisePercent !== undefined) patch.remise_default = s.remisePercent;
-  if (s.timbreFiscal !== undefined) patch.timbre_fiscal = s.timbreFiscal;
-  if (s.validityDays !== undefined) patch.validity_days = s.validityDays;
-  if (s.phone1 !== undefined) patch.phone1 = s.phone1;
-  if (s.phone2 !== undefined) patch.phone2 = s.phone2;
-  if (s.whatsapp !== undefined) patch.whatsapp = s.whatsapp;
-  if (s.email !== undefined) patch.email = s.email;
-  if (s.address !== undefined) patch.address = s.address;
-  if (s.city !== undefined) patch.city = s.city;
-  if (s.hoursWeekday !== undefined) patch.hours_weekday = s.hoursWeekday;
-  if (s.hoursSaturday !== undefined) patch.hours_saturday = s.hoursSaturday;
-  if (s.sundayHours !== undefined) patch.hours_sunday = s.sundayHours;
-  if (s.companyFullName !== undefined) patch.company_name = s.companyFullName;
-  if (s.matriculeFiscal !== undefined) patch.matricule_fiscal = s.matriculeFiscal;
-  if (s.rib !== undefined) patch.rib = s.rib;
-  if (s.facebook !== undefined) patch.facebook_url = s.facebook;
-  if (s.instagram !== undefined) patch.instagram_url = s.instagram;
+  const settings: any = {};
+  if (s.tvaPercent !== undefined) settings.tvaPercent = s.tvaPercent;
+  if (s.fodecPercent !== undefined) settings.fodecPercent = s.fodecPercent;
+  if (s.remisePercent !== undefined) settings.remisePercent = s.remisePercent;
+  if (s.timbreFiscal !== undefined) settings.timbreFiscal = s.timbreFiscal;
+  if (s.validityDays !== undefined) settings.validityDays = s.validityDays;
+  if (s.phone1 !== undefined) settings.phone1 = s.phone1;
+  if (s.phone2 !== undefined) settings.phone2 = s.phone2;
+  if (s.whatsapp !== undefined) settings.whatsapp = s.whatsapp;
+  if (s.email !== undefined) settings.email = s.email;
+  if (s.address !== undefined) settings.address = s.address;
+  if (s.city !== undefined) settings.city = s.city;
+  if (s.hoursWeekday !== undefined) settings.hoursWeekday = s.hoursWeekday;
+  if (s.hoursSaturday !== undefined) settings.hoursSaturday = s.hoursSaturday;
+  if (s.sundayHours !== undefined) settings.sundayHours = s.sundayHours;
+  if (s.companyFullName !== undefined) settings.companyFullName = s.companyFullName;
+  if (s.matriculeFiscal !== undefined) settings.matriculeFiscal = s.matriculeFiscal;
+  if (s.rib !== undefined) settings.rib = s.rib;
+  if (s.facebook !== undefined) settings.facebook = s.facebook;
+  if (s.instagram !== undefined) settings.instagram = s.instagram;
   
-  patch.updated_at = new Date().toISOString();
-  return patch;
+  return {
+    settings,
+    updated_at: new Date().toISOString()
+  };
 };
 
 /** Mapping from DB (snake_case) to App (camelCase) */
-const fromDB = (row: any): BusinessSettings => ({
-  ...DEFAULTS,
-  remisePercent: row.remise_default ?? DEFAULTS.remisePercent,
-  tvaPercent: row.tax_rate ?? DEFAULTS.tvaPercent,
-  fodecPercent: row.fodec_rate ?? DEFAULTS.fodecPercent,
-  timbreFiscal: row.timbre_fiscal ?? DEFAULTS.timbreFiscal,
-  validityDays: row.validity_days ?? DEFAULTS.validityDays,
-  phone1: row.phone1 ?? DEFAULTS.phone1,
-  phone2: row.phone2 ?? DEFAULTS.phone2,
-  whatsapp: row.whatsapp ?? DEFAULTS.whatsapp,
-  email: row.email ?? DEFAULTS.email,
-  address: row.address ?? DEFAULTS.address,
-  city: row.city ?? DEFAULTS.city,
-  hoursWeekday: row.hours_weekday ?? DEFAULTS.hoursWeekday,
-  hoursSaturday: row.hours_saturday ?? DEFAULTS.hoursSaturday,
-  sundayHours: row.hours_sunday ?? DEFAULTS.sundayHours,
-  companyFullName: row.company_name ?? DEFAULTS.companyFullName,
-  matriculeFiscal: row.matricule_fiscal ?? DEFAULTS.matriculeFiscal,
-  rib: row.rib ?? DEFAULTS.rib,
-  facebook: row.facebook_url ?? DEFAULTS.facebook,
-  instagram: row.instagram_url ?? DEFAULTS.instagram,
-});
+const fromDB = (row: any): BusinessSettings => {
+  const s = row.settings || {};
+  return {
+    ...DEFAULTS,
+    remisePercent: s.remisePercent ?? DEFAULTS.remisePercent,
+    tvaPercent: s.tvaPercent ?? DEFAULTS.tvaPercent,
+    fodecPercent: s.fodecPercent ?? DEFAULTS.fodecPercent,
+    timbreFiscal: s.timbreFiscal ?? DEFAULTS.timbreFiscal,
+    validityDays: s.validityDays ?? DEFAULTS.validityDays,
+    phone1: s.phone1 ?? DEFAULTS.phone1,
+    phone2: s.phone2 ?? DEFAULTS.phone2,
+    whatsapp: s.whatsapp ?? DEFAULTS.whatsapp,
+    email: s.email ?? DEFAULTS.email,
+    address: s.address ?? DEFAULTS.address,
+    city: s.city ?? DEFAULTS.city,
+    hoursWeekday: s.hoursWeekday ?? DEFAULTS.hoursWeekday,
+    hoursSaturday: s.hoursSaturday ?? DEFAULTS.hoursSaturday,
+    sundayHours: s.sundayHours ?? DEFAULTS.sundayHours,
+    companyFullName: s.companyFullName ?? DEFAULTS.companyFullName,
+    matriculeFiscal: s.matriculeFiscal ?? DEFAULTS.matriculeFiscal,
+    rib: s.rib ?? DEFAULTS.rib,
+    facebook: s.facebook ?? DEFAULTS.facebook,
+    instagram: s.instagram ?? DEFAULTS.instagram,
+  };
+};
 
 export async function loadSettings(): Promise<BusinessSettings> {
-  try {
-    const { data, error } = await supabase
-      .from('business_settings')
-      .select('*')
-      .single();
-    
-    if (error || !data) return cache;
-    cache = fromDB(data);
-    return cache;
-  } catch {
-    return cache;
-  }
+  // Deduplicate concurrent calls — only one Supabase fetch at a time
+  if (_loadPromise) return _loadPromise;
+  _loadPromise = (async () => {
+    try {
+      const { data, error } = await supabase
+        .from('business_settings')
+        .select('*')
+        .single();
+      
+      if (error || !data) return cache;
+      cache = fromDB(data);
+      return cache;
+    } catch {
+      return cache;
+    } finally {
+      _loaded = true;
+      _loadPromise = null;
+    }
+  })();
+  return _loadPromise;
+}
+
+/** Returns true if settings have been loaded from Supabase at least once */
+export function isSettingsLoaded(): boolean {
+  return _loaded;
+}
+
+/** Ensures settings are loaded before returning. Safe to call multiple times. */
+export async function ensureSettingsLoaded(): Promise<BusinessSettings> {
+  if (_loaded) return cache;
+  return loadSettings();
 }
 
 export function getSettings(): BusinessSettings {
@@ -139,6 +165,7 @@ export async function saveSettings(patch: Partial<BusinessSettings>): Promise<vo
     }
   } catch (err) {
     console.error('Settings sync failed:', err);
+    throw err;
   }
 }
 

@@ -58,53 +58,61 @@ export const ToolsSVG: React.FC<{ k: number }> = ({ k }) => (
   <svg key={k} viewBox="0 0 320 210" style={{ width: '100%', maxWidth: '320px', height: 'auto' }}>
     <IllustrationStyles />
     {/* Tape measure */}
-    <g className="t0" transform="translate(20,35)">
-      <rect x="0" y="10" width="72" height="52" rx="10" fill="#F5A623" />
-      <rect x="5" y="15" width="62" height="42" rx="7" fill="#E8960A" />
-      <rect x="8" y="22" width="56" height="20" rx="3" fill="#FFF9EE" />
-      {[0, 1, 2, 3, 4, 5, 6].map(i => (
-        <line key={i} x1={10 + i * 8} y1="24" x2={10 + i * 8} y2={i % 2 === 0 ? '38' : '33'} stroke="#B87714" strokeWidth="1.5" />
-      ))}
-      <text x="36" y="34" fontSize="8" fill="#A06800" textAnchor="middle" fontWeight="700">50 cm</text>
-      <rect x="64" y="27" width="12" height="10" rx="2" fill="#C8780A" />
-      <text x="36" y="78" fontSize="11" fill="#3D5166" textAnchor="middle" fontWeight="600">Mètre ruban</text>
+    <g transform="translate(20,35)">
+      <g className="t0">
+        <rect x="0" y="10" width="72" height="52" rx="10" fill="#D4AF37" />
+        <rect x="5" y="15" width="62" height="42" rx="7" fill="#B8963E" />
+        <rect x="8" y="22" width="56" height="20" rx="3" fill="rgba(255,255,255,0.9)" />
+        {[0, 1, 2, 3, 4, 5, 6].map(i => (
+          <line key={i} x1={10 + i * 8} y1="24" x2={10 + i * 8} y2={i % 2 === 0 ? '38' : '33'} stroke="#8B6914" strokeWidth="1.5" />
+        ))}
+        <text x="36" y="34" fontSize="8" fill="#8B6914" textAnchor="middle" fontWeight="700">50 cm</text>
+        <rect x="64" y="27" width="12" height="10" rx="2" fill="#A07D20" />
+        <text x="36" y="78" fontSize="11" fill="#CBD5E1" textAnchor="middle" fontWeight="600">Mètre ruban</text>
+      </g>
     </g>
 
     {/* Level */}
-    <g className="t1" transform="translate(110,28)">
-      <rect x="0" y="12" width="100" height="28" rx="6" fill="#2ECC71" />
-      <rect x="3" y="15" width="94" height="22" rx="4" fill="#27AE60" />
-      <ellipse cx="50" cy="26" rx="12" ry="8" fill="#1A8B4A" />
-      <ellipse cx="50" cy="26" rx="8" ry="5" fill="none" stroke="#7FFFD4" strokeWidth="1.5" />
-      <ellipse cx="50" cy="26" rx="3" ry="3" fill="#7FFFD4" />
-      <line x1="14" y1="26" x2="30" y2="26" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" />
-      <line x1="70" y1="26" x2="86" y2="26" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" />
-      <text x="50" y="56" fontSize="11" fill="#3D5166" textAnchor="middle" fontWeight="600">Niveau à bulle</text>
+    <g transform="translate(110,28)">
+      <g className="t1">
+        <rect x="0" y="12" width="100" height="28" rx="6" fill="#2ECC71" />
+        <rect x="3" y="15" width="94" height="22" rx="4" fill="#27AE60" />
+        <ellipse cx="50" cy="26" rx="12" ry="8" fill="#1A8B4A" />
+        <ellipse cx="50" cy="26" rx="8" ry="5" fill="none" stroke="#7FFFD4" strokeWidth="1.5" />
+        <ellipse cx="50" cy="26" rx="3" ry="3" fill="#7FFFD4" />
+        <line x1="14" y1="26" x2="30" y2="26" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" />
+        <line x1="70" y1="26" x2="86" y2="26" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" />
+        <text x="50" y="56" fontSize="11" fill="#CBD5E1" textAnchor="middle" fontWeight="600">Niveau à bulle</text>
+      </g>
     </g>
 
     {/* Pencil */}
-    <g className="t2" transform="translate(232,18)">
-      <rect x="26" y="0" width="14" height="100" rx="2" fill="#FFD700" />
-      <rect x="26" y="0" width="14" height="12" rx="2" fill="#D4A017" />
-      <rect x="27" y="1" width="12" height="11" rx="1" fill="#FFB6C1" />
-      <line x1="26" y1="13" x2="40" y2="13" stroke="#B8860B" strokeWidth="1" />
-      <polygon points="26,98 40,98 33,118" fill="#8B6914" />
-      <polygon points="30,110 36,110 33,118" fill="#1A0A00" />
-      <text x="33" y="132" fontSize="11" fill="#3D5166" textAnchor="middle" fontWeight="600">Crayon</text>
+    <g transform="translate(232,18)">
+      <g className="t2">
+        <rect x="26" y="0" width="14" height="100" rx="2" fill="#FFD700" />
+        <rect x="26" y="0" width="14" height="12" rx="2" fill="#D4A017" />
+        <rect x="27" y="1" width="12" height="11" rx="1" fill="#FFB6C1" />
+        <line x1="26" y1="13" x2="40" y2="13" stroke="#B8860B" strokeWidth="1" />
+        <polygon points="26,98 40,98 33,118" fill="#8B6914" />
+        <polygon points="30,110 36,110 33,118" fill="#1A0A00" />
+        <text x="33" y="132" fontSize="11" fill="#CBD5E1" textAnchor="middle" fontWeight="600">Crayon</text>
+      </g>
     </g>
 
     {/* Notepad */}
-    <g className="t3" transform="translate(20,110)">
-      <rect x="0" y="0" width="280" height="75" rx="8" fill="white" stroke="#E8EDF5" strokeWidth="1.5" />
-      <rect x="0" y="0" width="280" height="18" rx="8" fill="#1A5DA8" />
-      <rect x="0" y="10" width="280" height="8" fill="#1A5DA8" />
-      <text x="140" y="13" fontSize="10" fill="white" textAnchor="middle" fontWeight="700" letterSpacing="1">CARNET DE NOTES — MESURES</text>
-      <text x="70" y="42" fontSize="13" fill="#1A5DA8" textAnchor="middle" fontWeight="800">L (Largeur)</text>
-      <rect x="20" y="48" width="100" height="18" rx="4" fill="#F4F7FB" stroke="#D0D9E8" strokeWidth="1" />
-      <text x="70" y="61" fontSize="12" fill="#7A8FA6" textAnchor="middle">______ cm</text>
-      <text x="210" y="42" fontSize="13" fill="#1A5DA8" textAnchor="middle" fontWeight="800">H (Hauteur)</text>
-      <rect x="160" y="48" width="100" height="18" rx="4" fill="#F4F7FB" stroke="#D0D9E8" strokeWidth="1" />
-      <text x="210" y="61" fontSize="12" fill="#7A8FA6" textAnchor="middle">______ cm</text>
+    <g transform="translate(20,110)">
+      <g className="t3">
+        <rect x="0" y="0" width="280" height="75" rx="8" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
+        <rect x="0" y="0" width="280" height="18" rx="8" fill="#D4AF37" />
+        <rect x="0" y="10" width="280" height="8" fill="#D4AF37" />
+        <text x="140" y="13" fontSize="10" fill="#0F172A" textAnchor="middle" fontWeight="700" letterSpacing="1">CARNET DE NOTES — MESURES</text>
+        <text x="70" y="42" fontSize="13" fill="#D4AF37" textAnchor="middle" fontWeight="800">L (Largeur)</text>
+        <rect x="20" y="48" width="100" height="18" rx="4" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
+        <text x="70" y="61" fontSize="12" fill="#94A3B8" textAnchor="middle">______ cm</text>
+        <text x="210" y="42" fontSize="13" fill="#D4AF37" textAnchor="middle" fontWeight="800">H (Hauteur)</text>
+        <rect x="160" y="48" width="100" height="18" rx="4" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
+        <text x="210" y="61" fontSize="12" fill="#94A3B8" textAnchor="middle">______ cm</text>
+      </g>
     </g>
   </svg>
 );
@@ -114,29 +122,29 @@ export const EmbrasureSVG: React.FC<{ k: number; isDoor: boolean }> = ({ k, isDo
     <IllustrationStyles />
     {/* Wall + opening - top view */}
     <g className="e0">
-      <rect x="20" y="70" width="95" height="70" rx="4" fill="#D0D9E8" />
-      <rect x="20" y="70" width="95" height="70" rx="4" fill="none" stroke="#B0BED0" strokeWidth="1.5" />
-      <text x="67" y="109" fontSize="11" fill="#7A8FA6" textAnchor="middle" fontWeight="600">MUR</text>
-      <rect x="205" y="70" width="95" height="70" rx="4" fill="#D0D9E8" />
-      <rect x="205" y="70" width="95" height="70" rx="4" fill="none" stroke="#B0BED0" strokeWidth="1.5" />
-      <text x="252" y="109" fontSize="11" fill="#7A8FA6" textAnchor="middle" fontWeight="600">MUR</text>
-      <rect x="115" y="70" width="90" height="70" fill="#E8F0FF" stroke="#1A5DA8" strokeWidth="2" strokeDasharray="4 2" />
-      <text x="160" y="92" fontSize="10" fill="#1A5DA8" textAnchor="middle" fontWeight="700">EMBRASURE</text>
-      <text x="160" y="108" fontSize="9" fill="#3D7DC8" textAnchor="middle">(Vue de dessus)</text>
+      <rect x="20" y="70" width="95" height="70" rx="4" fill="rgba(255,255,255,0.1)" />
+      <rect x="20" y="70" width="95" height="70" rx="4" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" />
+      <text x="67" y="109" fontSize="11" fill="#94A3B8" textAnchor="middle" fontWeight="600">MUR</text>
+      <rect x="205" y="70" width="95" height="70" rx="4" fill="rgba(255,255,255,0.1)" />
+      <rect x="205" y="70" width="95" height="70" rx="4" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" />
+      <text x="252" y="109" fontSize="11" fill="#94A3B8" textAnchor="middle" fontWeight="600">MUR</text>
+      <rect x="115" y="70" width="90" height="70" fill="rgba(212,175,55,0.1)" stroke="#D4AF37" strokeWidth="2" strokeDasharray="4 2" />
+      <text x="160" y="92" fontSize="10" fill="#D4AF37" textAnchor="middle" fontWeight="700">EMBRASURE</text>
+      <text x="160" y="108" fontSize="9" fill="#94A3B8" textAnchor="middle">(Vue de dessus)</text>
       <text x="160" y="128" fontSize="18" textAnchor="middle">👁</text>
     </g>
 
     {/* Arrows showing interior */}
     <g className="e1 eArrow">
-      <line x1="115" y1="155" x2="205" y2="155" stroke="#1A5DA8" strokeWidth="2" />
-      <polygon points="115,151 115,159 108,155" fill="#1A5DA8" />
-      <polygon points="205,151 205,159 212,155" fill="#1A5DA8" />
-      <text x="160" y="170" fontSize="11" fill="#1A5DA8" textAnchor="middle" fontWeight="700">Largeur de l'embrasure</text>
+      <line x1="115" y1="155" x2="205" y2="155" stroke="#D4AF37" strokeWidth="2" />
+      <polygon points="115,151 115,159 108,155" fill="#D4AF37" />
+      <polygon points="205,151 205,159 212,155" fill="#D4AF37" />
+      <text x="160" y="170" fontSize="11" fill="#D4AF37" textAnchor="middle" fontWeight="700">Largeur de l'embrasure</text>
     </g>
 
     <g className="e2">
-      <rect x="20" y="175" width="280" height="28" rx="6" fill="#EEF4FF" />
-      <text x="160" y="193" fontSize="11" fill="#1A5DA8" textAnchor="middle" fontWeight="600">
+      <rect x="20" y="175" width="280" height="28" rx="6" fill="rgba(212,175,55,0.1)" />
+      <text x="160" y="193" fontSize="11" fill="#D4AF37" textAnchor="middle" fontWeight="600">
         {isDoor ? '📐 Mesure de l\'embrasure de porte (sol → haut)' : '📐 Mesure de l\'embrasure de fenêtre'}
       </text>
     </g>
@@ -148,34 +156,38 @@ export const MistakesSVG: React.FC<{ k: number }> = ({ k }) => (
     <IllustrationStyles />
     
     {/* Left Panel: Wrong (Frame) */}
-    <g className="m0" transform="translate(15, 20)">
-      <rect x="0" y="0" width="135" height="150" rx="8" fill="#FEF2F2" stroke="#FCA5A5" strokeWidth="1.5" />
-      <text x="67" y="25" fontSize="14" textAnchor="middle">❌</text>
-      
-      {/* Window representation */}
-      <rect x="25" y="45" width="85" height="80" rx="2" fill="white" stroke="#EF4444" strokeWidth="2" />
-      <line x1="25" y1="85" x2="110" y2="85" stroke="#EF4444" strokeWidth="1" />
-      <line x1="67" y1="45" x2="67" y2="125" stroke="#EF4444" strokeWidth="1" />
-      
-      {/* Wrong measurement lines */}
-      <line x1="20" y1="40" x2="115" y2="40" stroke="#EF4444" strokeWidth="1.5" strokeDasharray="3 2" />
-      <text x="67" y="142" fontSize="10" fill="#991B1B" fontWeight="700" textAnchor="middle">Sur le cadre</text>
+    <g transform="translate(15, 20)">
+      <g className="m0">
+        <rect x="0" y="0" width="135" height="150" rx="8" fill="rgba(220,38,38,0.15)" stroke="rgba(248,113,113,0.4)" strokeWidth="1.5" />
+        <text x="67" y="25" fontSize="14" textAnchor="middle">❌</text>
+        
+        {/* Window representation */}
+        <rect x="25" y="45" width="85" height="80" rx="2" fill="rgba(255,255,255,0.05)" stroke="#EF4444" strokeWidth="2" />
+        <line x1="25" y1="85" x2="110" y2="85" stroke="#EF4444" strokeWidth="1" />
+        <line x1="67" y1="45" x2="67" y2="125" stroke="#EF4444" strokeWidth="1" />
+        
+        {/* Wrong measurement lines */}
+        <line x1="20" y1="40" x2="115" y2="40" stroke="#EF4444" strokeWidth="1.5" strokeDasharray="3 2" />
+        <text x="67" y="142" fontSize="10" fill="#FCA5A5" fontWeight="700" textAnchor="middle">Sur le cadre</text>
+      </g>
     </g>
 
     {/* Right Panel: Correct (Embrasure) */}
-    <g className="m1" transform="translate(170, 20)">
-      <rect x="0" y="0" width="135" height="150" rx="8" fill="#F0FDF4" stroke="#86EFAC" strokeWidth="1.5" />
-      <text x="67" y="25" fontSize="14" textAnchor="middle">✅</text>
-      
-      {/* Opening representation */}
-      <rect x="25" y="45" width="85" height="80" rx="2" fill="#EFF6FF" stroke="#22C55E" strokeWidth="2" strokeDasharray="4 2" />
-      
-      {/* Correct measurement lines */}
-      <line x1="25" y1="85" x2="110" y2="85" stroke="#22C55E" strokeWidth="2" />
-      <polygon points="25,82 25,88 20,85" fill="#22C55E" />
-      <polygon points="110,82 110,88 115,85" fill="#22C55E" />
-      
-      <text x="67" y="142" fontSize="10" fill="#166534" fontWeight="700" textAnchor="middle">Dans l'embrasure</text>
+    <g transform="translate(170, 20)">
+      <g className="m1">
+        <rect x="0" y="0" width="135" height="150" rx="8" fill="rgba(34,197,94,0.1)" stroke="rgba(134,239,172,0.3)" strokeWidth="1.5" />
+        <text x="67" y="25" fontSize="14" textAnchor="middle">✅</text>
+        
+        {/* Opening representation */}
+        <rect x="25" y="45" width="85" height="80" rx="2" fill="rgba(212,175,55,0.08)" stroke="#22C55E" strokeWidth="2" strokeDasharray="4 2" />
+        
+        {/* Correct measurement lines */}
+        <line x1="25" y1="85" x2="110" y2="85" stroke="#22C55E" strokeWidth="2" />
+        <polygon points="25,82 25,88 20,85" fill="#22C55E" />
+        <polygon points="110,82 110,88 115,85" fill="#22C55E" />
+        
+        <text x="67" y="142" fontSize="10" fill="#86EFAC" fontWeight="700" textAnchor="middle">Dans l'embrasure</text>
+      </g>
     </g>
   </svg>
 );
@@ -189,10 +201,10 @@ export const LargeurSVG: React.FC<{ k: number; isDoor: boolean }> = ({ k, isDoor
     <svg key={k} viewBox="0 0 320 210" style={{ width: '100%', maxWidth: '320px', height: 'auto' }}>
       <IllustrationStyles />
       <g className="w0">
-        <rect x={fX} y={fY} width={fW} height={fH} rx="3" fill="none" stroke="#B0BED0" strokeWidth="3" />
-        <rect x={fX + 8} y={fY + 8} width={fW - 16} height={fH - 16} rx="2" fill="#EEF4FF" stroke="#1A5DA8" strokeWidth="1" strokeDasharray="3 2" />
-        {!isDoor && <rect x={fX} y={fY + fH} width={fW} height="12" rx="2" fill="#D0D9E8" />}
-        <text x={cx} y={fY + fH / 2} fontSize="11" fill="#7A8FA6" textAnchor="middle">Ouverture</text>
+        <rect x={fX} y={fY} width={fW} height={fH} rx="3" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="3" />
+        <rect x={fX + 8} y={fY + 8} width={fW - 16} height={fH - 16} rx="2" fill="rgba(212,175,55,0.06)" stroke="#D4AF37" strokeWidth="1" strokeDasharray="3 2" />
+        {!isDoor && <rect x={fX} y={fY + fH} width={fW} height="12" rx="2" fill="rgba(255,255,255,0.1)" />}
+        <text x={cx} y={fY + fH / 2} fontSize="11" fill="#94A3B8" textAnchor="middle">Ouverture</text>
       </g>
 
       {/* Arrow 1 - top */}
@@ -241,10 +253,10 @@ export const HauteurSVG: React.FC<{ k: number; isDoor: boolean }> = ({ k, isDoor
     <svg key={k} viewBox="0 0 320 210" style={{ width: '100%', maxWidth: '320px', height: 'auto' }}>
       <IllustrationStyles />
       <g className="h0">
-        <rect x={fX} y={fY} width={fW} height={fH} rx="3" fill="none" stroke="#B0BED0" strokeWidth="3" />
-        <rect x={fX + 8} y={fY + 8} width={fW - 16} height={fH - 16} rx="2" fill="#EEF4FF" stroke="#1A5DA8" strokeWidth="1" strokeDasharray="3 2" />
-        {!isDoor && <rect x={fX} y={fY + fH} width={fW} height="12" rx="2" fill="#D0D9E8" />}
-        <text x={fX + fW / 2} y={cy} fontSize="11" fill="#7A8FA6" textAnchor="middle">Ouverture</text>
+        <rect x={fX} y={fY} width={fW} height={fH} rx="3" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="3" />
+        <rect x={fX + 8} y={fY + 8} width={fW - 16} height={fH - 16} rx="2" fill="rgba(212,175,55,0.06)" stroke="#D4AF37" strokeWidth="1" strokeDasharray="3 2" />
+        {!isDoor && <rect x={fX} y={fY + fH} width={fW} height="12" rx="2" fill="rgba(255,255,255,0.1)" />}
+        <text x={fX + fW / 2} y={cy} fontSize="11" fill="#94A3B8" textAnchor="middle">Ouverture</text>
       </g>
 
       {/* Arrow 1 - left */}
@@ -284,54 +296,38 @@ export const HauteurSVG: React.FC<{ k: number; isDoor: boolean }> = ({ k, isDoor
   );
 };
 
-export const FormulaSVG: React.FC<{ k: number; exampleL?: string; exampleH?: string }> = ({ k, exampleL = "1 200", exampleH = "2 150" }) => (
-  <svg key={k} viewBox="0 0 320 210" style={{ width: '100%', maxWidth: '320px', height: 'auto' }}>
-    <IllustrationStyles />
-    <g className="o0">
-      <rect x="35" y="15" width="250" height="68" rx="12" fill="#EEF4FF" stroke="#1A5DA8" strokeWidth="2" />
-      <text x="160" y="42" fontSize="13" fill="#7A8FA6" textAnchor="middle" fontWeight="600">Votre commande en une formule</text>
-      <text x="160" y="72" fontSize="26" fill="#0D1B2A" textAnchor="middle" fontWeight="900">L  ×  H</text>
-      <text x="107" y="84" fontSize="10" fill="#1A5DA8" textAnchor="middle">Largeur min.</text>
-      <text x="213" y="84" fontSize="10" fill="#1A5DA8" textAnchor="middle">Hauteur min.</text>
-    </g>
-
-    <g className="o1">
-      <rect x="55" y="92" width="210" height="40" rx="8" fill="#F4F7FB" stroke="#D0D9E8" strokeWidth="1.5" />
-      <text x="160" y="107" fontSize="10" fill="#7A8FA6" textAnchor="middle">Exemple :</text>
-      <text x="160" y="124" fontSize="14" fill="#0D1B2A" textAnchor="middle" fontWeight="800">{exampleL} mm  ×  {exampleH} mm</text>
-    </g>
-
-    <g className="o2">
-      <rect x="20" y="142" width="280" height="28" rx="7" fill="#E8F5E9" stroke="#86EFAC" strokeWidth="1.5" />
-      <text x="160" y="160" fontSize="12" fill="#1B5E20" textAnchor="middle" fontWeight="700">📞 Notre équipe valide vos mesures gratuitement</text>
-    </g>
-
-    <g className="o3" transform="translate(130, 175)">
-      <rect x="0" y="0" width="60" height="28" rx="14" fill="#1A5DA8" />
-      <text x="30" y="19" fontSize="13" fill="white" textAnchor="middle" fontWeight="800">✓ OK !</text>
-    </g>
-  </svg>
-);
-
 export const TipsSVG: React.FC<{ k: number }> = ({ k }) => (
-  <svg key={k} viewBox="0 0 320 210" style={{ width: '100%', maxWidth: '320px', height: 'auto' }}>
+  <div key={k} style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '8px 0', width: '100%', maxWidth: '320px', margin: '0 auto' }}>
     <IllustrationStyles />
     {[
-      { icon: '📏', color: '#EEF4FF', border: '#B8D0F0', text: 'Mesurez toujours DANS l\'embrasure, entre les deux bords du mur', dy: 0 },
-      { icon: '⬇️', color: '#FFF8EE', border: '#F5D27A', text: 'Arrondissez toujours au millimètre INFÉRIEUR (ex: 1203mm → 1203mm)', dy: 46 },
-      { icon: '📐', color: '#F0FFF4', border: '#86EFAC', text: 'Un écart > 0.5cm entre vos mesures = défaut d\'aplomb. Signalez-le !', dy: 92 },
-      { icon: '🔩', color: '#FFF0F0', border: '#FCA5A5', text: 'Pour fixation mural : prévoyez au moins 50mm de tableau accessible', dy: 138 },
-    ].map(({ icon, color, border, text, dy }, i) => (
-      <g key={i} className={`tip${i}`} transform={`translate(16, ${10 + dy})`}>
-        <rect x="0" y="0" width="288" height="38" rx="7" fill={color} stroke={border} strokeWidth="1.5" />
-        <text x="14" y="24" fontSize="17">{icon}</text>
-        <text x="40" y="15" fontSize="10.5" fill="#0D1B2A" fontWeight="600">{text.split('(')[0]}</text>
-        {text.includes('(') && (
-          <text x="40" y="30" fontSize="10" fill="#7A8FA6">{`(${text.split('(')[1]}`}</text>
-        )}
-      </g>
+      { icon: '📏', color: 'rgba(212,175,55,0.12)', border: 'rgba(212,175,55,0.3)', text: 'Mesurez toujours DANS l\'embrasure, entre les deux bords du mur' },
+      { icon: '⬇️', color: 'rgba(251,191,36,0.1)', border: 'rgba(251,191,36,0.25)', text: 'Arrondissez toujours au millimètre INFÉRIEUR (ex: 1203mm → 1203mm)' },
+      { icon: '📐', color: 'rgba(34,197,94,0.1)', border: 'rgba(134,239,172,0.2)', text: 'Un écart > 0.5cm entre vos mesures = défaut d\'aplomb. Signalez-le !' },
+      { icon: '🔩', color: 'rgba(239,68,68,0.1)', border: 'rgba(252,165,165,0.2)', text: 'Pour fixation mural : prévoyez au moins 50mm de tableau accessible' },
+    ].map(({ icon, color, border, text }, i) => (
+      <div key={i} className={`tip${i}`} style={{
+        background: color,
+        border: `1.5px solid ${border}`,
+        borderRadius: 12,
+        padding: '12px 16px',
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: 12,
+        color: '#E2E8F0',
+        fontSize: 12.5,
+        lineHeight: 1.5,
+        wordBreak: 'break-word',
+      }}>
+        <span style={{ fontSize: 18, flexShrink: 0 }}>{icon}</span>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <span style={{ fontWeight: 600 }}>{text.split('(')[0]}</span>
+          {text.includes('(') && (
+            <span style={{ fontSize: 11, color: '#94A3B8' }}>{`(${text.split('(')[1]}`}</span>
+          )}
+        </div>
+      </div>
     ))}
-  </svg>
+  </div>
 );
 
 export const RecapSVG = ({ 
@@ -356,7 +352,7 @@ export const RecapSVG = ({
       
       {/* Window/Door rectangle */}
       <rect x={x} y={y} width={w} height={h}
-        fill="#EFF6FF" stroke="#2563EB" 
+        fill="rgba(212,175,55,0.08)" stroke="#D4AF37" 
         strokeWidth={2} rx={productType === 'porte' ? 2 : 6}
       />
       
@@ -365,12 +361,12 @@ export const RecapSVG = ({
         <>
           <line x1={x + w/2} y1={y} 
                 x2={x + w/2} y2={y + h}
-            stroke="#2563EB" strokeWidth={1} 
+            stroke="#D4AF37" strokeWidth={1} 
             strokeDasharray="4,2" opacity={0.4}
           />
           <line x1={x} y1={y + h/2} 
                 x2={x + w} y2={y + h/2}
-            stroke="#2563EB" strokeWidth={1} 
+            stroke="#D4AF37" strokeWidth={1} 
             strokeDasharray="4,2" opacity={0.4}
           />
         </>
@@ -380,14 +376,14 @@ export const RecapSVG = ({
       <g>
         <line x1={x} y1={y+h+14} 
               x2={x+w} y2={y+h+14}
-          stroke="#2563EB" strokeWidth={1.5}
+          stroke="#D4AF37" strokeWidth={1.5}
           markerStart="url(#arr)" 
           markerEnd="url(#arr)"
         />
         <text x={x + w/2} y={y+h+26} 
           textAnchor="middle" 
           fontSize={10} fontWeight={700} 
-          fill="#2563EB"
+          fill="#D4AF37"
         >
           {L ? `L = ${L} cm` : 'L = ?'}
         </text>
@@ -415,7 +411,7 @@ export const RecapSVG = ({
       <defs>
         <marker id="arr" markerWidth={6} markerHeight={6}
           refX={3} refY={3} orient="auto">
-          <path d="M0,0 L6,3 L0,6 Z" fill="#2563EB"/>
+          <path d="M0,0 L6,3 L0,6 Z" fill="#D4AF37"/>
         </marker>
         <marker id="arrG" markerWidth={6} markerHeight={6}
           refX={3} refY={3} orient="auto">

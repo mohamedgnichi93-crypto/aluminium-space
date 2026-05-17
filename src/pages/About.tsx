@@ -23,7 +23,7 @@ const About = () => {
       desc: {
         fr: 'Chaque moustiquaire Grifo Flex est fabriquée en Italie avec des matériaux de premier choix, garantis pour durer.',
         ar: 'كل مستيكار Grifo Flex مصنوعة في إيطاليا بمواد عالية الجودة مضمونة للمدة الطويلة.',
-        tn: 'كل موستيكار Grifo Flex مصنوعة في إيطاليا بمواد من الدرجة الأولى، مضمونة تدوم.',
+        tn: 'كل مستيكار Grifo Flex مصنوعة في إيطاليا بمواد من الدرجة الأولى، مضمونة تدوم.',
         en: 'Every Grifo Flex screen is made in Italy with top-quality materials, guaranteed to last.',
         it: 'Ogni zanzariera Grifo Flex è prodotta in Italia con materiali di prima scelta, garantiti per durare.',
       },
@@ -98,7 +98,7 @@ const About = () => {
       desc: {
         fr: 'Aluminium Space devient le **partenaire de Grifo Flex** en Tunisie. Une marque italienne de référence mondiale en moustiquaires rétractables, fabriquée à Fano.',
         ar: 'أصبح Aluminium Space **الشريك المعتمد لـ Grifo Flex** في تونس. علامة إيطالية مرجعية عالمياً في المستيكارات القابلة للطي، مصنوعة في فانو.',
-        tn: 'Aluminium Space يصبح **الشريك المعتمد لـ Grifo Flex** في تونس. علامة إيطالية مرجعية عالمياً في الموستيكار، مصنوعة في فانو.',
+        tn: 'Aluminium Space يصبح **الشريك المعتمد لـ Grifo Flex** في تونس. علامة إيطالية مرجعية عالمياً في المستيكار، مصنوعة في فانو.',
         en: 'Aluminium Space becomes the **certified Grifo Flex partner** in Tunisia. A world-reference Italian brand in retractable screens, made in Fano.',
         it: 'Aluminium Space diventa il **partner certificato Grifo Flex** in Tunisia. Un marchio italiano di riferimento mondiale nelle zanzariere avvolgibili, prodotto a Fano.',
       },
@@ -242,7 +242,7 @@ const About = () => {
                 {loc({
                   fr: 'Aluminium Space est une entreprise spécialisée dans la menuiserie aluminium et la distribution de moustiquaires sur mesure. Implantée à Mghira, dans la région de Tunis, nous servons les particuliers et professionnels de toute la Tunisie.',
                   ar: 'Aluminium Space شركة متخصصة في نجارة الألومنيوم وتوزيع المستيكارات على المقاس. موجودة في مغيرة، في منطقة تونس، نخدم الأفراد والمهنيين في كل أنحاء تونس.',
-                  tn: 'Aluminium Space شركة متخصصة في نجارة الألمنيوم وتوزيع الموستيكار على المقاس. في مغيرة، منطقة تونس، نخدموا الأفراد والمهنيين في كل تونس.',
+                  tn: 'Aluminium Space شركة متخصصة في نجارة الألمنيوم وتوزيع المستيكار على المقاس. في مغيرة، منطقة تونس، نخدموا الأفراد والمهنيين في كل تونس.',
                   en: 'Aluminium Space is a company specializing in aluminum joinery and custom mosquito screen distribution. Located in Mghira, Tunis region, we serve individuals and professionals across all of Tunisia.',
                 })}
               </p>
@@ -255,7 +255,7 @@ const About = () => {
                 {loc({
                   fr: 'En tant que **partenaire Grifo Flex** en Tunisie, nous proposons des moustiquaires de haute technologie italiennes — mesurées, fabriquées sur mesure et installées par nos techniciens qualifiés.',
                   ar: 'بوصفنا **الشريك المعتمد لـ Grifo Flex** في تونس، نقدم مستيكارات إيطالية عالية التقنية — مقاسة، مصنعة على المقاس ومركبة من قبل تقنيينا المؤهلين.',
-                  tn: 'بوصفنا **الشريك المعتمد لـ Grifo Flex** في تونس، نقدموا موستيكار إيطالية عالية التقنية — تُقاس، تُصنع على المقاس وتُركب من طرف تقنيين متخصصين.',
+                  tn: 'بوصفنا **الشريك المعتمد لـ Grifo Flex** في تونس، نقدموا مستيكار إيطالية عالية التقنية — تُقاس، تُصنع على المقاس وتُركب من طرف تقنيين متخصصين.',
                   en: 'As the **certified Grifo Flex partner** in Tunisia, we offer high-tech Italian mosquito screens — measured, custom-made and installed by our qualified technicians.',
                 })}
               </p>
@@ -285,7 +285,7 @@ const About = () => {
                   {loc({
                     fr: 'Marque italienne leader mondial des moustiquaires rétractables. Fabriquée depuis des décennies à Fano (Marche, Italie) — reconnue pour sa qualité, sa durabilité et son design élégant.',
                     ar: 'العلامة الإيطالية الرائدة عالمياً في المستيكارات القابلة للطي. مصنوعة منذ عقود في فانو (ماركيه، إيطاليا) — معروفة بجودتها ومتانتها وتصميمها الأنيق.',
-                    tn: 'العلامة الإيطالية الرائدة عالمياً في الموستيكار. مصنوعة منذ عقود في فانو (إيطاليا) — معروفة بجودتها ومتانتها وتصميمها الأنيق.',
+                    tn: 'العلامة الإيطالية الرائدة عالمياً في المستيكار. مصنوعة منذ عقود في فانو (إيطاليا) — معروفة بجودتها ومتانتها وتصميمها الأنيق.',
                     en: 'World-leading Italian brand for retractable mosquito screens. Made for decades in Fano (Marche, Italy) — known for quality, durability and elegant design.',
                   })}
                 </p>

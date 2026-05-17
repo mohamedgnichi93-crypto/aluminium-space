@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { useRef } from 'react';
 import type { UseFormRegister, FieldErrors } from 'react-hook-form';
 import type { DevisFormData, DevisItem } from './DevisWizard';
 
@@ -14,6 +15,21 @@ interface Props {
 const StepClient = ({ register, errors, onPrev, onSubmit, itemsCount, items }: Props) => {
   const { t, i18n } = useTranslation();
   const isRTL = ['ar', 'tn'].includes(i18n.language);
+
+  // References for form inputs focus chain
+  const fullNameRef = useRef<HTMLInputElement>(null);
+  const phoneRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const addressRef = useRef<HTMLInputElement>(null);
+  const notesRef = useRef<HTMLTextAreaElement>(null);
+  const submitButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Destructure registers to intercept refs and blurs safely
+  const { ref: fullNameFormRef, onBlur: fullNameOnBlur, ...fullNameReg } = register('fullName');
+  const { ref: phoneFormRef, onBlur: phoneOnBlur, ...phoneReg } = register('phone');
+  const { ref: emailFormRef, onBlur: emailOnBlur, ...emailReg } = register('email');
+  const { ref: addressFormRef, onBlur: addressOnBlur, ...addressReg } = register('address');
+  const { ref: notesFormRef, onBlur: notesOnBlur, ...notesReg } = register('notes');
 
   const getBorderColor = (_fieldName: string, value: any, error: any) => {
     if (error) return '#EF4444';
@@ -89,14 +105,61 @@ const StepClient = ({ register, errors, onPrev, onSubmit, itemsCount, items }: P
         {/* Full Name */}
         <div style={{ gridColumn: '1 / -1' }} className="md:col-span-1">
           <label style={labelStyle}>{t('quote.full_name')} *</label>
-          <input type="text" placeholder={t('quote.full_name_placeholder', 'Ex: Mohamed Ali')} {...inputProps('fullName', errors.fullName)} dir={isRTL ? 'rtl' : 'ltr'} />
+          <input
+            type="text"
+            inputMode="text"
+            autoCapitalize="words"
+            autoComplete="name"
+            placeholder={t('quote.full_name_placeholder', 'Ex: Mohamed Ali')}
+            dir={isRTL ? 'rtl' : 'ltr'}
+            {...fullNameReg}
+            ref={(el) => {
+              fullNameFormRef(el);
+              (fullNameRef as any).current = el;
+            }}
+            onFocus={handleFocus}
+            onBlur={(e) => {
+              fullNameOnBlur(e);
+              handleBlur(e, errors.fullName);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                phoneRef.current?.focus();
+              }
+            }}
+            style={inputProps('fullName', errors.fullName).style}
+          />
           {errors.fullName && <span style={{ color: '#EF4444', fontSize: '12px', marginTop: '4px', display: 'block', textAlign: isRTL ? 'right' : 'left' }}>{errors.fullName.message as string}</span>}
         </div>
 
         {/* Phone */}
         <div style={{ gridColumn: '1 / -1' }} className="md:col-span-1">
           <label style={labelStyle}>{t('quote.phone')} *</label>
-          <input type="tel" placeholder={t('quote.phone_placeholder', 'Ex: 50 123 456')} {...inputProps('phone', errors.phone)} dir="ltr" />
+          <input
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            placeholder={t('quote.phone_placeholder', 'Ex: 50 123 456')}
+            dir="ltr"
+            {...phoneReg}
+            ref={(el) => {
+              phoneFormRef(el);
+              (phoneRef as any).current = el;
+            }}
+            onFocus={handleFocus}
+            onBlur={(e) => {
+              phoneOnBlur(e);
+              handleBlur(e, errors.phone);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                emailRef.current?.focus();
+              }
+            }}
+            style={inputProps('phone', errors.phone).style}
+          />
           <div style={{ fontSize: '12px', color: '#8896A5', marginTop: '6px', textAlign: isRTL ? 'right' : 'left' }}>{t('quote.phone_format', 'Format: 8 chiffres')}</div>
           {errors.phone && <span style={{ color: '#EF4444', fontSize: '12px', marginTop: '4px', display: 'block', textAlign: isRTL ? 'right' : 'left' }}>{errors.phone.message as string}</span>}
         </div>
@@ -104,14 +167,61 @@ const StepClient = ({ register, errors, onPrev, onSubmit, itemsCount, items }: P
         {/* Email */}
         <div style={{ gridColumn: '1 / -1' }} className="md:col-span-1">
           <label style={labelStyle}>{t('quote.email')}</label>
-          <input type="email" placeholder={t('quote.email_placeholder', 'Ex: contact@email.com')} {...inputProps('email', errors.email)} dir="ltr" />
+          <input
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            placeholder={t('quote.email_placeholder', 'Ex: contact@email.com')}
+            dir="ltr"
+            {...emailReg}
+            ref={(el) => {
+              emailFormRef(el);
+              (emailRef as any).current = el;
+            }}
+            onFocus={handleFocus}
+            onBlur={(e) => {
+              emailOnBlur(e);
+              handleBlur(e, errors.email);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                addressRef.current?.focus();
+              }
+            }}
+            style={inputProps('email', errors.email).style}
+          />
           {errors.email && <span style={{ color: '#EF4444', fontSize: '12px', marginTop: '4px', display: 'block', textAlign: isRTL ? 'right' : 'left' }}>{errors.email.message as string}</span>}
         </div>
 
         {/* Address */}
         <div style={{ gridColumn: '1 / -1' }} className="md:col-span-1">
           <label style={labelStyle}>{t('quote.address')} *</label>
-          <input type="text" placeholder={t('quote.address_placeholder', 'Ex: 123 Rue de la Liberté, Tunis')} {...inputProps('address', errors.address)} dir={isRTL ? 'rtl' : 'ltr'} />
+          <input
+            type="text"
+            inputMode="text"
+            autoCapitalize="words"
+            autoComplete="street-address"
+            placeholder={t('quote.address_placeholder', 'Ex: 123 Rue de la Liberté, Tunis')}
+            dir={isRTL ? 'rtl' : 'ltr'}
+            {...addressReg}
+            ref={(el) => {
+              addressFormRef(el);
+              (addressRef as any).current = el;
+            }}
+            onFocus={handleFocus}
+            onBlur={(e) => {
+              addressOnBlur(e);
+              handleBlur(e, errors.address);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                notesRef.current?.focus();
+              }
+            }}
+            style={inputProps('address', errors.address).style}
+          />
           {errors.address && <span style={{ color: '#EF4444', fontSize: '12px', marginTop: '4px', display: 'block', textAlign: isRTL ? 'right' : 'left' }}>{errors.address.message as string}</span>}
         </div>
 
@@ -121,9 +231,24 @@ const StepClient = ({ register, errors, onPrev, onSubmit, itemsCount, items }: P
           <textarea
             rows={4}
             placeholder={t('quote.notes_placeholder', "Détails supplémentaires, préférences d'installation...")}
-            {...inputProps('notes', errors.notes)}
-            style={{ ...inputProps('notes', errors.notes).style, resize: 'none', textAlign: isRTL ? 'right' : 'left' }}
             dir={isRTL ? 'rtl' : 'ltr'}
+            {...notesReg}
+            ref={(el) => {
+              notesFormRef(el);
+              (notesRef as any).current = el;
+            }}
+            onFocus={handleFocus}
+            onBlur={(e) => {
+              notesOnBlur(e);
+              handleBlur(e, errors.notes);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                submitButtonRef.current?.click();
+              }
+            }}
+            style={{ ...inputProps('notes', errors.notes).style, resize: 'none', textAlign: isRTL ? 'right' : 'left' }}
           ></textarea>
         </div>
       </div>
@@ -165,6 +290,7 @@ const StepClient = ({ register, errors, onPrev, onSubmit, itemsCount, items }: P
           {isRTL ? `${t('common.back', 'Retour')} →` : `← ${t('common.back', 'Retour')}`}
         </button>
         <button
+          ref={submitButtonRef}
           onClick={onSubmit}
           type="button"
           style={{

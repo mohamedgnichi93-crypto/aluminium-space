@@ -124,6 +124,8 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({
             {[
               { label: 'En attente', value: orders.filter(o => o.status === 'pending').length, color: '#F59E0B', bg: '#FFFBEB' },
               { label: 'Confirmées', value: orders.filter(o => o.status === 'confirmed').length, color: '#27AE60', bg: '#E8F8F0' },
+              { label: 'Mesure', value: orders.filter(o => o.status === 'mesure').length, color: '#F59E0B', bg: '#FEF3C7' },
+              { label: 'Avance', value: orders.filter(o => o.status === 'avance').length, color: '#1E40AF', bg: '#DBEAFE' },
               { label: 'En fabrication', value: orders.filter(o => o.status === 'en_fabrication').length, color: '#3B82F6', bg: '#DBEAFE' },
               { label: 'Prêtes', value: orders.filter(o => o.status === 'pret').length, color: '#8B5CF6', bg: '#EDE9FE' },
               { label: 'Installées', value: orders.filter(o => o.status === 'installe').length, color: '#1D3E61', bg: '#EEF2F8' },

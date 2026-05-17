@@ -11,6 +11,9 @@ export interface ChatMessage {
   created_at: string;
   read_by_admin: boolean;
   read_by_client: boolean;
+  client_phone?: string;
+  client_email?: string;
+  subject?: string;
 }
 
 const getSessionId = (): string => {

@@ -25,6 +25,9 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
   const isRTL = ['ar', 'tn'].includes(i18n.language);
   const width = watch('width');
   const height = watch('height');
+  const { ref: widthRef, onBlur: widthOnBlur, ...widthRegisterProps } = register('width', { valueAsNumber: true });
+  const { ref: heightRef, onBlur: heightOnBlur, ...heightRegisterProps } = register('height', { valueAsNumber: true });
+  const hauteurRef = useRef<HTMLInputElement>(null);
   const quantity = watch('quantity') || 1;
   const meshType = watch('meshType');
   const color = watch('color') || 'Blanc';
@@ -401,7 +404,9 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
                 </label>
                 <input
                   type="number"
-                  {...register('width', { valueAsNumber: true })}
+                  inputMode="numeric"
+                  {...widthRegisterProps}
+                  ref={widthRef}
                   style={{
                     border: `1px solid ${errors.width ? '#EF4444' : '#E2E8F0'}`,
                     borderRadius: '10px',
@@ -414,7 +419,20 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
                   }}
                   placeholder={`Ex: ${Math.round((minW + maxW) / 2)}`}
                   onFocus={handleFocus}
-                  onBlur={(e) => handleBlur(e, !!errors.width)}
+                  onBlur={(e) => {
+                    widthOnBlur(e);
+                    handleBlur(e, !!errors.width);
+                    if (e.relatedTarget && e.relatedTarget instanceof HTMLElement) {
+                      return;
+                    }
+                    hauteurRef.current?.focus();
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      hauteurRef.current?.focus();
+                    }
+                  }}
                 />
                 {productId !== 'elba' ? (
                   <div style={{ fontSize: '12px', color: '#8896A5', marginTop: '6px' }}>
@@ -435,7 +453,12 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
                 </label>
                 <input
                   type="number"
-                  {...register('height', { valueAsNumber: true })}
+                  inputMode="numeric"
+                  {...heightRegisterProps}
+                  ref={(el) => {
+                    heightRef(el);
+                    (hauteurRef as any).current = el;
+                  }}
                   style={{
                     border: `1px solid ${errors.height ? '#EF4444' : '#E2E8F0'}`,
                     borderRadius: '10px',
@@ -448,7 +471,10 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
                   }}
                   placeholder={`Ex: ${Math.round((minH + maxH) / 2)}`}
                   onFocus={handleFocus}
-                  onBlur={(e) => handleBlur(e, !!errors.height)}
+                  onBlur={(e) => {
+                    heightOnBlur(e);
+                    handleBlur(e, !!errors.height);
+                  }}
                 />
                 {productId !== 'elba' ? (
                   <div style={{ fontSize: '12px', color: '#8896A5', marginTop: '6px' }}>

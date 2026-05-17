@@ -6,6 +6,11 @@ import App from './App.tsx'
 import { ErrorBoundary } from './components/ErrorBoundary.tsx'
 import './i18n'
 
+import { ensureSettingsLoaded } from './store/settingsStore'
+
+// Start fetching settings from Supabase immediately before React even mounts
+ensureSettingsLoaded().catch(console.error);
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
