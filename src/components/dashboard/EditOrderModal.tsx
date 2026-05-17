@@ -166,12 +166,40 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({
             <button
               onClick={async () => {
                 try {
-                  const saved = await updateOrder(editingOrder.id, editingOrder as any);
-                  if (saved) {
-                    await loadData();
-                    setEditingOrder(null);
-                    toast.success('Commande modifiée avec succès');
-                  }
+                  const items = editingOrder.items;
+                  const totalHT = items.reduce((sum, it) => sum + ((it.unitPrice || 0) * (it.quantity || 1)), 0);
+                  const fodec = editingOrder.fodec ?? 1;
+                  const tva = editingOrder.tva ?? 19;
+                  const rp = editingOrder.remisePercent || 0;
+                  const timbre = editingOrder.timbre ?? 1000;
+
+                  const remise = totalHT * (rp / 100);
+                  const netHT = totalHT - remise;
+                  const fodecAmount = netHT * (fodec / 100);
+                  const baseForTVA = netHT + fodecAmount;
+                  const tvaAmount = baseForTVA * (tva / 100);
+                  const totalTTC = baseForTVA + tvaAmount + timbre;
+
+                  const finalOrder = {
+                    ...editingOrder,
+                    totalHT,
+                    remise,
+                    remisePercent: rp,
+                    netHT,
+                    fodecAmount,
+                    baseForTVA,
+                    tvaAmount,
+                    totalTTC,
+                    fodec,
+                    tva,
+                    timbre
+                  };
+
+                  const saved = await updateOrder(editingOrder.id, finalOrder as any);
+                  // updateOrder has void return type in ordersStore.ts, so if it didn't throw, we assume success
+                  await loadData();
+                  setEditingOrder(null);
+                  toast.success('Commande modifiée avec succès');
                 } catch (err) {
                   toast.error('Erreur lors de la modification');
                 }
