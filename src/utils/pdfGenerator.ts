@@ -58,8 +58,8 @@ function drawHeader(doc: jsPDF, orderId?: string): void {
 
   // Logo area (left) — enlarged, no text below
   try {
-    const logoUrl = resolveAssetUrl('/logo-aluminium-space.png');
-    doc.addImage(logoUrl, 'PNG', MARGIN.left, 6, 38, 28);
+    const logoUrl = resolveAssetUrl('/images/logo-devis.png');
+    doc.addImage(logoUrl, 'PNG', MARGIN.left, 6, 21, 28);
   } catch {
     // Logo fallback: text
     doc.setFont('helvetica', 'bold');
