@@ -157,6 +157,52 @@ function formatPriceTables(product: SupabaseProduct): string {
 
     let result = '';
 
+    // CASE 1: ELBA (base_per_m2)
+    if (pt.base_per_m2) {
+      const pricePerM2 = Math.round(pt.base_per_m2 / 1000);
+      result += `Prix au m²: ${pricePerM2} DT HT\n`;
+      result += `Formule: Largeur (m) × Hauteur (m) × ${pricePerM2} DT\n`;
+      result += `Exemple: 1.20m × 1.50m × ${pricePerM2} = ${Math.round(1.2 * 1.5 * pricePerM2)} DT HT\n`;
+      return result;
+    }
+
+    // CASE 2: PLISSÉ 31 (nested width→heightRange→price)
+    // Detect Plissé 31 structure: keys are numeric strings like "125","180"...
+    const widthKeys = Object.keys(pt).filter(k => /^\d+$/.test(k));
+    if (widthKeys.length > 0) {
+      result += `Tableau des prix (DT HT):\n`;
+      result += `Largeur max (cm) | Plage hauteur | Prix HT\n`;
+      
+      widthKeys.forEach(widthKey => {
+        const heightRanges = pt[widthKey];
+        if (typeof heightRanges === 'object') {
+          Object.entries(heightRanges).forEach(([heightRange, price]) => {
+            const priceNum = Math.round((price as number) / 1000);
+            result += `Largeur ≤ ${widthKey} cm, Hauteur ${heightRange} cm → ${priceNum} DT\n`;
+          });
+        }
+      });
+      return result;
+    }
+
+    // CASE 3: Sidney-style: width tiers with heights array
+    const widthTierKeys = Object.keys(pt).filter(k => k.startsWith('width'));
+    if (widthTierKeys.length > 0) {
+      widthTierKeys.forEach(tierKey => {
+        const maxWidth = tierKey.replace('width', '');
+        const tier = pt[tierKey];
+        if (tier?.heights && tier?.prices) {
+          result += `Largeur ≤ ${maxWidth} cm:\n`;
+          tier.heights.forEach((h: number, i: number) => {
+            const price = Math.round(tier.prices[i] / 1000);
+            result += `  Hauteur ${h} cm → ${price} DT\n`;
+          });
+          result += '\n';
+        }
+      });
+      return result;
+    }
+
     // height170 tier
     if (pt.height170?.widths && pt.height170?.prices) {
       result += `Hauteur ≤ 170 cm:\n`;
@@ -174,46 +220,6 @@ function formatPriceTables(product: SupabaseProduct): string {
       pt.height250.widths.forEach((w: number, i: number) => {
         const price = Math.round(pt.height250.prices[i] / 1000);
         result += `${w} cm → ${price} DT\n`;
-      });
-    }
-
-    // width160 tier (Sidney 50)
-    if (pt.width160?.heights && pt.width160?.prices) {
-      result += `Largeur ≤ 160 cm:\n`;
-      result += `Hauteur (cm) | Prix HT (DT)\n`;
-      pt.width160.heights.forEach((h: number, i: number) => {
-        const price = Math.round(pt.width160.prices[i] / 1000);
-        result += `${h} cm → ${price} DT\n`;
-      });
-    }
-
-    // width200 tier (Sidney 50)
-    if (pt.width200?.heights && pt.width200?.prices) {
-      result += `\nLargeur 161–200 cm:\n`;
-      result += `Hauteur (cm) | Prix HT (DT)\n`;
-      pt.width200.heights.forEach((h: number, i: number) => {
-        const price = Math.round(pt.width200.prices[i] / 1000);
-        result += `${h} cm → ${price} DT\n`;
-      });
-    }
-
-    // width320 tier (Sidney 50 AC)
-    if (pt.width320?.heights && pt.width320?.prices) {
-      result += `Largeur ≤ 320 cm:\n`;
-      result += `Hauteur (cm) | Prix HT (DT)\n`;
-      pt.width320.heights.forEach((h: number, i: number) => {
-        const price = Math.round(pt.width320.prices[i] / 1000);
-        result += `${h} cm → ${price} DT\n`;
-      });
-    }
-
-    // width400 tier (Sidney 50 AC)
-    if (pt.width400?.heights && pt.width400?.prices) {
-      result += `\nLargeur 321–400 cm:\n`;
-      result += `Hauteur (cm) | Prix HT (DT)\n`;
-      pt.width400.heights.forEach((h: number, i: number) => {
-        const price = Math.round(pt.width400.prices[i] / 1000);
-        result += `${h} cm → ${price} DT\n`;
       });
     }
 
