@@ -102,6 +102,17 @@ function stripAwaitingTag(text: string): string {
 }
 
 
+// ─── EXTRACT DIMENSIONS ─────────────────────────────────────────
+function extractDimensions(text: string): { largeur: number; hauteur: number } | null {
+  const match = text.match(/(\d{2,4})\s*[x×X*/]\s*(\d{2,4})/);
+  if (!match) return null;
+  return {
+    largeur: parseInt(match[1]),
+    hauteur: parseInt(match[2]),
+  };
+}
+
+
 // ─── NEEDS PRICING DATA ─────────────────────────────────────────
 function needsPricingData(userText: string, history: Message[]): boolean {
   const t = userText.toLowerCase();
@@ -345,6 +356,14 @@ FODEC: ${fodec}%
 Timbre fiscal: ${timbre} DT
 
 ━━━ CALCUL PRIX — RÈGLES OBLIGATOIRES ━━━
+FORMAT DES DIMENSIONS — RÈGLE ABSOLUE:
+Quand tu vois [Dimensions parsed: Largeur=X cm, Hauteur=Y cm]
+dans le message utilisateur, utilise EXACTEMENT ces valeurs.
+Ne jamais inverser ou recalculer les dimensions.
+Largeur = X cm (première valeur)
+Hauteur = Y cm (deuxième valeur)
+Ces valeurs sont définitives et correctes.
+
 Pour calculer le prix exact:
 1. Identifier le tier de hauteur ou largeur:
    - COLIBRÌ 50: Hauteur ≤ 170 cm → table 'Hauteur ≤ 170 cm'
@@ -521,6 +540,7 @@ async function callOpenAI(
   lang: Lang,
   onChunk: (chunk: string) => void,
   base64Image?: string | null,
+  dims?: { largeur: number; hauteur: number } | null,
 ): Promise<string> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => {
@@ -544,13 +564,37 @@ async function callOpenAI(
       },
     ];
 
+    let finalMessages = messages;
+    if (dims) {
+      // Append explicit parsed dimensions to user message
+      const explicitDims = `\n[Dimensions parsed: Largeur=${dims.largeur} cm, Hauteur=${dims.hauteur} cm]`;
+      // Add to the last message in the messages array before sending
+      const messagesWithDims = [...messages];
+      const lastUserIdx = messagesWithDims.length - 1;
+      if (messagesWithDims[lastUserIdx]?.role === 'user') {
+        const lastMsg = messagesWithDims[lastUserIdx];
+        if (typeof lastMsg.content === 'string') {
+          messagesWithDims[lastUserIdx] = {
+            ...lastMsg,
+            content: lastMsg.content + explicitDims,
+          };
+        } else if (Array.isArray(lastMsg.content)) {
+          const textItem = lastMsg.content.find((item: any) => item.type === 'text');
+          if (textItem) {
+            textItem.text += explicitDims;
+          }
+        }
+      }
+      finalMessages = messagesWithDims;
+    }
+
     const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
       },
-      body: JSON.stringify({ messages, systemPrompt }),
+      body: JSON.stringify({ messages: finalMessages, systemPrompt }),
       signal: controller.signal,
     });
 
@@ -633,9 +677,11 @@ export async function processLocalMessage(
   const includePricing = needsPricingData(userText, history);
   const systemPrompt = buildDynamicSystemPrompt(products, settings, faq, lang, includePricing);
 
+  const dims = extractDimensions(userText);
+
   // Call OpenAI — it handles EVERYTHING (text, prices, FAQ, etc.)
   const aiText = await callOpenAI(
-    userText, history, systemPrompt, lang, onChunk, base64Image
+    userText, history, systemPrompt, lang, onChunk, base64Image, dims
   );
 
 
