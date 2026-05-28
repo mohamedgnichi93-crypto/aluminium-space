@@ -131,7 +131,7 @@
     "col_height": "Height (cm)",
     "tva_notice": "These prices are excl. tax. 19% VAT will be added in the final quote.",
     "cta_quote": "Calculate my quote",
-    "ask_alu": "Ask ALU",
+    "ask_alu": "Ask Asmos",
     "tooltip_wh": "Price for {{w}}cm × {{h}}cm",
     "tooltip_max_wh": "Price for ≤{{maxW}}cm × {{h}}cm",
     "tooltip_exact_wh": "Price for {{w}}cm × {{h}}cm",

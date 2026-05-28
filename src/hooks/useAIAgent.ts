@@ -6,17 +6,16 @@ import {
   type Message,
   type AgentAction,
 } from '../services/aiAgentService';
-import { useSpeechRecognition, SPEECH_LANGUAGES } from './useSpeechRecognition';
 import { useTranslation } from 'react-i18next';
 
 type Lang = 'fr' | 'ar' | 'tn' | 'en' | 'it';
 
 const WELCOME_MESSAGES: Record<Lang, string> = {
-  fr: "Bonjour ! 👋 Je suis **ALU**, votre assistant Aluminium Space.\n\nJe peux calculer vos prix, vous conseiller sur nos moustiquaires Grifo Flex et créer votre devis. Comment puis-je vous aider ?",
-  ar: "مرحباً! 👋 أنا **ALU**، مساعد Aluminium Space.\n\nأستطيع حساب الأسعار، تقديم النصائح حول مستيكارات Grifo Flex وإعداد عرض الأسعار. كيف يمكنني مساعدتك اليوم؟",
-  tn: "Aslema! 👋 Ana **ALU**, el-mosa3ed mte3 Aluminium Space.\n\nNajem n7seblek el thmen, nansahek fi moustika Grifo Flex w namel devis. Kfeh n3awnek lyoum?",
-  en: "Hello! 👋 I'm **ALU**, your Aluminium Space assistant.\n\nI can calculate prices, advise you on Grifo Flex mosquito screens and prepare your quote. How can I help you today?",
-  it: "Ciao! 👋 Sono **ALU**, il tuo assistente Aluminium Space.\n\nPosso calcolare i prezzi, consigliarti sulle zanzariere Grifo Flex e preparare il tuo preventivo. Come posso aiutarti oggi?",
+  fr: "Bonjour ! 👋 Je suis **Asmos**, votre assistant Aluminium Space.\n\nJe peux calculer vos prix, vous conseiller sur nos moustiquaires Grifo Flex et créer votre devis. Comment puis-je vous aider ?",
+  ar: "مرحباً! 👋 أنا **Asmos**، مساعد Aluminium Space.\n\nأستطيع حساب الأسعار، تقديم النصائح حول مستيكارات Grifo Flex وإعداد عرض الأسعار. كيف يمكنني مساعدتك اليوم؟",
+  tn: "Aslema! 👋 Ana **Asmos**, el-mosa3ed mte3 Aluminium Space.\n\nNajem n7seblek el thmen, nansahek fi moustika Grifo Flex w namel devis. Kfeh n3awnek lyoum?",
+  en: "Hello! 👋 I'm **Asmos**, your Aluminium Space assistant.\n\nI can calculate prices, advise you on Grifo Flex mosquito screens and prepare your quote. How can I help you today?",
+  it: "Ciao! 👋 Sono **Asmos**, il tuo assistente Aluminium Space.\n\nPosso calcolare i prezzi, consigliarti sulle zanzariere Grifo Flex e preparare il tuo preventivo. Come posso aiutarti oggi?",
 };
 
 const LOADING_MESSAGES: Record<Lang, string[]> = {
@@ -27,7 +26,9 @@ const LOADING_MESSAGES: Record<Lang, string[]> = {
   it: ['Pensando...', 'Cercando...', 'Calcolando...', 'Preparando...'],
 };
 
-const MESSAGE_COOLDOWN = 1500;
+const isMobileDevice = () => 
+  typeof window !== 'undefined' && window.innerWidth < 640;
+const MESSAGE_COOLDOWN = isMobileDevice() ? 2500 : 1500;
 
 export function useAIAgentLogic(
   language: Lang,
@@ -46,12 +47,6 @@ export function useAIAgentLogic(
   const lastMessageTimeRef = useRef(0);
   const loadingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const loadingIndexRef = useRef(0);
-
-  const { 
-    isListening, transcript, interimTranscript, 
-    startListening, stopListening, isSupported: voiceSupported,
-    sttError 
-  } = useSpeechRecognition();
 
   const { i18n } = useTranslation();
 
@@ -117,12 +112,6 @@ export function useAIAgentLogic(
           if (action.params?.path) navigate(String(action.params.path));
           break;
 
-        case 'open_devis_wizard':
-          navigate('/devis');
-          if (action.params?.productId) {
-            localStorage.setItem('preselected_product', String(action.params.productId));
-          }
-          break;
         case 'scroll_to_section':
           if (action.params?.sectionId) {
             document.getElementById(String(action.params.sectionId))?.scrollIntoView({ behavior: 'smooth' });
@@ -162,7 +151,7 @@ export function useAIAgentLogic(
           base64Image
         );
         
-        const { text, action, actionLabel, suggestions, navigating, detectedLang, productImage, devisButton, comparisonTable } = response;
+        const { text, action, actionLabel, suggestions, detectedLang, productImage, awaitingDimensions } = response;
 
         const assistantMsg: Message = {
           id: (Date.now() + 1).toString(),
@@ -174,8 +163,7 @@ export function useAIAgentLogic(
           suggestions,
           detectedLang,
           productImage,
-          devisButton,
-          comparisonTable,
+          awaitingDimensions,
           rating: null,
         };
 
@@ -187,16 +175,19 @@ export function useAIAgentLogic(
         if (action && !actionLabel) {
           setTimeout(() => {
             executeAction(action);
-            if (navigating && onAutoNavigate) {
-              setTimeout(onAutoNavigate, 500);
-            }
           }, 700);
         }
       } catch {
+        const errorMessages: Record<string, string> = {
+          fr: "Désolé, une erreur s'est produite. Réessayez ou appelez le +216 53 186 611.",
+          ar: "عذراً، حدث خطأ. يرجى المحاولة مجدداً أو الاتصال على +216 53 186 611.",
+          en: "Sorry, an error occurred. Please retry or call us at +216 53 186 611.",
+          it: "Spiacente, si è verificato un errore. Riprova o chiama il +216 53 186 611.",
+        };
         setMessages(prev => [...prev, {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
-          content: "Désolé, une erreur s'est produite. Veuillez réessayer ou nous appeler au (+216) 53 186 611.",
+          content: errorMessages[language] || errorMessages['fr'],
           timestamp: new Date(),
         }]);
       } finally {
@@ -213,14 +204,6 @@ export function useAIAgentLogic(
       sendMessage(pendingMessage);
     }
   }, [pendingMessage, clearPendingMessage, sendMessage]);
-
-  const handleVoiceInput = useCallback(() => {
-    if (isListening) {
-      stopListening();
-    } else {
-      startListening(SPEECH_LANGUAGES[language] ?? 'fr-FR');
-    }
-  }, [isListening, language, startListening, stopListening]);
 
   const clearHistory = useCallback(() => {
     sessionStorage.removeItem('alu_chat_history');
@@ -242,13 +225,7 @@ export function useAIAgentLogic(
     loadingMessage,
     streamingMessage,
     sendMessage,
-    handleVoiceInput,
-    isListening,
-    interimTranscript,
-    voiceSupported,
-    sttError,
     clearHistory,
     executeAction,
-    transcript,
   };
 }

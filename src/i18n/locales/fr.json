@@ -131,7 +131,7 @@
     "col_height": "Hauteur (cm)",
     "tva_notice": "Ces prix sont en hors taxes (HT). TVA 19% sera ajoutée lors du devis final.",
     "cta_quote": "Calculer mon devis",
-    "ask_alu": "Demander à ALU",
+    "ask_alu": "Demander à Asmos",
     "tooltip_wh": "Prix pour {{w}}cm × {{h}}cm",
     "tooltip_max_wh": "Prix pour ≤{{maxW}}cm × {{h}}cm",
     "tooltip_exact_wh": "Prix pour {{w}}cm × {{h}}cm",

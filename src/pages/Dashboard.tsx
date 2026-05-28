@@ -16,6 +16,8 @@ import MeasureRequestsTable from '../components/dashboard/MeasureRequestsTable';
 import TrashTable from '../components/dashboard/TrashTable';
 import SettingsPanel from '../components/dashboard/SettingsPanel';
 import ChatPanel from '../components/dashboard/ChatPanel';
+import ProductsPanel from '../components/dashboard/ProductsPanel';
+import FaqPanel from '../components/dashboard/FaqPanel';
 import EditOrderModal from '../components/dashboard/EditOrderModal';
 import PageSEO from '../components/ui/PageSEO';
 import { Loader2 } from 'lucide-react';
@@ -471,6 +473,10 @@ const Dashboard = () => {
                   markSessionRead={markSessionRead}
                 />
               )}
+
+              {activeTab === 'produits' && <ProductsPanel />}
+
+              {activeTab === 'faq' && <FaqPanel />}
 
               {(activeTab === 'dashboard' || activeTab === 'orders') && (
                 <>

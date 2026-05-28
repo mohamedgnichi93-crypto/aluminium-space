@@ -12,7 +12,7 @@ serve(async (req) => {
 
   try {
     const { messages, systemPrompt } = await req.json()
-    
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -31,7 +31,7 @@ serve(async (req) => {
     })
 
     const data = await response.json()
-    
+
     return new Response(
       JSON.stringify({ content: data.choices[0].message.content }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

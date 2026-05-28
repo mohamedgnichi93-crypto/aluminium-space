@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   LayoutDashboard, ShoppingBag, MessageSquare, BarChart3, Trash2, Settings,
-  LogOut, ChevronLeft, ChevronRight, Ruler, X as XIcon
+  LogOut, ChevronLeft, ChevronRight, Ruler, X as XIcon, Package, HelpCircle
 } from 'lucide-react';
 
 interface DashboardSidebarProps {
@@ -99,6 +99,8 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
           { id: 'dashboard', icon: LayoutDashboard, label: 'Tableau de bord' },
           { id: 'orders', icon: ShoppingBag, label: 'Commandes' },
           { id: 'demandes', icon: Ruler, label: 'Demandes' },
+          { id: 'produits', icon: Package, label: 'Produits' },
+          { id: 'faq', icon: HelpCircle, label: 'FAQ' },
           { id: 'chat', icon: MessageSquare, label: 'Messages', count: unreadSessions },
           { id: 'stats', icon: BarChart3, label: 'Statistiques' },
           { id: 'corbeille', icon: Trash2, label: 'Corbeille', count: trashedOrdersCount },

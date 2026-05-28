@@ -22,12 +22,6 @@ const defaultMemory: ConvMemory = {
   lastProduct: null,
   lastWidth: null,
   lastHeight: null,
-  lastQuantity: null,
-  lastPrice: null,
-  awaitingDimensions: false,
-  awaitingProduct: false,
-  awaitingPhone: false,
-  mentionCount: 0,
 };
 
 const AIAgentContext = createContext<AIAgentContextType | null>(null);

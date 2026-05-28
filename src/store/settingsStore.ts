@@ -46,6 +46,8 @@ const DEFAULTS: BusinessSettings = {
 
 let cache: BusinessSettings = { ...DEFAULTS };
 let _loaded = false;
+let _loadedAt = 0;
+const SETTINGS_TTL = 2 * 60 * 1000; // 2 minutes
 let _loadPromise: Promise<BusinessSettings> | null = null;
 
 /** Mapping from App (camelCase) to DB (snake_case) */
@@ -132,11 +134,16 @@ export function isSettingsLoaded(): boolean {
   return _loaded;
 }
 
-/** Ensures settings are loaded before returning. Safe to call multiple times. */
-export async function ensureSettingsLoaded(): Promise<BusinessSettings> {
-  if (_loaded) return cache;
-  return loadSettings();
-}
+export const ensureSettingsLoaded = async () => {
+  const now = Date.now();
+  if (_loaded && (now - _loadedAt) < SETTINGS_TTL) {
+    return cache;
+  }
+  await loadSettings();
+  _loaded = true;
+  _loadedAt = now;
+  return cache;
+};
 
 export function getSettings(): BusinessSettings {
   return cache;
@@ -185,3 +192,12 @@ export async function resetSettings(): Promise<void> {
     }
   } catch { /* ignore */ }
 }
+
+// ── Realtime: auto-invalidate cache on any settings change ──
+supabase
+  .channel('settings-realtime')
+  .on('postgres_changes',
+    { event: '*', schema: 'public', table: 'business_settings' },
+    () => { _loaded = false; }
+  )
+  .subscribe();

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, type KeyboardEvent } from 'react';
+import { useState, useRef, useEffect, useCallback, type KeyboardEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X,
@@ -10,7 +10,10 @@ import type { Lang } from '../../context/AIAgentContext';
 
 // ── Markdown-lite renderer ────────────────────────────────────────
 function renderText(text: string) {
-  return text.split('\n').map((line, i, arr) => {
+  // Strip lang tag if present (safety net)
+  const clean = text.replace(/^\[lang:(fr|ar|en|it)\]\n?/, '').trim();
+  
+  return clean.split('\n').map((line, i, arr) => {
     const parts = line.split(/\*\*(.*?)\*\*/g);
     return (
       <span key={i}>
@@ -80,15 +83,20 @@ export default function AIAgent() {
   const [showQuickActions, setShowQuickActions] = useState(true);
   const [avatarError, setAvatarError] = useState(false);
   const [awaitingDimensions, setAwaitingDimensions] = useState(false);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 640);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener('resize', onResize, { passive: true });
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const {
     messages, isLoading, loadingMessage, streamingMessage, sendMessage,
-    sttError, clearHistory, executeAction, transcript,
-    isListening, interimTranscript,
+    clearHistory, executeAction,
   } = useAIAgentLogic(
     currentLanguage, pendingMessage, clearPendingMessage, closeAgent, setLanguage,
   );
@@ -100,86 +108,73 @@ export default function AIAgent() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading, streamingMessage]);
 
-  // Focus on open
+  // Auto-focus when chat opens (desktop only)
   useEffect(() => {
-    if (isOpen) setTimeout(() => inputRef.current?.focus(), 300);
-  }, [isOpen]);
-
-  // Sync voice transcript to input
-  useEffect(() => {
-    if (isListening) {
-      const combined = [transcript, interimTranscript].filter(Boolean).join(' ').trim();
-      if (combined) setInputValue(combined);
-    }
-  }, [isListening, transcript, interimTranscript]);
-
-  // Auto-send when voice stops
-  const prevListeningRef = useRef(isListening);
-  useEffect(() => {
-    if (prevListeningRef.current && !isListening) {
-      const toSend = transcript.trim();
-      if (toSend) {
-        handleSend(toSend);
+    if (!isOpen) return;
+    if (isMobile) return;
+    
+    const timer = setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+        inputRef.current.click();
       }
-    }
-    prevListeningRef.current = isListening;
-  }, [isListening, transcript]);
+    }, 350);
+    
+    return () => clearTimeout(timer);
+  }, [isOpen, isMobile]);
 
-  // Track if waiting for dimensions
+  // Focus input when AI response completes
   useEffect(() => {
-    if (messages.length > 0) {
-      const last = messages[messages.length - 1];
-      if (last.role === 'assistant') {
-        setAwaitingDimensions(
-          /dimensions|largeur|hauteur|envoyez|ba3ath|أرسل|send.*dim|invia/i.test(last.content)
-        );
-      }
+    if (!isLoading && isOpen && !isMobile) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    }
+  }, [isLoading, isOpen, isMobile]);
+
+
+  // Track if waiting for dimensions (from OpenAI tag)
+  useEffect(() => {
+    const lastMsg = messages[messages.length - 1];
+    if (lastMsg?.role === 'assistant') {
+      setAwaitingDimensions(lastMsg.awaitingDimensions === true);
     }
   }, [messages]);
 
-
-  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 640);
-  useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth < 640);
-    window.addEventListener('resize', onResize, { passive: true });
-    return () => window.removeEventListener('resize', onResize);
-  }, []);
-
-
-
-
-  const handleSend = (overrideText?: string) => {
+  const handleSend = useCallback((overrideText?: string) => {
     const textToSanitize = overrideText || inputValue;
     if (!textToSanitize.trim() || isLoading) return;
 
     const sanitizedMessage = textToSanitize
-      .replace(/<[^>]*>/g, '') // supprimer HTML
-      .replace(/[^\w\sÀ-ž?!.,;:()'"/\u0600-\u06FF-]/g, '') // garder: latin, arabe, ponctuation
+      .replace(/<script[^>]*>.*?<\/script>/gi, '') // remove script injections
+      .replace(/<[^>]*>/g, '') // remove HTML tags
       .trim()
       .slice(0, 500);
 
-    if (sanitizedMessage.length < 2) return;
-
-    sendMessage(sanitizedMessage, imagePreview);
+    sendMessage(sanitizedMessage);
     setInputValue('');
-    setImagePreview(null);
+    setTimeout(() => {
+      if (!isMobile) {
+        inputRef.current?.focus();
+      }
+    }, 50);
     setShowQuickActions(false);
-  };
+  }, [inputValue, isLoading, isMobile, sendMessage]);
+
 
   const handleQuickAction = (msg: string) => {
     handleSend(msg);
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+    if (e.key === 'Enter' && !e.shiftKey && !isMobile) { e.preventDefault(); handleSend(); }
   };
 
   const statusText = () => {
-    if (isListening) return { fr: '🎤 Écoute...', ar: '🎤 أسمعك...', tn: '🎤 سامعك...', en: '🎤 Listening...', it: '🎤 Ascolto...' }[currentLanguage] ?? '🎤 Écoute...';
     return { fr: '● En ligne', ar: '● متصل', tn: '● موجود', en: '● Online', it: '● Online' }[currentLanguage] ?? '● En ligne';
   };
 
-  const statusColor = isListening ? '#F87171' : '#4ADE80';
+  const statusColor = '#4ADE80';
 
   return (
     <>
@@ -190,7 +185,7 @@ export default function AIAgent() {
         style={{ background: '#1A5DA8', boxShadow: '0 8px 32px rgba(26,93,168,0.45)' }}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
-        aria-label="Ouvrir l'assistant ALU"
+        aria-label="Ouvrir l'assistant Asmos"
       >
         <AnimatePresence mode="wait">
           {isOpen ? (
@@ -204,7 +199,7 @@ export default function AIAgent() {
               ) : (
                 <img
                   src="/images/alu-avatar.png"
-                  alt="ALU"
+                  alt="Asmos"
                   className="w-10 h-10 rounded-full object-cover"
                   onError={() => setAvatarError(true)}
                 />
@@ -225,6 +220,9 @@ export default function AIAgent() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: isMobile ? 30 : 20, scale: isMobile ? 1 : 0.95 }}
             transition={{ duration: 0.2 }}
+            onClick={() => {
+              if (!isMobile) inputRef.current?.focus();
+            }}
             className={`fixed z-50 flex flex-col overflow-hidden ${isMobile ? 'bottom-0 right-0 left-0 rounded-t-2xl w-full' : 'bottom-24 right-6 rounded-[20px]'}`}
             style={{
               width: isMobile ? '100%' : '380px',
@@ -246,7 +244,7 @@ export default function AIAgent() {
                   ) : (
                     <img
                       src="/images/alu-avatar.png"
-                      alt="ALU"
+                      alt="Asmos"
                       className="w-9 h-9 rounded-full object-cover"
                       onError={() => setAvatarError(true)}
                     />
@@ -257,7 +255,7 @@ export default function AIAgent() {
 
               <div className="flex-1 min-w-0">
                 <p style={{ color: 'white', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '13px', letterSpacing: '1px', lineHeight: 1.1 }}>
-                  ALU — Assistant Aluminium Space
+                  Asmos — Assistant Aluminium Space
                 </p>
                 <p style={{ fontSize: '10px', fontFamily: 'DM Sans, sans-serif', color: statusColor }}>
                   {statusText()}
@@ -297,6 +295,7 @@ export default function AIAgent() {
 
                   <div className="flex flex-col max-w-[80%]">
                     <div
+                      dir="auto"
                       className="px-3.5 py-2.5 text-sm leading-relaxed"
                       style={
                         msg.role === 'user'
@@ -305,6 +304,7 @@ export default function AIAgent() {
                             color: 'white',
                             borderRadius: '18px 18px 4px 18px',
                             fontFamily: 'DM Sans, sans-serif',
+                            unicodeBidi: 'plaintext' as const,
                           }
                           : {
                             background: 'white',
@@ -312,6 +312,7 @@ export default function AIAgent() {
                             borderRadius: '18px 18px 18px 4px',
                             border: '1px solid #E8EDF5',
                             fontFamily: 'DM Sans, sans-serif',
+                            unicodeBidi: 'plaintext' as const,
                           }
                       }
                     >
@@ -347,45 +348,7 @@ export default function AIAgent() {
                           </div>
                         )}
 
-                        {msg.comparisonTable && (
-                          <div style={{ overflowX: 'auto', borderRadius: 8, border: '1px solid #E8EDF5' }}>
-                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11, fontFamily: 'DM Sans, sans-serif' }}>
-                              <thead>
-                                <tr style={{ background: '#1A5DA8', color: 'white' }}>
-                                  {msg.comparisonTable.headers.map((h, i) => (
-                                    <th key={i} style={{ padding: '6px 8px', textAlign: 'left', fontWeight: 600, whiteSpace: 'nowrap' }}>{h}</th>
-                                  ))}
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {msg.comparisonTable.rows.map((row, ri) => (
-                                  <tr key={ri} style={{ borderBottom: '1px solid #F0F4F8', background: ri % 2 === 0 ? 'white' : '#F8FAFC' }}>
-                                    <td style={{ padding: '5px 8px', color: '#7A8FA6', fontWeight: 600, whiteSpace: 'nowrap' }}>{row.label}</td>
-                                    <td style={{ padding: '5px 8px', color: '#0D1B2A' }}>{row.colibri}</td>
-                                    <td style={{ padding: '5px 8px', color: '#0D1B2A' }}>{row.sidney}</td>
-                                    <td style={{ padding: '5px 8px', color: '#0D1B2A' }}>{row.sidneyAC}</td>
-                                    <td style={{ padding: '5px 8px', color: '#0D1B2A' }}>{row.elba}</td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
-                        )}
 
-                        {msg.devisButton?.show && (
-                          <button
-                            onClick={() => executeAction({ type: 'open_devis_wizard', params: { productId: msg.devisButton!.productId, width: msg.devisButton!.width, height: msg.devisButton!.height } })}
-                            style={{
-                              width: '100%', background: '#1A5DA8', color: 'white',
-                              border: 'none', borderRadius: 8, padding: '10px 14px',
-                              fontSize: 12, cursor: 'pointer',
-                              fontFamily: 'DM Sans, sans-serif', fontWeight: 700,
-                              textAlign: 'center',
-                            }}
-                          >
-                            {msg.devisButton.label || `➕ Ajouter au devis`}
-                          </button>
-                        )}
 
                         {msg.suggestions && msg.suggestions.length > 0 && msgIdx === messages.length - 1 && (
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
@@ -493,50 +456,13 @@ export default function AIAgent() {
                 </div>
               )}
 
-              {sttError && (
-                <div className="flex justify-center p-2">
-                  <span style={{ fontSize: 11, color: '#EF4444', background: '#FEE2E2', padding: '4px 12px', borderRadius: '12px', fontFamily: 'DM Sans, sans-serif' }}>
-                    {sttError}
-                  </span>
-                </div>
-              )}
+
 
               <div ref={messagesEndRef} />
             </div>
 
             {/* INPUT ZONE */}
             <div style={{ background: 'white', borderTop: '1px solid #E8EDF5', flexShrink: 0 }}>
-              {isListening && (
-                <div
-                  className="flex items-center gap-2 px-3 py-2"
-                  style={{ background: '#FEF2F2', borderBottom: '1px solid #FECACA' }}
-                >
-                  <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                  <span style={{ fontSize: 12, color: '#DC2626', fontFamily: 'DM Sans, sans-serif', flex: 1 }}>
-                    {({ fr: 'Parlez maintenant... (silence → envoi auto)', ar: 'تكلم الآن... (سكوت = إرسال تلقائي)', tn: 'Hka taw... (soket = yeb3ath wahdou)', en: 'Speak now... (silence → auto send)', it: 'Parla ora... (silenzio = invio auto)' } as Record<Lang, string>)[currentLanguage] ?? 'Parlez maintenant...'}
-                  </span>
-                  {interimTranscript && (
-                    <span style={{ fontSize: 11, color: '#7A8FA6', fontStyle: 'italic', maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {interimTranscript}
-                    </span>
-                  )}
-                </div>
-              )}
-
-              {imagePreview && (
-                <div style={{ padding: '8px 12px 0', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                  <div style={{ position: 'relative', display: 'inline-block' }}>
-                    <img src={imagePreview} alt="Preview" style={{ height: '60px', width: '60px', objectFit: 'cover', borderRadius: '8px', border: '1.5px solid #E8EDF5' }} />
-                    <button
-                      onClick={() => { setImagePreview(null); setInputValue(''); }}
-                      style={{ position: 'absolute', top: '-6px', right: '-6px', width: '18px', height: '18px', background: '#EF4444', border: 'none', borderRadius: '50%', color: 'white', fontSize: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                    >✕</button>
-                  </div>
-                  <span style={{ fontSize: '11px', color: '#81C063', fontFamily: 'DM Sans, sans-serif', alignSelf: 'center', fontWeight: 600 }}>
-                    {({ fr: '📸 Photo prête', ar: '📸 الصورة جاهزة', tn: '📸 Tsawra 7adra', en: '📸 Photo ready', it: '📸 Foto pronta' } as Record<string, string>)[currentLanguage] ?? '📸 Photo prête'}
-                  </span>
-                </div>
-              )}
 
               <div className="flex items-end gap-2 p-3">
                 <textarea
@@ -544,6 +470,7 @@ export default function AIAgent() {
                   value={inputValue}
                   onChange={e => setInputValue(e.target.value)}
                   onKeyDown={handleKeyDown}
+                  dir="auto"
                   placeholder={awaitingDimensions
                     ? (PLACEHOLDER_DIMS[currentLanguage] || PLACEHOLDER_DIMS.fr)
                     : (PLACEHOLDER_NORMAL[currentLanguage] || PLACEHOLDER_NORMAL.fr)
@@ -556,6 +483,7 @@ export default function AIAgent() {
                     fontSize: 14, fontFamily: 'DM Sans, sans-serif',
                     outline: 'none', maxHeight: '96px', overflowY: 'auto',
                     lineHeight: 1.5, color: '#0D1B2A',
+                    unicodeBidi: 'plaintext' as const,
                   }}
                   onInput={e => {
                     const el = e.currentTarget;
@@ -571,6 +499,7 @@ export default function AIAgent() {
                   onBlur={e => (e.currentTarget.style.borderColor = '#E8EDF5')}
                   disabled={isLoading}
                 />
+
 
                 <button
                   onClick={() => handleSend()}
@@ -588,6 +517,7 @@ export default function AIAgent() {
                   }
                 </button>
               </div>
+
             </div>
           </motion.div>
         )}
