@@ -105,28 +105,127 @@ function stripAwaitingTag(text: string): string {
 // ─── NEEDS PRICING DATA ─────────────────────────────────────────
 function needsPricingData(userText: string, history: Message[]): boolean {
   const t = userText.toLowerCase();
-  
-  // Has dimensions → needs pricing
-  if (/\d{2,4}\s*[x×X]\s*\d{2,4}/.test(userText)) return true;
-  
-  // Asks about price explicitly
-  if (/(prix|tarif|coût|combien|how much|سعر|ثمن|كم|devis|9adech|chhal)/.test(t)) return true;
-  
-  // Asks about specific product (likely wants details/price)
+
+  // 1. Current message has dimensions
+  if (/\d{2,4}\s*[x×X*/]\s*\d{2,4}/.test(userText)) return true;
+
+  // 2. Current message has price keywords
+  if (/(prix|tarif|coût|combien|how much|سعر|ثمن|كم|devis|9adech|chhal|cost|price)/.test(t)) return true;
+
+  // 3. Current message mentions a product name
   if (/(colibri|sidney|elba|pliss|moustiquaire|mosquito|zanzariera)/.test(t)) return true;
-  
-  // Last assistant message asked for dimensions
-  const lastAssistant = [...history]
-    .reverse()
-    .find(m => m.role === 'assistant');
-  if (lastAssistant) {
-    const lastText = lastAssistant.content.toLowerCase();
-    if (/(dimension|largeur|hauteur|mesure|taille|قياس|أبعاد)/.test(lastText)) {
+
+  // 4. LOOK BACK through last 6 messages for active pricing session
+  const recentHistory = history.slice(-6);
+
+  for (const msg of recentHistory) {
+    const content = msg.content.toLowerCase();
+
+    // A user message in recent history had dimensions → still in session
+    if (msg.role === 'user' && /\d{2,4}\s*[x×X*/]\s*\d{2,4}/.test(msg.content)) {
+      return true;
+    }
+
+    // Any recent message mentioned a product → pricing context active
+    if (/(colibri|sidney|elba|pliss)/.test(content)) return true;
+
+    // Assistant asked about color/dimensions/quantity → active quote flow
+    if (
+      msg.role === 'assistant' &&
+      /(couleur|color|colore|dimension|largeur|hauteur|quantit|قياس|أبعاد|لون)/.test(content)
+    ) {
+      return true;
+    }
+
+    // Assistant gave a price calculation → stay in pricing mode
+    if (
+      msg.role === 'assistant' &&
+      /(prix ht|net ht|total ttc|fodec|remise|tva)/.test(content)
+    ) {
       return true;
     }
   }
-  
+
   return false;
+}
+
+// ─── FORMAT PRICE TABLES FOR OPENAI ─────────────────────────────
+function formatPriceTables(product: SupabaseProduct): string {
+  try {
+    const pt = product.price_tables as any;
+    if (!pt) return '';
+
+    let result = '';
+
+    // height170 tier
+    if (pt.height170?.widths && pt.height170?.prices) {
+      result += `Hauteur ≤ 170 cm:\n`;
+      result += `Largeur (cm) | Prix HT (DT)\n`;
+      pt.height170.widths.forEach((w: number, i: number) => {
+        const price = Math.round(pt.height170.prices[i] / 1000);
+        result += `${w} cm → ${price} DT\n`;
+      });
+    }
+
+    // height250 tier
+    if (pt.height250?.widths && pt.height250?.prices) {
+      result += `\nHauteur 171–250 cm:\n`;
+      result += `Largeur (cm) | Prix HT (DT)\n`;
+      pt.height250.widths.forEach((w: number, i: number) => {
+        const price = Math.round(pt.height250.prices[i] / 1000);
+        result += `${w} cm → ${price} DT\n`;
+      });
+    }
+
+    // width160 tier (Sidney 50)
+    if (pt.width160?.heights && pt.width160?.prices) {
+      result += `Largeur ≤ 160 cm:\n`;
+      result += `Hauteur (cm) | Prix HT (DT)\n`;
+      pt.width160.heights.forEach((h: number, i: number) => {
+        const price = Math.round(pt.width160.prices[i] / 1000);
+        result += `${h} cm → ${price} DT\n`;
+      });
+    }
+
+    // width200 tier (Sidney 50)
+    if (pt.width200?.heights && pt.width200?.prices) {
+      result += `\nLargeur 161–200 cm:\n`;
+      result += `Hauteur (cm) | Prix HT (DT)\n`;
+      pt.width200.heights.forEach((h: number, i: number) => {
+        const price = Math.round(pt.width200.prices[i] / 1000);
+        result += `${h} cm → ${price} DT\n`;
+      });
+    }
+
+    // width320 tier (Sidney 50 AC)
+    if (pt.width320?.heights && pt.width320?.prices) {
+      result += `Largeur ≤ 320 cm:\n`;
+      result += `Hauteur (cm) | Prix HT (DT)\n`;
+      pt.width320.heights.forEach((h: number, i: number) => {
+        const price = Math.round(pt.width320.prices[i] / 1000);
+        result += `${h} cm → ${price} DT\n`;
+      });
+    }
+
+    // width400 tier (Sidney 50 AC)
+    if (pt.width400?.heights && pt.width400?.prices) {
+      result += `\nLargeur 321–400 cm:\n`;
+      result += `Hauteur (cm) | Prix HT (DT)\n`;
+      pt.width400.heights.forEach((h: number, i: number) => {
+        const price = Math.round(pt.width400.prices[i] / 1000);
+        result += `${h} cm → ${price} DT\n`;
+      });
+    }
+
+    // special rules
+    if (pt.rules?.if_height_gt_170_max_width) {
+      result += `\nRègle: si hauteur > 170 cm → largeur max = ${pt.rules.if_height_gt_170_max_width} cm\n`;
+    }
+
+    return result;
+  } catch {
+    return '';
+  }
 }
 
 // ─── BUILD DYNAMIC SYSTEM PROMPT ─────────────────────────────────
@@ -146,8 +245,8 @@ function buildDynamicSystemPrompt(
           lang === 'it' ? p.description_it : p.description_fr;
 
     const pricingBlock = includePricing
-      ? `\nTables de prix (millimes ÷ 1000 = DT):\n${JSON.stringify(p.price_tables, null, 2)}`
-      : `\nPrix de base: ${p.base_price} DT (fournir dimensions pour prix exact)`;
+      ? `\nTables de prix HT (Blanc):\n${formatPriceTables(p)}\nNoir: +10% | Couleurs: +15%`
+      : `\nPrix à partir de ${p.base_price} DT (demander dimensions pour prix exact)`;
 
     return `━━━ PRODUIT ${p.sort_order}: ${p.name} (slug: ${p.slug}) ━━━
 Type: ${p.type} | Prix de base: ${p.base_price} DT ${p.price_per_m2 ? '/m²' : ''}
@@ -239,22 +338,25 @@ TVA: ${tva}%
 FODEC: ${fodec}%
 Timbre fiscal: ${timbre} DT
 
-━━━ RÈGLES DE CALCUL DES PRIX (OBLIGATOIRE) ━━━
-Quand l'utilisateur donne des dimensions (ex: 120×150, 120x150, 120 par 150):
-1. Extraire L (largeur) et H (hauteur) en cm
-2. Identifier le bon produit (demander si pas clair)
-3. Chercher le prix EXACT dans les price_tables du produit:
-   - Les prix dans price_tables sont en MILLIMES → diviser par 1000 pour obtenir DT
-   - Pour COLIBRÌ 50: si H ≤ 170cm → utiliser "height170", si H > 170cm → utiliser "height250"
-     Trouver la largeur la plus proche dans "widths", prendre le prix correspondant dans "prices"
-   - Pour SIDNEY 50: si L ≤ 160cm → utiliser "width160", si L > 160cm → utiliser "width200"
-     Trouver la hauteur la plus proche dans "heights", prendre le prix correspondant dans "prices"
-   - Pour SIDNEY 50 AC: si L ≤ 320cm → utiliser "width320", si L > 320cm → utiliser "width400"
-   - Pour ELBA: prix = (L/100) × (H/100) × base_per_m2 / 1000 (résultat en DT)
-   - Pour PLISSÉ 31: trouver la largeur la plus proche (125,180,250,300,400,500)
-     puis la plage de hauteur (120-180, 180-240, 240-300), prix en millimes
-4. Calculer le détail COMPLET:
-   • Prix HT = prix trouvé en DT (× quantité si plusieurs)
+━━━ CALCUL PRIX — RÈGLES OBLIGATOIRES ━━━
+Pour calculer le prix exact:
+1. Identifier le tier de hauteur ou largeur:
+   - COLIBRÌ 50: Hauteur ≤ 170 cm → table 'Hauteur ≤ 170 cm'
+                 Hauteur 171–250 cm → table 'Hauteur 171–250 cm'
+   - SIDNEY 50:  Largeur ≤ 160 cm → table 'Largeur ≤ 160 cm'
+                 Largeur 161–200 cm → table 'Largeur 161–200 cm'
+   - SIDNEY 50 AC: Largeur ≤ 320 cm → table 'Largeur ≤ 320 cm'
+                   Largeur 321–400 cm → table 'Largeur 321–400 cm'
+   - ELBA: prix = (L/100) × (H/100) × prix_base_m2
+   - PLISSÉ 31: trouver largeur et plage de hauteur dans la table
+2. Arrondir la dimension au multiple de 10 SUPÉRIEUR
+   (ex: 125 cm → 130 cm, 120 cm reste 120 cm)
+3. Lire le prix HT correspondant DIRECTEMENT dans la table
+   (les prix sont déjà en DT, pas de conversion nécessaire)
+4. Appliquer couleur: Blanc = prix de base,
+   Noir = ×1.10, Couleurs = ×1.15
+5. Formule TTC:
+   • Prix HT = prix lu dans la table (× quantité si plusieurs)
    • Remise (${remise}%) = Prix HT × ${remise}/100
    • Net HT = Prix HT - Remise
    • FODEC (${fodec}%) = Net HT × ${fodec}/100
@@ -262,7 +364,7 @@ Quand l'utilisateur donne des dimensions (ex: 120×150, 120x150, 120 par 150):
    • TVA (${tva}%) = Base TVA × ${tva}/100
    • Timbre fiscal = ${timbre},000 DT
    • Total TTC = Base TVA + TVA + Timbre
-5. TOUJOURS afficher le détail COMPLET en format:
+6. TOUJOURS afficher le détail COMPLET en format:
    Pour un **NOM_PRODUIT** en LxH cm :
    ─────────────────────────────
    • Prix HT :        X,XXX DT
@@ -274,10 +376,12 @@ Quand l'utilisateur donne des dimensions (ex: 120×150, 120x150, 120 par 150):
    • Timbre fiscal :  ${timbre},000 DT
    ─────────────────────────────
    • Total TTC :      X,XXX DT
-6. Terminer par "Voulez-vous passer au devis ?"
+7. Terminer par "Voulez-vous passer au devis ?"
 
 IMPORTANT:
-- TOUJOURS utiliser les valeurs EXACTES des price_tables, JAMAIS approximer
+- Ne JAMAIS utiliser le 'prix de base' quand les dimensions sont connues
+  → toujours lire la table de prix
+- Arrondir la dimension au multiple de 10 supérieur pour trouver le prix
 - Si les dimensions dépassent les limites → informer l'utilisateur des limites max
 - Sans dimensions → DEMANDER les dimensions obligatoirement
 - Les prix sont en format X,XXX DT (3 décimales, virgule)
