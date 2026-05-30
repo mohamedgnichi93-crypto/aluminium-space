@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useSearchParams, useNavigate } from 'react-router-dom';
@@ -11,6 +11,8 @@ import { getSettings } from '../../store/settingsStore';
 import { generatePDF } from '../../utils/pdfGenerator';
 import { Link } from 'react-router-dom';
 import { calculatePrice } from '../../utils/priceCalculator';
+import { getRemisePercent } from '../../utils/remiseCalculator';
+
 
 import StepProduct from './StepProduct';
 import StepDimensions from './StepDimensions';
@@ -83,8 +85,9 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
   const initialProduct = initialProductId ?? searchParams.get('produit');
   const initialW = searchParams.get('w');
   const initialH = searchParams.get('h');
+  const shouldStartAtDimensions = Boolean(initialProduct && products.some(p => p.id === initialProduct));
 
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(shouldStartAtDimensions ? 2 : 1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [submittedOrderId, setSubmittedOrderId] = useState('');
@@ -93,7 +96,7 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
   const [items, setItems] = useState<DevisItem[]>([]);
   const wizardTopRef = useRef<HTMLDivElement>(null);
 
-  const { register, formState: { errors }, watch, setValue, trigger, getValues, resetField } = useForm<FormData>({
+  const { register, formState: { errors }, control, watch, setValue, trigger, getValues, resetField } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       productId: initialProduct || '',
@@ -106,13 +109,12 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
     mode: 'onChange'
   });
 
-  const productId = watch('productId');
+  const productId = useWatch({ control, name: 'productId' });
 
   useEffect(() => {
     if (initialProduct && products.some(p => p.id === initialProduct)) {
       if (initialW) setValue('width', Number(initialW));
       if (initialH) setValue('height', Number(initialH));
-      setStep(2);
     }
   }, [initialProduct, initialW, initialH, setValue]);
 
@@ -213,9 +215,12 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
 
       // Calculate global totals
       const cfg = getSettings();
+      const totalQty = items.reduce((sum, item) => sum + (item.quantity || 1), 0);
+      const remisePct = getRemisePercent(totalQty);
+
       let globalTotalHT = 0;
       items.forEach(item => {
-        const remise = item.totalPrice * (cfg.remisePercent / 100);
+        const remise = item.totalPrice * (remisePct / 100);
         globalTotalHT += item.totalPrice - remise;
       });
 
@@ -226,7 +231,7 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
       const totalTTC = totalAfterFodec + tva + timbre;
 
       // Calculate total remise
-      const totalRemise = items.reduce((sum, item) => sum + (item.totalPrice * (cfg.remisePercent / 100)), 0);
+      const totalRemise = items.reduce((sum, item) => sum + (item.totalPrice * (remisePct / 100)), 0);
 
       const savedOrder = await saveOrder({
         clientInfo: {
@@ -240,7 +245,7 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
         totalHT: globalTotalHT,
         netHT: globalTotalHT, // Net HT is total after remise
         remise: totalRemise,
-        remisePercent: cfg.remisePercent,
+        remisePercent: remisePct,
         fodec: cfg.fodecPercent,
         fodecAmount: fodec,
         baseForTVA: totalAfterFodec,

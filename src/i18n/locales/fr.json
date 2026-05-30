@@ -260,7 +260,8 @@
     "summary_banner": "Votre devis : {{count}} article(s) — Total HT : {{total}}",
     "phone_format": "Format: 8 chiffres",
     "notes_placeholder": "Détails supplémentaires, préférences d'installation...",
-    "privacy_note": "Vos données sont sécurisées et ne seront utilisées que pour vous recontacter concernant ce devis."
+    "privacy_note": "Vos données sont sécurisées et ne seront utilisées que pour vous recontacter concernant ce devis.",
+    "remise_note": "* Remise finale selon quantité totale de la commande"
   },
   "devis_steps": {
     "product": "PRODUIT",
@@ -277,7 +278,7 @@
     "quick_links": "Liens Rapides",
     "slogan": "Projetez. Visualisez. Réalisez.",
     "vr_sub": "Vivez vos fenêtres en réalité virtuelle",
-    "motto": "Être parmi les meilleurs avec une touche qui sort de l'ordinaire.",
+    "motto": "Parce que chaque maison mérite de respirer librement.",
     "brand_desc": "Spécialiste de la menuiserie aluminium et des solutions de moustiquaires premium en Tunisie.",
     "brand_subtitle": "MENUISERIE ALUMINIUM",
     "see_maps": "Voir sur Google Maps",

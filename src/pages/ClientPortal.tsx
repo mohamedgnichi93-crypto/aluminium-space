@@ -3,8 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Search, Download, ChevronRight, Package, Clock, CheckCircle, Wrench, Calendar, Star, XCircle, Copy, Check, User, ShoppingBag, MessageCircle, Ruler, CreditCard } from 'lucide-react';
-import { getOrderById, rowToOrder } from '../store/ordersStore';
-import { supabase } from '../lib/supabase';
+import { getOrderById } from '../store/ordersStore';
 import { generatePDF } from '../utils/pdfGenerator';
 import type { Order } from '../store/ordersStore';
 import PageSEO from '../components/ui/PageSEO';
@@ -114,38 +113,9 @@ const ClientPortal = () => {
     setSearched(true);
     setNotFound(false);
 
-    try {
-      // Search by order_number (AS-XXXX) primarily
-      let query = supabase
-        .from('orders')
-        .select('*')
-        .eq('order_number', code.trim());
-
-      const { data, error } = await query.maybeSingle();
-
-      if (data && !error) {
-        setOrder(rowToOrder(data));
-        return;
-      }
-
-      // Fallback: if code looks like a UUID, search by ID
-      if (code.trim().length > 20) {
-        const { data: dataById } = await supabase
-          .from('orders')
-          .select('*')
-          .eq('id', code.trim())
-          .maybeSingle();
-        if (dataById) {
-          setOrder(rowToOrder(dataById));
-          return;
-        }
-      }
-    } catch {}
-
-    // Fallback to localStorage
-    const local = await getOrderById(code.trim());
-    if (local) {
-      setOrder(rowToOrder(local));
+    const foundOrder = await getOrderById(code.trim());
+    if (foundOrder) {
+      setOrder(foundOrder);
       return;
     }
 
@@ -156,47 +126,18 @@ const ClientPortal = () => {
   useEffect(() => {
     const urlCode = searchParams.get('code');
     if (urlCode) {
-      setCode(urlCode);
       const fetchInitial = async () => {
-        try {
-          // Search by order_number first
-          const { data } = await supabase
-            .from('orders')
-            .select('*')
-            .eq('order_number', urlCode.trim())
-            .maybeSingle();
-
-          if (data) {
-            setOrder(rowToOrder(data));
-            setSearched(true);
-            return;
-          }
-
-          // Fallback: search by UUID id
-          if (urlCode.trim().length > 20) {
-            const { data: dataById } = await supabase
-              .from('orders')
-              .select('*')
-              .eq('id', urlCode.trim())
-              .maybeSingle();
-
-            if (dataById) {
-              setOrder(rowToOrder(dataById));
-              setSearched(true);
-              return;
-            }
-          }
-
+        const foundOrder = await getOrderById(urlCode.trim());
+        if (foundOrder) {
+          setOrder(foundOrder);
+        } else {
           setNotFound(true);
-          setSearched(true);
-        } catch {
-          setNotFound(true);
-          setSearched(true);
         }
+        setSearched(true);
       };
       fetchInitial();
     }
-  }, []);
+  }, [searchParams]);
 
   const handleCopy = (id: string) => {
     navigator.clipboard.writeText(id);
@@ -461,7 +402,7 @@ const ClientPortal = () => {
                       {/* Totals */}
                       <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #E2E8F0' }}>
                         {(() => {
-                          const remisePct = order.remisePercent || (order.brutHT && order.brutHT > 0 ? Math.round((order.remise / order.brutHT) * 100) : 0);
+                          const remisePct = order.remisePercent ?? (order as any).remise_percent ?? 0;
 
                           return (
                             <>

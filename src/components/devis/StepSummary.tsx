@@ -4,6 +4,7 @@ import { ALL_COLORS } from '../../data/colors';
 
 import { formatPrice } from '../../utils/pdfGenerator';
 import { getSettings } from '../../store/settingsStore';
+import { getRemisePercent } from '../../utils/remiseCalculator';
 import type { DevisItem, DevisFormData } from './DevisWizard';
 import { formatPrice as formatPriceUtil } from '../../utils/formatPrice';
 
@@ -22,7 +23,9 @@ const StepSummary = ({ formData, items, onPrev, onSubmitOrder, isSubmitting }: P
   const cfg = getSettings();
   // Global Calculations (for UI)
   const totalBrutHT = items.reduce((sum, item) => sum + (item.unitPrice / 1000) * item.quantity, 0);
-  const totalRemise = totalBrutHT * (cfg.remisePercent / 100);
+  const totalQty = items.reduce((sum, item) => sum + (item.quantity || 1), 0);
+  const remisePct = getRemisePercent(totalQty);
+  const totalRemise = totalBrutHT * (remisePct / 100);
   const totalNetHT = totalBrutHT - totalRemise;
   const fodec = totalNetHT * (cfg.fodecPercent / 100);
   const baseTVA = totalNetHT + fodec;
@@ -215,7 +218,7 @@ const StepSummary = ({ formData, items, onPrev, onSubmitOrder, isSubmitting }: P
           )}
           {totalRemise > 0 && (
             <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#EF4444', fontWeight: 600, gap: '8px' }}>
-              <span style={{ maxWidth: '50%' }}>{t('quote.remise_label', 'Remise ({{percent}}%)', { percent: cfg.remisePercent })}</span>
+              <span style={{ maxWidth: '50%' }}>{t('quote.remise_label', 'Remise ({{percent}}%)', { percent: remisePct })}</span>
               <span style={{ flexShrink: 0, whiteSpace: 'nowrap' }}>-{formatPrice(totalRemise)}</span>
             </div>
           )}

@@ -1,19 +1,20 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import Layout from './components/layout/Layout';
-import Home from './pages/Home';
-import Products from './pages/Products';
-import ProductDetail from './pages/ProductDetail';
-import Contact from './pages/Contact';
-import Dashboard from './pages/Dashboard';
-import About from './pages/About';
-import NotFound from './pages/NotFound';
-import ClientPortal from './pages/ClientPortal';
 import { useTranslation } from 'react-i18next';
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { AIAgentProvider, useAIAgentContext, type Lang } from './context/AIAgentContext';
 import AIAgent from './components/ai/AIAgent';
 import { loadSettings } from './store/settingsStore';
+
+const Home = lazy(() => import('./pages/Home'));
+const Products = lazy(() => import('./pages/Products'));
+const ProductDetail = lazy(() => import('./pages/ProductDetail'));
+const Contact = lazy(() => import('./pages/Contact'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const About = lazy(() => import('./pages/About'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+const ClientPortal = lazy(() => import('./pages/ClientPortal'));
 
 const pageVariants = {
   initial: { opacity: 0, y: 20 },
@@ -57,7 +58,26 @@ function AppContent() {
 
   return (
     <>
-      <AnimatedRoutes />
+      <Suspense fallback={
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100vh',
+          background: '#0d1b2a',
+        }}>
+          <div style={{
+            width: '40px',
+            height: '40px',
+            border: '3px solid #81C063',
+            borderTop: '3px solid transparent',
+            borderRadius: '50%',
+            animation: 'spin 0.8s linear infinite',
+          }} />
+        </div>
+      }>
+        <AnimatedRoutes />
+      </Suspense>
       {!isDashboard && <AIAgent />}
     </>
   );

@@ -31,7 +31,7 @@ const Footer = () => {
                 <span style={{ color: '#81C063' }}>SPACE</span>
               </span>
             </div>
-            <div style={{ fontSize: '9px', letterSpacing: '3px', color: 'rgba(255,255,255,0.5)', fontWeight: 500, marginBottom: '8px', fontFamily: 'Rajdhani, sans-serif', textTransform: 'uppercase' }}>
+            <div style={{ fontSize: '11px', letterSpacing: '3px', color: 'rgba(255,255,255,0.85)', fontWeight: 700, marginBottom: '8px', fontFamily: 'Rajdhani, sans-serif', textTransform: 'uppercase' }}>
               {t('footer.brand_subtitle', 'MENUISERIE ALUMINIUM')}
             </div>
             <p style={{ color: '#81C063', fontSize: '13px', fontStyle: 'italic', marginBottom: '12px', fontFamily: 'DM Sans, sans-serif' }}>

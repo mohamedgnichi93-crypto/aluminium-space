@@ -1,6 +1,7 @@
 import { X as XIcon, Plus, Minus } from 'lucide-react';
 import { toast } from '../../hooks/useToast';
 import type { Order } from '../../store/ordersStore';
+import { getRemisePercent } from '../../utils/remiseCalculator';
 
 
 interface EditOrderModalProps {
@@ -18,7 +19,15 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({
 }) => {
   // Derive remisePercent: use stored value, or reverse-engineer from amounts
   const totalHT = editingOrder.items.reduce((sum, it) => sum + it.unitPrice * (it.quantity || 1), 0);
-  const remisePercent = editingOrder.remisePercent ?? (totalHT > 0 ? Math.round((editingOrder.remise / totalHT) * 100) : 0);
+  const totalQty = editingOrder.items?.reduce(
+    (sum: number, item: any) => sum + (item.quantity || 1), 0
+  ) ?? 1;
+  const autoTierPercent = getRemisePercent(totalQty);
+  const remisePercent = editingOrder.remisePercent 
+    ? editingOrder.remisePercent  
+    : (totalHT > 0 
+        ? Math.round((editingOrder.remise / totalHT) * 100) 
+        : autoTierPercent);
   return (
     <div
       style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
@@ -88,6 +97,10 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({
                 onFocus={e => e.currentTarget.style.borderColor = '#1D3E61'}
                 onBlur={e => e.currentTarget.style.borderColor = '#E8EDF5'}
               />
+              <span style={{ fontSize: '11px', color: '#888', display: 'block', marginTop: '4px' }}>
+                Tier suggéré: {autoTierPercent}% 
+                ({totalQty} produit{totalQty > 1 ? 's' : ''})
+              </span>
             </div>
             {[{ key: 'fodec' as const, label: 'FODEC (%)' }, { key: 'tva' as const, label: 'TVA (%)' }].map(({ key, label }) => (
               <div key={key}>

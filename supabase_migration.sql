@@ -23,13 +23,35 @@ ALTER TABLE measure_requests
   ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT now();
 
 -- 3. Fix RLS policies for orders
+ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "allow_all_orders" ON orders;
+DROP POLICY IF EXISTS "allow_anon_insert_orders" ON orders;
+DROP POLICY IF EXISTS "allow_anon_select_orders" ON orders;
+DROP POLICY IF EXISTS "allow_auth_all_orders" ON orders;
 CREATE POLICY "allow_anon_insert_orders" ON orders FOR INSERT TO anon WITH CHECK (true);
-CREATE POLICY "allow_anon_select_orders" ON orders FOR SELECT TO anon USING (true);
 CREATE POLICY "allow_auth_all_orders" ON orders FOR ALL TO authenticated USING (true);
 
+CREATE OR REPLACE FUNCTION get_public_order_by_number(lookup_order_number TEXT)
+RETURNS SETOF orders
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT *
+  FROM orders
+  WHERE order_number = lookup_order_number
+    AND lookup_order_number ~ '^AS-[A-Z2-9]{6}$'
+  LIMIT 1;
+$$;
+
+REVOKE ALL ON FUNCTION get_public_order_by_number(TEXT) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION get_public_order_by_number(TEXT) TO anon, authenticated;
+
 -- 4. Fix RLS policies for measure_requests  
+ALTER TABLE measure_requests ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "allow_all_measure" ON measure_requests;
+DROP POLICY IF EXISTS "allow_anon_insert_measure" ON measure_requests;
+DROP POLICY IF EXISTS "allow_anon_select_measure" ON measure_requests;
+DROP POLICY IF EXISTS "allow_auth_all_measure" ON measure_requests;
 CREATE POLICY "allow_anon_insert_measure" ON measure_requests FOR INSERT TO anon WITH CHECK (true);
-CREATE POLICY "allow_anon_select_measure" ON measure_requests FOR SELECT TO anon USING (true);
 CREATE POLICY "allow_auth_all_measure" ON measure_requests FOR ALL TO authenticated USING (true);

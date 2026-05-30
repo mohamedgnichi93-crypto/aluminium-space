@@ -260,7 +260,8 @@
     "summary_banner": "Your quote: {{count}} item(s) — Total excl. VAT: {{total}}",
     "phone_format": "Format: 8 digits",
     "notes_placeholder": "Additional details, installation preferences...",
-    "privacy_note": "Your data is secure and will only be used to contact you about this quote."
+    "privacy_note": "Your data is secure and will only be used to contact you about this quote.",
+    "remise_note": "* Final discount based on total order quantity"
   },
   "devis_steps": {
     "product": "PRODUCT",
@@ -277,7 +278,7 @@
     "quick_links": "Quick Links",
     "slogan": "Design. Visualize. Realize.",
     "vr_sub": "Experience your windows in virtual reality",
-    "motto": "Being among the best with a touch that stands out.",
+    "motto": "Because every home deserves to breathe freely.",
     "brand_desc": "Aluminium carpentry specialist in Mghira, Tunis. We manufacture and install high quality custom mosquito nets for your comfort.",
     "see_maps": "View on Google Maps",
     "powered_by": "Powered by Grifo Flex",

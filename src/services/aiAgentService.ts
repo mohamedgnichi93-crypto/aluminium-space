@@ -284,7 +284,7 @@ Description: ${desc || p.description_fr || ''}${pricingBlock}`;
     return `Q: ${q || f.question_fr}\nR: ${a || f.answer_fr}`;
   }).join('\n\n');
 
-  const remise = settings.remisePercent ?? 0;
+
   const tva = settings.tvaPercent ?? 19;
   const fodec = settings.fodecPercent ?? 1;
   const timbre = settings.timbreFiscal ?? 1;
@@ -350,7 +350,7 @@ Seulement si question VRAIMENT hors-sujet
 ${productsSection}
 
 ━━━ PARAMÈTRES COMMERCIAUX ACTUELS ━━━
-Remise: ${remise}%
+Remise commerciale: selon quantité (voir règles ci-dessous)
 TVA: ${tva}%
 FODEC: ${fodec}%
 Timbre fiscal: ${timbre} DT
@@ -380,25 +380,84 @@ Pour calculer le prix exact:
    (les prix sont déjà en DT, pas de conversion nécessaire)
 4. Appliquer couleur: Blanc = prix de base,
    Noir = ×1.10, Couleurs = ×1.15
-5. Formule TTC:
-   • Prix HT = prix lu dans la table (× quantité si plusieurs)
-   • Remise (${remise}%) = Prix HT × ${remise}/100
-   • Net HT = Prix HT - Remise
-   • FODEC (${fodec}%) = Net HT × ${fodec}/100
-   • Base TVA = Net HT + FODEC
-   • TVA (${tva}%) = Base TVA × ${tva}/100
-   • Timbre fiscal = ${timbre},000 DT
-   • Total TTC = Base TVA + TVA + Timbre
+5. ━━━ REMISE PAR QUANTITÉ ━━━
+RÈGLE ABSOLUE — appliquer EXACTEMENT selon ce tableau:
+  Nombre total = 1 → Remise 15%
+  Nombre total = 2 → Remise 15%
+  Nombre total = 3 → Remise 30%
+  Nombre total = 4 → Remise 30%
+  Nombre total = 5 → Remise 30%
+  Nombre total = 6 → Remise 40%
+  Nombre total = 7 → Remise 40%
+  Nombre total = 8 → Remise 40%
+  Nombre total = 9 → Remise 40%
+  Nombre total = 10 → Remise 40%
+  Nombre total ≥ 11 → Remise 50%
+NE JAMAIS appliquer 30% si le total est 1 ou 2.
+NE JAMAIS appliquer 40% si le total est entre 3 et 5.
+
+CALCUL:
+- Compter le nombre TOTAL de produits (pas par ligne)
+- Appliquer le % correspondant sur le TOTAL Brut HT
+- Remise = Total Brut HT × remise%
+- Net HT = Total Brut HT - Remise
+- FODEC (1%) = Net HT × 0.01
+- Base TVA = Net HT + FODEC
+- TVA (19%) = Base TVA × 0.19
+- Timbre = 1.000 DT (fixe)
+- TOTAL TTC = Base TVA + TVA + Timbre
+
+EXEMPLE 1 — 1 produit, petite quantité (tier 15%):
+  Colibrì 50, 120×120, Blanc, Qty 2:
+  Prix HT unitaire: 357 DT
+  Total Brut HT: 357 × 2 = 714 DT
+  Nombre total produits: 2 → Tier 1-2 → Remise 15%
+  Remise 15%: -107.100 DT
+  Net HT: 606.900 DT
+  FODEC 1%: 6.069 DT
+  Base TVA: 612.969 DT
+  TVA 19%: 116.464 DT
+  Timbre: 1.000 DT
+  TOTAL TTC: 730.433 DT
+
+EXEMPLE 2 — 1 produit, quantité moyenne (tier 30%):
+  Colibrì 50, 120×120, Blanc, Qty 4:
+  Prix HT unitaire: 357 DT
+  Total Brut HT: 357 × 4 = 1,428 DT
+  Nombre total produits: 4 → Tier 3-5 → Remise 30%
+  Remise 30%: -428.400 DT
+  Net HT: 999.600 DT
+  FODEC 1%: 9.996 DT
+  Base TVA: 1,009.596 DT
+  TVA 19%: 191.823 DT
+  Timbre: 1.000 DT
+  TOTAL TTC: 1,202.419 DT
+
+EXEMPLE 3 — Commande multi-produits (tier 30%):
+  Colibrì 50, 120×120, Blanc, Qty 1: 357 DT HT
+  Sidney 50, 150×200, Blanc, Qty 1: 627 DT HT
+  Elba, 100×150, Blanc, Qty 1: 489 DT HT
+  Nombre total produits: 1+1+1 = 3 → Tier 3-5 → Remise 30%
+  Total Brut HT: 357 + 627 + 489 = 1,473 DT
+  Remise 30%: -441.900 DT
+  Net HT: 1,031.100 DT
+  FODEC 1%: 10.311 DT
+  Base TVA: 1,041.411 DT
+  TVA 19%: 197.868 DT
+  Timbre: 1.000 DT
+  TOTAL TTC: 1,240.279 DT
+
+
 6. TOUJOURS afficher le détail COMPLET en format:
    Pour un **NOM_PRODUIT** en LxH cm :
    ─────────────────────────────
    • Prix HT :        X,XXX DT
-   • Remise (${remise}%) :    -X,XXX DT
+   • Remise (remise%) :    -X,XXX DT
    • Net HT :         X,XXX DT
-   • FODEC (${fodec}%) :      X,XXX DT
+   • FODEC (1%) :      X,XXX DT
    • Base TVA :       X,XXX DT
-   • TVA (${tva}%) :       X,XXX DT
-   • Timbre fiscal :  ${timbre},000 DT
+   • TVA (19%) :       X,XXX DT
+   • Timbre fiscal :  1,000 DT
    ─────────────────────────────
    • Total TTC :      X,XXX DT
 7. Terminer par "Voulez-vous passer au devis ?"

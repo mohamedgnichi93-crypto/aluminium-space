@@ -82,7 +82,6 @@ export default function AIAgent() {
   const [inputValue, setInputValue] = useState('');
   const [showQuickActions, setShowQuickActions] = useState(true);
   const [avatarError, setAvatarError] = useState(false);
-  const [awaitingDimensions, setAwaitingDimensions] = useState(false);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 640);
 
   useEffect(() => {
@@ -133,13 +132,8 @@ export default function AIAgent() {
   }, [isLoading, isOpen, isMobile]);
 
 
-  // Track if waiting for dimensions (from OpenAI tag)
-  useEffect(() => {
-    const lastMsg = messages[messages.length - 1];
-    if (lastMsg?.role === 'assistant') {
-      setAwaitingDimensions(lastMsg.awaitingDimensions === true);
-    }
-  }, [messages]);
+  const awaitingDimensions =
+    messages[messages.length - 1]?.awaitingDimensions === true;
 
   const handleSend = useCallback((overrideText?: string) => {
     const textToSanitize = overrideText || inputValue;

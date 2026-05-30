@@ -1,5 +1,6 @@
 import type { UseFormRegister, FieldErrors, UseFormWatch, UseFormSetValue } from 'react-hook-form';
 import { calculatePrice, formatPrice } from '../../utils/priceCalculator';
+import { getRemisePercent } from '../../utils/remiseCalculator';
 import { getSettings } from '../../store/settingsStore';
 import { useEffect, useState, useRef } from 'react';
 import { Minus, Plus } from 'lucide-react';
@@ -213,7 +214,9 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
   };
 
   const cfg = getSettings();
-  const remise20 = totalPrice * (cfg.remisePercent / 100);
+  const currentQty = watch('quantity') || 1;
+  const remisePct = getRemisePercent(currentQty);
+  const remise20 = totalPrice * (remisePct / 100);
   const priceAfterRemise = totalPrice - remise20;
   const fodec = priceAfterRemise * (cfg.fodecPercent / 100);
   const baseTva = priceAfterRemise + fodec;
@@ -1105,9 +1108,20 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
                       )}
 
                       <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#EF4444', fontWeight: 600, gap: '8px' }}>
-                        <span style={{ maxWidth: '50%' }}>{t('quote.remise_label', 'Remise {{percent}}%', { percent: cfg.remisePercent })}:</span>
+                        <span style={{ maxWidth: '50%' }}>{t('quote.remise_label', 'Remise {{percent}}%', { percent: remisePct })}:</span>
                         <span style={{ flexShrink: 0, whiteSpace: 'nowrap' }}>-{(remise20 / 1000).toFixed(3)} DT</span>
                       </div>
+                      <p style={{ 
+                        fontSize: '11px', 
+                        color: '#888', 
+                        fontStyle: 'italic',
+                        marginTop: '2px',
+                        marginBottom: '12px',
+                        textAlign: isRTL ? 'right' : 'left'
+                      }}>
+                        {t('quote.remise_note', 
+                          '* Remise finale selon quantité totale de la commande')}
+                      </p>
 
                       <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#1D3E61', fontWeight: 700, gap: '8px' }}>
                         <span style={{ maxWidth: '50%' }}>Après remise :</span>

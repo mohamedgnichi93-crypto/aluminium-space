@@ -3,6 +3,7 @@ import autoTable from 'jspdf-autotable';
 import type { Order } from '../store/ordersStore';
 import { ALL_COLORS } from '../data/colors';
 import { formatPrice as formatPriceUtil, formatPriceDT } from './formatPrice';
+import { getRemisePercent } from './remiseCalculator';
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
 const COLORS = {
@@ -169,8 +170,8 @@ async function drawItemsTable(doc: jsPDF, order: Order, startY: number): Promise
   // Desc(58) + Dims(30) + Qty(12) + PU(28) + Rem(26) + Net(28) = 182 ✅
   const COL_WIDTHS = [58, 30, 12, 28, 26, 28];
 
-  const brutHTForPct = order.items.reduce((sum, it) => sum + it.unitPrice * (it.quantity || 1), 0);
-  const remisePct = brutHTForPct > 0 ? Math.round((order.remise / brutHTForPct) * 100) : 0;
+  const totalQty = order.items?.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0) ?? 1;
+  const remisePct = order.remisePercent ?? (order as any).remise_percent ?? getRemisePercent(totalQty);
 
   const tableData = order.items.map(item => [
     item.productName +

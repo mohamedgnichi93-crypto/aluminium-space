@@ -3,6 +3,7 @@ import {
   DollarSign, Phone, Clock, FileText, Settings, RotateCcw 
 } from 'lucide-react';
 import type { BusinessSettings } from '../../store/settingsStore';
+import { REMISE_TIERS } from '../../utils/remiseCalculator';
 
 interface SettingsPanelProps {
   settings: BusinessSettings;
@@ -75,8 +76,43 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
               </div>
             </div>
             <div className="params-finance-inner-grid" style={{ padding: '24px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              {/* REMISE TIERS TABLE DISPLAY */}
+              <div style={{ background: '#F8FAFD', borderRadius: '12px', padding: '16px', border: '1px solid #EDF2F7' }}>
+                <div style={{ fontSize: '13px', fontWeight: 600, color: '#1D3E61', marginBottom: '2px', fontFamily: 'Space Grotesk, sans-serif' }}>
+                  Remise commerciale (par quantité)
+                </div>
+                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '11px', color: '#9AA5B4', marginBottom: '10px' }}>
+                  Réduction selon le nombre total de produits
+                </div>
+                <table style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ background: '#f5f5f5' }}>
+                      <th style={{ padding: '6px 12px', textAlign: 'left', fontFamily: 'Space Grotesk, sans-serif', fontSize: '11px', color: '#6B7280' }}>
+                        Quantité
+                      </th>
+                      <th style={{ padding: '6px 12px', textAlign: 'right', fontFamily: 'Space Grotesk, sans-serif', fontSize: '11px', color: '#6B7280' }}>
+                        Remise
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {REMISE_TIERS.map((tier, i) => (
+                      <tr key={i} style={{ borderTop: '1px solid #eee' }}>
+                        <td style={{ padding: '6px 12px', fontFamily: 'Inter, sans-serif', color: '#4A5568' }}>
+                          {tier.max === Infinity 
+                            ? `${tier.min}+ produits` 
+                            : `${tier.min}–${tier.max} produits`}
+                        </td>
+                        <td style={{ padding: '6px 12px', textAlign: 'right', fontWeight: 700, color: '#81C063', fontFamily: 'Space Grotesk, sans-serif' }}>
+                          {tier.percent}%
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
               {([
-                { key: 'remisePercent' as keyof BusinessSettings, label: 'Remise commerciale', unit: '%', min: 0, max: 50, step: 1, desc: 'Réduction accordée aux clients' },
                 { key: 'tvaPercent' as keyof BusinessSettings, label: 'TVA', unit: '%', min: 0, max: 30, step: 0.5, desc: 'Taxe sur la valeur ajoutée' },
                 { key: 'fodecPercent' as keyof BusinessSettings, label: 'FODEC', unit: '%', min: 0, max: 5, step: 0.25, desc: 'Fonds de développement' },
                 { key: 'timbreFiscal' as keyof BusinessSettings, label: 'Timbre fiscal', unit: 'DT', min: 0, max: 5, step: 0.1, desc: 'Taxe fixe par devis' },
@@ -148,16 +184,17 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
             </div>
             {(() => {
               const base = 1000000;
-              const remise = base * (settings.remisePercent / 100);
+              const remise = base * (15 / 100);
               const netHT = base - remise;
               const fodec = netHT * (settings.fodecPercent / 100);
               const baseTVA = netHT + fodec;
               const tva = baseTVA * (settings.tvaPercent / 100);
-              const ttc = baseTVA + tva + (settings.timbreFiscal * 1000);
+              const timbre = settings.timbreFiscal * 1000;
+              const ttc = baseTVA + tva + timbre;
               return (
                 <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '7px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', color: 'rgba(255,255,255,0.85)' }}><span>Base HT</span><span>1 000.000 DT</span></div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', color: '#FF8A8A' }}><span>− Remise {settings.remisePercent}%</span><span>−{(remise / 1000).toFixed(3)} DT</span></div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', color: '#FF8A8A' }}><span>− Remise 15% (Qty 1)</span><span>−{(remise / 1000).toFixed(3)} DT</span></div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', color: 'rgba(255,255,255,0.85)', fontWeight: 600 }}><span>Net HT</span><span>{(netHT / 1000).toFixed(3)} DT</span></div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', color: 'rgba(255,255,255,0.85)' }}><span>+ FODEC {settings.fodecPercent}%</span><span>+{(fodec / 1000).toFixed(3)} DT</span></div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', color: 'rgba(255,255,255,0.85)' }}><span>+ TVA {settings.tvaPercent}%</span><span>+{(tva / 1000).toFixed(3)} DT</span></div>

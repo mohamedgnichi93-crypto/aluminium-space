@@ -152,9 +152,9 @@ const Header = () => {
             <div style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '19px', color: '#2F2D2C', letterSpacing: '3px', textTransform: 'uppercase' }}>
               ALUMINIUM <span style={{ color: '#1D3E61' }}>SPACE</span>
             </div>
-            <div style={{ fontSize: '8px', letterSpacing: '3px', color: '#818181', fontWeight: 500, textTransform: 'uppercase', fontFamily: 'Rajdhani, sans-serif', display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: '4px' }}>
+            <div style={{ fontSize: '11px', color: '#4a4a4a', fontWeight: 700, textTransform: 'uppercase', fontFamily: 'Rajdhani, sans-serif', display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', width: '100%', gap: '4px' }}>
               <img src="https://flagcdn.com/16x12/tn.png" alt="Tunisia" style={{ width: '16px', height: '12px' }} />
-              MENUISERIE ALUMINIUM
+              <span style={{ flex: 1, letterSpacing: '0.18em' }}>MENUISERIE ALUMINIUM</span>
               <img src="https://flagcdn.com/16x12/it.png" alt="Italy" style={{ width: '16px', height: '12px' }} />
             </div>
           </div>

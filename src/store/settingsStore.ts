@@ -123,6 +123,7 @@ export async function loadSettings(): Promise<BusinessSettings> {
       return cache;
     } finally {
       _loaded = true;
+      _loadedAt = Date.now();
       _loadPromise = null;
     }
   })();

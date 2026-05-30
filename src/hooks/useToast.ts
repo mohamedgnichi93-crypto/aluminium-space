@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 export type ToastType = 'success' | 'error' | 'info' | 'warning';
 
@@ -36,8 +36,12 @@ export const useToast = () => {
     setToasts(prev => prev.filter(t => t.id !== id));
   }, []);
 
-  // Register the global function
-  globalAddToast = addToast;
+  useEffect(() => {
+    globalAddToast = addToast;
+    return () => {
+      if (globalAddToast === addToast) globalAddToast = null;
+    };
+  }, [addToast]);
 
   return { toasts, addToast, removeToast };
 };

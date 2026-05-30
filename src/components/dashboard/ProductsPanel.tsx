@@ -30,12 +30,7 @@ const ProductsPanel: React.FC = () => {
   const [editingProduct, setEditingProduct] = useState<SupabaseProduct | null>(null);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    loadProducts();
-  }, []);
-
   const loadProducts = async () => {
-    setLoading(true);
     try {
       const data = await getAllProducts();
       setProducts(data);
@@ -45,6 +40,12 @@ const ProductsPanel: React.FC = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      void loadProducts();
+    });
+  }, []);
 
   const handleToggleActive = async (product: SupabaseProduct) => {
     try {

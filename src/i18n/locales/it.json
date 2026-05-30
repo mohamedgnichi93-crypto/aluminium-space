@@ -260,7 +260,8 @@
     "summary_banner": "Il tuo preventivo: {{count}} articolo(i) — Totale IVA escl.: {{total}}",
     "phone_format": "Formato: 8 cifre",
     "notes_placeholder": "Dettagli aggiuntivi, preferenze di installazione...",
-    "privacy_note": "I tuoi dati sono al sicuro e verranno utilizzati solo per contattarti in merito a questo preventivo."
+    "privacy_note": "I tuoi dati sono al sicuro e verranno utilizzati solo per contattarti in merito a questo preventivo.",
+    "remise_note": "* Sconto finale in base alla quantità totale dell'ordine"
   },
   "devis_steps": {
     "product": "PRODOTTO",
@@ -277,7 +278,7 @@
     "quick_links": "Link Rapidi",
     "slogan": "Progetta. Visualizza. Realizza.",
     "vr_sub": "Vivi le tue finestre in realtà virtuale",
-    "motto": "Essere tra i migliori con un tocco fuori dall'ordinario.",
+    "motto": "Perché ogni casa merita di respirare liberamente.",
     "brand_desc": "Specialista in infissi in alluminio a Mghira, Tunis. Produciamo e installiamo zanzariere su misura di alta qualità per il tuo comfort.",
     "see_maps": "Vedi su Google Maps",
     "powered_by": "Powered by Grifo Flex",

@@ -124,26 +124,16 @@ export const getTrashOrders = async (): Promise<Order[]> => {
 };
 
 export const getOrderById = async (id: string): Promise<Order | null> => {
-  // Search by order_number (AS-XXXX) primarily
-  const { data } = await supabase
-    .from('orders')
-    .select('*')
-    .eq('order_number', id)
-    .maybeSingle();
+  const { data, error } = await supabase
+    .rpc('get_public_order_by_number', { lookup_order_number: id });
 
-  if (data) return rowToOrder(data);
-
-  // Fallback to ID if it looks like a UUID
-  if (id.length > 20) {
-    const { data: dataById } = await supabase
-      .from('orders')
-      .select('*')
-      .eq('id', id)
-      .maybeSingle();
-    if (dataById) return rowToOrder(dataById);
+  if (error) {
+    console.error('getOrderById error:', error.message);
+    return null;
   }
 
-  return null;
+  const row = Array.isArray(data) ? data[0] : data;
+  return row ? rowToOrder(row) : null;
 };
 
 export const saveOrder = async (order: Omit<Order, 'id' | 'date' | 'status'>): Promise<Order> => {

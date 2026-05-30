@@ -60,12 +60,7 @@ const FaqPanel: React.FC = () => {
   const [isNew, setIsNew] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    loadFaq();
-  }, []);
-
   const loadFaq = async () => {
-    setLoading(true);
     try {
       const data = await getAllFaq();
       setFaqList(data);
@@ -75,6 +70,12 @@ const FaqPanel: React.FC = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      void loadFaq();
+    });
+  }, []);
 
   const handleSave = async () => {
     if (!editingEntry) return;
