@@ -47,6 +47,39 @@
       "custom": "Sur mesure",
       "warranty": "Ans de garantie",
       "mechanism": "Garantie mécanisme"
+    },
+    "remise": {
+      "badge": "Remise sur volume",
+      "title1": "Plus vous commandez,",
+      "title2": "plus vous économisez",
+      "subtitle": "Remise immédiate selon la quantité. Aucun code requis.",
+      "feature1": "Remise appliquée automatiquement",
+      "feature2": "Sans code promo requis",
+      "feature3": "Offre permanente sans limite",
+      "popular": "Plus populaire",
+      "pieces_range": "{{min}} – {{max}} pièces",
+      "pieces_plus": "{{min}}+ pièces",
+      "pill1": "Remise automatique",
+      "pill2": "Offre permanente",
+      "pill3": "Sans code promo",
+      "packs": {
+        "decouverte": {
+          "label": "Pack Découverte",
+          "desc": "Idéal pour vos petits projets et besoins."
+        },
+        "appartement": {
+          "label": "Pack Appartement",
+          "desc": "Parfait pour équiper votre appartement."
+        },
+        "confort": {
+          "label": "Pack Confort",
+          "desc": "Le meilleur choix pour plus d'économies."
+        },
+        "villa": {
+          "label": "Pack Villa / Pro",
+          "desc": "Pour vos grands projets et professionnels."
+        }
+      }
     }
   },
   "steps": {
@@ -137,7 +170,9 @@
     "tooltip_exact_wh": "Prix pour {{w}}cm × {{h}}cm",
     "availability_label": "Disponibilité",
     "availability_status": "Installation sous 3–7 jours ouvrables",
-    "availability_zone": "Tunis & Grand Tunis"
+    "availability_zone": "Tunis & Grand Tunis",
+    "price_per_m2": "Prix au m²",
+    "custom_dimensions": "Sur mesure — sans limite de dimensions"
   },
   "measureGuide": {
     "badge": "GUIDE DE MESURE",
@@ -267,7 +302,8 @@
     "product": "PRODUIT",
     "dimensions": "DIMENSIONS",
     "client": "CLIENT",
-    "summary": "RÉSUMÉ"
+    "summary": "RÉSUMÉ",
+    "custom_size": "Sur mesure — sans limite"
   },
   "footer": {
     "address": "125 lot Laaroussi, Mghira, Tunis",

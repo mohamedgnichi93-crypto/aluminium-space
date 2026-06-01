@@ -47,6 +47,39 @@
       "custom": "Custom made",
       "warranty": "Year warranty",
       "mechanism": "Mechanism warranty"
+    },
+    "remise": {
+      "badge": "Volume discount",
+      "title1": "The more you order,",
+      "title2": "the more you save",
+      "subtitle": "Instant discount applied automatically based on quantity.",
+      "feature1": "Discount applied automatically",
+      "feature2": "No promo code required",
+      "feature3": "Permanent offer, no time limit",
+      "popular": "Most popular",
+      "pieces_range": "{{min}} – {{max}} units",
+      "pieces_plus": "{{min}}+ units",
+      "pill1": "Auto discount",
+      "pill2": "Permanent offer",
+      "pill3": "No promo code",
+      "packs": {
+        "decouverte": {
+          "label": "Starter Pack",
+          "desc": "Ideal for your first installation."
+        },
+        "appartement": {
+          "label": "Apartment Pack",
+          "desc": "Protect all your main rooms."
+        },
+        "confort": {
+          "label": "Comfort Pack",
+          "desc": "The best choice for more savings."
+        },
+        "villa": {
+          "label": "Villa / Pro Pack",
+          "desc": "For large projects and professionals."
+        }
+      }
     }
   },
   "steps": {
@@ -137,7 +170,9 @@
     "tooltip_exact_wh": "Price for {{w}}cm × {{h}}cm",
     "availability_label": "Availability",
     "availability_status": "Installation within 3–7 business days",
-    "availability_zone": "Tunis & Greater Tunis"
+    "availability_zone": "Tunis & Greater Tunis",
+    "price_per_m2": "Price per m²",
+    "custom_dimensions": "Custom size — no dimension limit"
   },
   "measureGuide": {
     "badge": "MEASUREMENT GUIDE",
@@ -155,32 +190,32 @@
       "tools": {
         "sub": "Get ready",
         "title": "Necessary tools",
-        "desc": "Pour mesurer correctement votre ouverture, préparez :\n\n• Un mètre ruban (minimum 3 mètres)\n• Un crayon et un carnet de notes\n• Un niveau à bulle (optionnel mais recommandé)"
+        "desc": "To measure your opening correctly, prepare:\n- A tape measure (metal, not fabric)\n- A pencil and paper to note measurements\n- A helper if possible\n\nMeasure to the nearest millimeter for best results."
       },
       "embrasure": {
         "sub": "Understand space",
         "title": "Identify the embrasure",
-        "desc": "L'embrasure est l'espace vide entre les deux bords intérieurs du mur — c'est là que la moustiquaire sera fixée."
+        "desc": "The embrasure is the empty space in the wall where your mosquito net will be installed.\nIt is NOT the frame of the existing window.\nAlways measure the raw opening, not the window frame."
       },
       "mistakes": {
         "sub": "Mistakes to avoid",
         "title": "Don't make these mistakes",
-        "desc": "❌ Ne mesurez PAS sur le cadre de la fenêtre existante.\n✅ Mesurez TOUJOURS dans l'embrasure.\n⚠️ Une erreur de 2 cm peut rendre la moustiquaire inutilisable."
+        "desc": "❌ Do NOT measure on the existing window frame\n❌ Do NOT round to the nearest 5 or 10 cm\n❌ Do NOT measure only once\n✅ Always take 3 measurements and use the smallest\n✅ Measure the raw wall opening"
       },
       "largeur": {
         "sub": "Measure 1/2",
         "title": "Measure Width — L",
-        "desc": "Prenez 3 mesures (haut, milieu, bas) et retenez la plus petite.\nExemple pour votre {{type}} : {{example}} cm."
+        "desc": "Take 3 measurements (top, middle, bottom) of the width.\nUse the SMALLEST value.\nNote: {{l}} cm"
       },
       "hauteur": {
         "sub": "Measure 2/2",
         "title": "Measure Height — H",
-        "desc": "Prenez 3 mesures (gauche, centre, droit) et retenez la plus petite.\nExemple : {{example}} cm."
+        "desc": "Take 3 measurements (left, center, right) of the height.\nUse the SMALLEST value.\nNote: {{h}} cm"
       },
       "recap": {
         "sub": "Everything is ready!",
         "title": "Your final dimensions",
-        "desc": "Votre commande : {{l}} × {{h}} cm\n\nNotre équipe vérifie vos mesures gratuitement après la commande."
+        "desc": "Your order: {{l}} × {{h}} cm\nThese are your confirmed measurements.\nOur team will contact you to finalize your order."
       }
     },
     "clientStep": {
@@ -267,7 +302,8 @@
     "product": "PRODUCT",
     "dimensions": "DIMENSIONS",
     "client": "CLIENT",
-    "summary": "SUMMARY"
+    "summary": "SUMMARY",
+    "custom_size": "Custom size — no limit"
   },
   "footer": {
     "address": "125 lot Laaroussi, Mghira, Tunis",

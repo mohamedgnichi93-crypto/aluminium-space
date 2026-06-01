@@ -443,7 +443,7 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
                   </div>
                 ) : (
                   <div style={{ fontSize: '12px', color: '#81C063', marginTop: '6px', fontWeight: 600 }}>
-                    Sur mesure — sans limite
+                    {t('devis_steps.custom_size')}
                   </div>
                 )}
                 {errors.width && <span style={{ color: '#EF4444', fontSize: '12px', marginTop: '4px', display: 'block' }}>{errors.width.message as string}</span>}
@@ -485,7 +485,7 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
                   </div>
                 ) : (
                   <div style={{ fontSize: '12px', color: '#81C063', marginTop: '6px', fontWeight: 600 }}>
-                    Sur mesure — sans limite
+                    {t('devis_steps.custom_size')}
                   </div>
                 )}
                 {errors.height && <span style={{ color: '#EF4444', fontSize: '12px', marginTop: '4px', display: 'block' }}>{errors.height.message as string}</span>}

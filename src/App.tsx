@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 import { lazy, Suspense, useEffect } from 'react';
 import { AIAgentProvider, useAIAgentContext, type Lang } from './context/AIAgentContext';
 import AIAgent from './components/ai/AIAgent';
-import { loadSettings } from './store/settingsStore';
 
 const Home = lazy(() => import('./pages/Home'));
 const Products = lazy(() => import('./pages/Products'));
@@ -91,10 +90,6 @@ function App() {
     document.documentElement.dir = dir;
     document.documentElement.lang = i18n.language;
   }, [i18n.language]);
-
-  useEffect(() => {
-    loadSettings(); // load business settings once at app start
-  }, []);
 
   return (
     <Router>

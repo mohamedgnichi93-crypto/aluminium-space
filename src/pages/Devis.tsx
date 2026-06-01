@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import DevisWizard from '../components/devis/DevisWizard';
+const DevisWizard = lazy(() => import('../components/devis/DevisWizard'));
 import PageSEO from '../components/ui/PageSEO';
 
 const Devis = () => {
@@ -45,7 +45,13 @@ const Devis = () => {
       <div className="pb-24" style={{ background: '#F5F7FA', minHeight: '60vh' }}>
         <div className="container mx-auto px-4 pt-10">
           <div className="max-w-4xl mx-auto">
-            <DevisWizard />
+            <Suspense fallback={
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '300px' }}>
+                <div style={{ width: '40px', height: '40px', border: '3px solid #81C063', borderTop: '3px solid transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+              </div>
+            }>
+              <DevisWizard />
+            </Suspense>
           </div>
         </div>
       </div>

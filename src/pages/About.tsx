@@ -188,6 +188,7 @@ const About = () => {
                 ar: 'قصة شركة تونسية اختارت الامتياز الإيطالي.',
                 tn: 'حكاية شركة تونسية خيّرت الجودة الإيطالية.',
                 en: 'The story of a Tunisian company that chose Italian excellence.',
+                it: 'La storia di un\'azienda tunisina che ha scelto l\'eccellenza italiana.',
               })}
             </p>
           </motion.div>
@@ -214,7 +215,7 @@ const About = () => {
                 marginBottom: '12px',
                 fontFamily: 'Rajdhani, sans-serif',
               }}>
-                {loc({ fr: 'Notre Histoire', ar: 'قصتنا', tn: 'حكايتنا', en: 'Our Story' })}
+                {loc({ fr: 'Notre Histoire', ar: 'قصتنا', tn: 'حكايتنا', en: 'Our Story', it: 'La Nostra Storia' })}
               </div>
               <h2 style={{
                 fontFamily: 'Rajdhani, sans-serif',
@@ -230,6 +231,7 @@ const About = () => {
                   ar: 'وُلدت في مغيرة، معترف بها في كل مكان',
                   tn: 'ولدت في مغيرة، معروفة في كل بلاصة',
                   en: 'Born in Mghira, Recognized Everywhere',
+                  it: 'Nata a Mghira, Riconosciuta Ovunque',
                 })}
               </h2>
               <p style={{
@@ -244,6 +246,7 @@ const About = () => {
                   ar: 'Aluminium Space شركة متخصصة في نجارة الألومنيوم وتوزيع المستيكارات على المقاس. موجودة في مغيرة، في منطقة تونس، نخدم الأفراد والمهنيين في كل أنحاء تونس.',
                   tn: 'Aluminium Space شركة متخصصة في نجارة الألمنيوم وتوزيع المستيكار على المقاس. في مغيرة، منطقة تونس، نخدموا الأفراد والمهنيين في كل تونس.',
                   en: 'Aluminium Space is a company specializing in aluminum joinery and custom mosquito screen distribution. Located in Mghira, Tunis region, we serve individuals and professionals across all of Tunisia.',
+                  it: 'Aluminium Space è un\'azienda specializzata nella lavorazione dell\'alluminio e nella distribuzione di zanzariere su misura. Situati a Mghira, nella regione di Tunisi, serviamo privati e professionisti in tutta la Tunisia.',
                 })}
               </p>
               <p style={{
@@ -257,6 +260,7 @@ const About = () => {
                   ar: 'بوصفنا **الشريك المعتمد لـ Grifo Flex** في تونس، نقدم مستيكارات إيطالية عالية التقنية — مقاسة، مصنعة على المقاس ومركبة من قبل تقنيينا المؤهلين.',
                   tn: 'بوصفنا **الشريك المعتمد لـ Grifo Flex** في تونس، نقدموا مستيكار إيطالية عالية التقنية — تُقاس، تُصنع على المقاس وتُركب من طرف تقنيين متخصصين.',
                   en: 'As the **certified Grifo Flex partner** in Tunisia, we offer high-tech Italian mosquito screens — measured, custom-made and installed by our qualified technicians.',
+                  it: 'Come **partner certificato Grifo Flex** in Tunisia, offriamo zanzariere italiane ad alta tecnologia — misurate, realizzate su misura e installate dai nostri tecnici qualificati.',
                 })}
               </p>
             </motion.div>
@@ -290,10 +294,10 @@ const About = () => {
                   })}
                 </p>
                 {[
-                  { fr: 'Aluminium traité anticorrosion', ar: 'ألومنيوم مضاد للتآكل', tn: 'ألمنيوم مضاد للصدأ', en: 'Anti-corrosion aluminum' },
-                  { fr: 'Maille ultra-fine zéro insectes', ar: 'شبكة دقيقة لا حشرات', tn: 'شبكة رفيعة ما تدخلش حشرة', en: 'Ultra-fine zero-insect mesh' },
-                  { fr: 'Mécanisme garanti 10 ans', ar: 'ميكانيزم مضمون 10 سنوات', tn: 'ميكانيزم مضمون 10 سنوات', en: '10-year mechanism guarantee' },
-                  { fr: 'Montage et démontage facile', ar: 'تركيب وفك سهل', tn: 'تركيب وفك سهل', en: 'Easy assembly and removal' },
+                  { fr: 'Aluminium traité anticorrosion', ar: 'ألومنيوم مضاد للتآكل', tn: 'ألمنيوم مضاد للصدأ', en: 'Anti-corrosion aluminum', it: 'Alluminio trattato anticorrosione' },
+                  { fr: 'Maille ultra-fine zéro insectes', ar: 'شبكة دقيقة لا حشرات', tn: 'شبكة رفيعة ما تدخلش حشرة', en: 'Ultra-fine zero-insect mesh', it: 'Rete ultra-fine zero insetti' },
+                  { fr: 'Mécanisme garanti 10 ans', ar: 'ميكانيزم مضمون 10 سنوات', tn: 'ميكانيزم مضمون 10 سنوات', en: '10-year mechanism guarantee', it: 'Meccanismo garantito 10 anni' },
+                  { fr: 'Montage et démontage facile', ar: 'تركيب وفك سهل', tn: 'تركيب وفك سهل', en: 'Easy assembly and removal', it: 'Montaggio e smontaggio facile' },
                 ].map((item, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                     <CheckCircle size={15} style={{ color: '#81C063', flexShrink: 0 }} />
@@ -319,7 +323,7 @@ const About = () => {
               textTransform: 'uppercase',
               marginBottom: '8px',
             }}>
-              {loc({ fr: 'Notre Parcours', ar: 'مسيرتنا', tn: 'مسيرتنا', en: 'Our Journey' })}
+              {loc({ fr: 'Notre Parcours', ar: 'مسيرتنا', tn: 'مسيرتنا', en: 'Our Journey', it: 'Il Nostro Percorso' })}
             </h2>
             <div style={{ width: '48px', height: '3px', background: '#81C063', margin: '0 auto', borderRadius: '2px' }} />
           </motion.div>
@@ -420,7 +424,7 @@ const About = () => {
               textTransform: 'uppercase',
               marginBottom: '8px',
             }}>
-              {loc({ fr: 'Nos Valeurs', ar: 'قيمنا', tn: 'قيمنا', en: 'Our Values' })}
+              {loc({ fr: 'Nos Valeurs', ar: 'قيمنا', tn: 'قيمنا', en: 'Our Values', it: 'I Nostri Valori' })}
             </h2>
             <div style={{ width: '48px', height: '3px', background: '#81C063', margin: '0 auto', borderRadius: '2px' }} />
           </motion.div>

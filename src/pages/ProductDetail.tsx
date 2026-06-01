@@ -452,7 +452,7 @@ const ProductDetail = () => {
                                   fontSize: '13px', color: '#7A8FA6', letterSpacing: '1.5px',
                                   textTransform: 'uppercase', marginBottom: '4px'
                                 }}>
-                                  Prix au m²
+                                  {t('product_detail.price_per_m2')}
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
                                   <span style={{ 
@@ -468,7 +468,7 @@ const ProductDetail = () => {
                                   fontFamily: 'DM Sans, sans-serif', fontSize: '12px', 
                                   color: '#7A8FA6', marginTop: '4px'
                                 }}>
-                                  Sur mesure — sans limite de dimensions
+                                  {t('product_detail.custom_dimensions')}
                                 </div>
                               </div>
                             </div>

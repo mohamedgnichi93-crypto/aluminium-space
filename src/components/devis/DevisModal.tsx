@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import DevisWizard from './DevisWizard';
+const DevisWizard = lazy(() => import('./DevisWizard'));
 
 interface DevisModalProps {
   isOpen: boolean;
@@ -120,7 +120,13 @@ const DevisModal = ({ isOpen, onClose, productId }: DevisModalProps) => {
               </button>
             </div>
 
-            <DevisWizard initialProductId={productId} onClose={onClose} />
+            <Suspense fallback={
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '300px' }}>
+                <div style={{ width: '40px', height: '40px', border: '3px solid #81C063', borderTop: '3px solid transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+              </div>
+            }>
+              <DevisWizard initialProductId={productId} onClose={onClose} />
+            </Suspense>
           </motion.div>
         </motion.div>
       )}

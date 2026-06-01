@@ -47,6 +47,39 @@
       "custom": "Su misura",
       "warranty": "Anni di garanzia",
       "mechanism": "Garanzia meccanismo"
+    },
+    "remise": {
+      "badge": "Sconto sul volume",
+      "title1": "Più ordini,",
+      "title2": "più risparmi",
+      "subtitle": "Sconto immediato applicato automaticamente in base alla quantità.",
+      "feature1": "Sconto applicato automaticamente",
+      "feature2": "Nessun codice promo richiesto",
+      "feature3": "Offerta permanente senza limite",
+      "popular": "Più popolare",
+      "pieces_range": "{{min}} – {{max}} pezzi",
+      "pieces_plus": "{{min}}+ pezzi",
+      "pill1": "Sconto automatico",
+      "pill2": "Offerta permanente",
+      "pill3": "Nessun codice promo",
+      "packs": {
+        "decouverte": {
+          "label": "Pack Scoperta",
+          "desc": "Ideale per la tua prima installazione."
+        },
+        "appartement": {
+          "label": "Pack Appartamento",
+          "desc": "Proteggi tutti i tuoi ambienti principali."
+        },
+        "confort": {
+          "label": "Pack Comfort",
+          "desc": "La scelta migliore per risparmiare di più."
+        },
+        "villa": {
+          "label": "Pack Villa / Pro",
+          "desc": "Per grandi progetti e professionisti."
+        }
+      }
     }
   },
   "steps": {
@@ -137,7 +170,9 @@
     "tooltip_exact_wh": "Prezzo per {{w}}cm × {{h}}cm",
     "availability_label": "Disponibilità",
     "availability_status": "Installazione entro 3–7 giorni lavorativi",
-    "availability_zone": "Tunis & Grande Tunisi"
+    "availability_zone": "Tunis & Grande Tunisi",
+    "price_per_m2": "Prezzo al m²",
+    "custom_dimensions": "Su misura — nessun limite di dimensioni"
   },
   "measureGuide": {
     "badge": "GUIDA ALLE MISURE",
@@ -267,7 +302,8 @@
     "product": "PRODOTTO",
     "dimensions": "DIMENSIONI",
     "client": "CLIENTE",
-    "summary": "RIEPILOGO"
+    "summary": "RIEPILOGO",
+    "custom_size": "Su misura — nessun limite"
   },
   "footer": {
     "address": "125 lot Laaroussi, Mghira, Tunis",

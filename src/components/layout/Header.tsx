@@ -329,17 +329,20 @@ const Header = () => {
           style={{ [isRTL ? 'paddingRight' : 'paddingLeft']: '4px', [isRTL ? 'borderRight' : 'borderLeft']: '1px solid #DBDADA', [isRTL ? 'marginRight' : 'marginLeft']: '2px', flexShrink: 0, overflow: 'visible' }}
           title="Grifo Flex"
         >
-          <img
-            src="/grifo-icon.png"
-            alt="Grifo Flex"
-            style={{
-              height: '38px',
-              width: '38px',
-              objectFit: 'contain',
-              flexShrink: 0,
-              borderRadius: '6px'
-            }}
-          />
+          <picture style={{ display: 'flex', flexShrink: 0 }}>
+            <source srcSet="/grifo-icon.webp" type="image/webp" />
+            <img
+              src="/grifo-icon.png"
+              alt="Grifo Flex"
+              style={{
+                height: '38px',
+                width: '38px',
+                objectFit: 'contain',
+                flexShrink: 0,
+                borderRadius: '6px'
+              }}
+            />
+          </picture>
         </a>
       </div>
 

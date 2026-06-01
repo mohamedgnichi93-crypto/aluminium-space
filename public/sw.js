@@ -29,21 +29,24 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // Network-first for static assets (JS, CSS, images, fonts)
-  if (
-    url.pathname.match(/\.(js|css|png|jpg|jpeg|svg|webp|woff2?|ttf|ico)$/) ||
-    url.hostname !== self.location.hostname
-  ) {
+  // Cache-first for static assets (JS, CSS, images, videos, fonts)
+  if (url.pathname.match(/\.(js|css|png|jpg|jpeg|svg|webp|mp4|woff2?|ttf|ico)$/)) {
     e.respondWith(
-      fetch(e.request)
-        .then(res => {
-          if (res.ok) {
-            const clone = res.clone();
-            caches.open(CACHE).then(c => c.put(e.request, clone));
-          }
-          return res;
+      caches.match(e.request)
+        .then(cached => {
+          if (cached) return cached;
+          return fetch(e.request).then(response => {
+            if (!response || response.status !== 200 || response.type !== 'basic') {
+              return response;
+            }
+            const responseToCache = response.clone();
+            caches.open(CACHE).then(cache => {
+              cache.put(e.request, responseToCache);
+            });
+            return response;
+          });
         })
-        .catch(() => caches.match(e.request) ?? new Response('Offline', { status: 503 }))
+        .catch(() => new Response('Offline', { status: 503 }))
     );
     return;
   }

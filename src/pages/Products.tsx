@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, Ruler, Award, CheckCircle, XCircle, Link as LinkIcon, FileText, X as XIcon } from 'lucide-react';
@@ -7,7 +7,7 @@ import { products } from '../data/products';
 import ProductCard from '../components/products/ProductCard';
 import HowItWorks from '../components/ui/HowItWorks';
 import PageSEO from '../components/ui/PageSEO';
-import DevisWizard from '../components/devis/DevisWizard';
+const DevisWizard = lazy(() => import('../components/devis/DevisWizard'));
 import ItalyFlag from '../components/ui/ItalyFlag';
 
 type FilterType = 'all' | 'plisse' | 'enroulable' | 'panneau';
@@ -423,7 +423,13 @@ const Products = () => {
               >
                 <XIcon size={18} color="#1D3E61" />
               </button>
-              <DevisWizard initialProductId={devisProductId} onClose={() => setShowDevis(false)} />
+              <Suspense fallback={
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '300px' }}>
+                  <div style={{ width: '40px', height: '40px', border: '3px solid #81C063', borderTop: '3px solid transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                </div>
+              }>
+                <DevisWizard initialProductId={devisProductId} onClose={() => setShowDevis(false)} />
+              </Suspense>
             </motion.div>
           </motion.div>
         )}
