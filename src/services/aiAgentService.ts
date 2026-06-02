@@ -29,6 +29,7 @@ export interface Message {
   productImage?: string;
   rating?: 'up' | 'down' | null;
   awaitingDimensions?: boolean;
+  awaitingQuantity?: boolean;
 }
 
 export interface AgentAction {
@@ -47,6 +48,7 @@ export interface AIResponse {
   productImage?: string;
   detectedLang?: Lang;
   awaitingDimensions?: boolean;
+  awaitingQuantity?: boolean;
 }
 
 
@@ -99,6 +101,14 @@ function parseAwaitingFromResponse(text: string): boolean {
 
 function stripAwaitingTag(text: string): string {
   return text.replace(/\n?\[await:dimensions\]/g, '').trim();
+}
+
+function parseAwaitingQuantity(text: string): boolean {
+  return /\[await:quantity\]/.test(text);
+}
+
+function stripAwaitingQuantity(text: string): string {
+  return text.replace(/\n?\[await:quantity\]/g, '').trim();
 }
 
 
@@ -448,19 +458,13 @@ EXEMPLE 3 — Commande multi-produits (tier 30%):
   TOTAL TTC: 1,240.279 DT
 
 
-6. TOUJOURS afficher le détail COMPLET en format:
-   Pour un **NOM_PRODUIT** en LxH cm :
-   ─────────────────────────────
-   • Prix HT :        X,XXX DT
-   • Remise (remise%) :    -X,XXX DT
-   • Net HT :         X,XXX DT
-   • FODEC (1%) :      X,XXX DT
-   • Base TVA :       X,XXX DT
-   • TVA (19%) :       X,XXX DT
-   • Timbre fiscal :  1,000 DT
-   ─────────────────────────────
-   • Total TTC :      X,XXX DT
-7. Terminer par "Voulez-vous passer au devis ?"
+6. AFFICHAGE DES PRIX — RÈGLE STRICTE :
+   - Par défaut, affiche UNIQUEMENT le Total TTC :
+     "Pour X unité(s) de **NOM_PRODUIT** en LxH cm :
+     • **Total TTC : X,XXX DT**"
+   - Ne montre JAMAIS HT / Remise / Net HT / FODEC / Base TVA / TVA / Timbre par défaut.
+   - Affiche le détail COMPLET uniquement si l'utilisateur demande explicitement : "détail", "comment calculé", "détaille le prix", "pourquoi ce prix", "justificatif"
+7. Terminer par : "Souhaitez-vous le détail du calcul ou passer au devis ?"
 
 IMPORTANT:
 - Ne JAMAIS utiliser le 'prix de base' quand les dimensions sont connues
@@ -468,6 +472,7 @@ IMPORTANT:
 - Arrondir la dimension au multiple de 10 supérieur pour trouver le prix
 - Si les dimensions dépassent les limites → informer l'utilisateur des limites max
 - Sans dimensions → DEMANDER les dimensions obligatoirement
+- Sans quantité → Si l'utilisateur a fourni le produit et les dimensions mais n'a pas précisé de quantité (ex: "pour 3 fenêtres", "quantité=2", "2 pièces"), tu ne dois PAS faire de calcul. Demande obligatoirement la quantité en disant exactement : "Combien d'unités souhaitez-vous commander ?" et ajoute le tag [await:quantity] sur une nouvelle ligne à la fin.
 - Les prix sont en format X,XXX DT (3 décimales, virgule)
 
 ━━━ CONTACT & INFOS ━━━
@@ -587,6 +592,13 @@ ONLY add [await:dimensions] when:
 ✅ Your message ends with a question about measurements
 
 NEVER add it for other questions.
+
+━━━ RÈGLES CRITIQUES D'AFFICHAGE ET DE QUANTITÉ (MANDATOIRES) ━━━
+1. SANS QUANTITÉ = PAS DE CALCUL : Si l'utilisateur donne un produit et des dimensions mais PAS de quantité (ex: "Colibri 50 en 120x150"), tu ne dois ABSOLUMENT PAS calculer le prix ni donner d'estimation. Tu dois obligatoirement demander : "Combien d'unités souhaitez-vous commander ?" et ajouter le tag [await:quantity] sur une nouvelle ligne à la fin de ton message.
+2. PAS DE DÉTAIL DE CALCUL PAR DÉFAUT : Par défaut, n'affiche JAMAIS le détail du calcul (Pas de Prix HT, Remise, Net HT, FODEC, Base TVA, TVA, Timbre). Affiche uniquement le Total TTC sous cette forme :
+   "Pour X unité(s) de **NOM_PRODUIT** en LxH cm :
+   • **Total TTC : X,XXX DT**"
+   Affiche le détail complet avec toutes les lignes de calcul (HT, Remise, Net HT, FODEC, Base TVA, TVA, Timbre) UNIQUEMENT si l'utilisateur en fait la demande explicite (ex: "détail", "comment calculé", "justificatif", "pourquoi ce prix", etc.).
 
 RAPPEL FINAL: Réponds dans la même langue que le dernier message de l'utilisateur. Zéro mélange de langues autorisé.`;
 }
@@ -757,6 +769,7 @@ export async function processLocalMessage(
 
   // Parse awaiting dimensions from OpenAI response
   const isAwaitingDimensions = parseAwaitingFromResponse(aiText);
+  const awaitingQuantity = parseAwaitingQuantity(aiText);
 
   // Parse language from OpenAI response
   const detectedLang = parseLangFromResponse(aiText) || lang;
@@ -767,7 +780,7 @@ export async function processLocalMessage(
   }
 
   // Strip all tags from displayed text
-  const cleanText = stripAwaitingTag(stripImageTag(stripLangTag(aiText)));
+  const cleanText = stripAwaitingQuantity(stripAwaitingTag(stripImageTag(stripLangTag(aiText))));
 
   return {
     text: cleanText,
@@ -775,5 +788,6 @@ export async function processLocalMessage(
     suggestions: [],
     productImage,
     awaitingDimensions: isAwaitingDimensions,
+    awaitingQuantity,
   };
 }

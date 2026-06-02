@@ -72,6 +72,14 @@ const PLACEHOLDER_DIMS: Record<Lang, string> = {
   it: 'Es: 150×120 (larghezza × altezza in cm)',
 };
 
+const PLACEHOLDER_QTY: Record<string, string> = {
+  fr: 'Ex: 3 unités / 2 pièces',
+  ar: 'مثال: 3 وحدات / قطعتين',
+  tn: 'Ex: 3 ka3bet / 2 pièces',
+  en: 'E.g: 3 units / 2 pieces',
+  it: 'Es: 3 unità / 2 pezzi',
+};
+
 export default function AIAgent() {
   const {
     isOpen, closeAgent, toggleAgent,
@@ -134,6 +142,9 @@ export default function AIAgent() {
 
   const awaitingDimensions =
     messages[messages.length - 1]?.awaitingDimensions === true;
+
+  const awaitingQuantity =
+    messages[messages.length - 1]?.awaitingQuantity === true;
 
   const handleSend = useCallback((overrideText?: string) => {
     const textToSanitize = overrideText || inputValue;
@@ -465,9 +476,12 @@ export default function AIAgent() {
                   onChange={e => setInputValue(e.target.value)}
                   onKeyDown={handleKeyDown}
                   dir="auto"
-                  placeholder={awaitingDimensions
-                    ? (PLACEHOLDER_DIMS[currentLanguage] || PLACEHOLDER_DIMS.fr)
-                    : (PLACEHOLDER_NORMAL[currentLanguage] || PLACEHOLDER_NORMAL.fr)
+                  placeholder={
+                    awaitingDimensions
+                      ? (PLACEHOLDER_DIMS[currentLanguage] || PLACEHOLDER_DIMS.fr)
+                      : awaitingQuantity
+                      ? (PLACEHOLDER_QTY[currentLanguage] || PLACEHOLDER_QTY.fr)
+                      : (PLACEHOLDER_NORMAL[currentLanguage] || PLACEHOLDER_NORMAL.fr)
                   }
                   rows={1}
                   maxLength={500}

@@ -45,7 +45,7 @@ export const products: Product[] = [
     category: 'panneau',
     descriptionKey: 'products.elba_desc',
     description: 'Moustiquaire à panneau fixe pour fenêtre. Châssis fixe en aluminium blanc. Panneau moustiquaire en fibre de verre recouverte de PVC. Fixations murales en nylon. Joint-brosse périmétral (en option). Joint magnétique périmétral (en option). Sur demande : panneau en aluminium ou acier inox.',
-    imageUrl: '/images/elba.webp',
+    imageUrl: '/images/elba-v2.webp',
     maxW: 0,
     maxH: 0,
   },
