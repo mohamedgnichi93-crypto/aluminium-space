@@ -10,8 +10,13 @@ import type { Lang } from '../../context/AIAgentContext';
 
 // ── Markdown-lite renderer ────────────────────────────────────────
 function renderText(text: string) {
-  // Strip lang tag if present (safety net)
-  const clean = text.replace(/^\[lang:(fr|ar|en|it)\]\n?/, '').trim();
+  // Control tags should never leak into a visible chat bubble.
+  const clean = text
+    .replace(/\n?\[lang:(?:fr|ar|tn|en|it)\]/gi, '')
+    .replace(/\n?\[image:[^\]]+\]/gi, '')
+    .replace(/\n?\[awaiting:(?:dimensions|quantity)\]/gi, '')
+    .replace(/\n?\[action:devis:[^\]]+\]/gi, '')
+    .trim();
   
   return clean.split('\n').map((line, i, arr) => {
     const parts = line.split(/\*\*(.*?)\*\*/g);
@@ -203,7 +208,7 @@ export default function AIAgent() {
                 <Bot className="w-6 h-6 text-white" />
               ) : (
                 <img
-                  src="/images/alu-avatar.png"
+                  src="/images/alu-avatar.svg"
                   alt="Asmos"
                   className="w-10 h-10 rounded-full object-cover"
                   onError={() => setAvatarError(true)}
@@ -248,7 +253,7 @@ export default function AIAgent() {
                     <Bot className="w-5 h-5 text-white" />
                   ) : (
                     <img
-                      src="/images/alu-avatar.png"
+                      src="/images/alu-avatar.svg"
                       alt="Asmos"
                       className="w-9 h-9 rounded-full object-cover"
                       onError={() => setAvatarError(true)}

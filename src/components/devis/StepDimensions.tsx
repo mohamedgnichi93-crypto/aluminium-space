@@ -1,5 +1,5 @@
 import type { UseFormRegister, FieldErrors, UseFormWatch, UseFormSetValue } from 'react-hook-form';
-import { calculatePrice, formatPrice } from '../../utils/priceCalculator';
+import { calculatePrice, formatPrice, getProductDimensionLimits } from '../../utils/priceCalculator';
 import { getRemisePercent } from '../../utils/remiseCalculator';
 import { getSettings } from '../../store/settingsStore';
 import { useEffect, useState, useRef } from 'react';
@@ -107,26 +107,15 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
     }
 
     if (width > 0 && height > 0) {
-      let maxW = 0, maxH = 0, minW = 0, minH = 0;
+      const limits = getProductDimensionLimits(productId, Number(height));
 
-      if (productId === 'colibri-50') {
-        const isTable1 = height <= 170;
-        minW = isTable1 ? 60 : 80;
-        maxW = isTable1 ? 200 : 160;
-        minH = 35;
-        maxH = 250;
-      } else if (productId === 'sidney-50') {
-        minW = 35; maxW = 200; minH = 70; maxH = 260;
-      } else if (productId === 'sidney-50-ac') {
-        minW = 70; maxW = 400; minH = 70; maxH = 260;
-      } else if (productId === 'elba') {
-        minW = 10; maxW = 9999; minH = 10; maxH = 9999;
-      } else if (productId === 'plisse31') {
-        minW = 125; maxW = 500; minH = 120; maxH = 300;
-      }
-
-      // Check if exceeds maximum (Error)
-      if (width > maxW || height > maxH) {
+      if (
+        !limits ||
+        width < limits.minW ||
+        width > limits.maxW ||
+        height < limits.minH ||
+        height > limits.maxH
+      ) {
         setOutOfBounds(true);
         setIsMinimumPrice(false);
         setNeedsCustomQuote(false);
@@ -141,9 +130,7 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
       let currentIsMin = false;
       if (productId === 'elba') {
         if ((width / 100) * (height / 100) < 1) currentIsMin = true;
-      } else if (productId === 'colibri-50') {
-        if (width < minW || height < minH) currentIsMin = true;
-      } else {
+      } else if (productId === 'sidney-50' || productId === 'sidney-50-ac') {
         // For Sidney, table starts at H=220
         if (height < 220) currentIsMin = true;
       }
@@ -176,23 +163,8 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
 
   // SVG Visualizer calculations
   const getMinMax = () => {
-    switch (productId) {
-      case 'colibri-50': {
-        const h = Number(height) || 0;
-        const isTable1 = h <= 170;
-        return {
-          minW: isTable1 ? 60 : 80,
-          maxW: isTable1 ? 200 : 160,
-          minH: 35,
-          maxH: 250
-        };
-      }
-      case 'sidney-50': return { minW: 35, maxW: 200, minH: 70, maxH: 260 };
-      case 'sidney-50-ac': return { minW: 70, maxW: 400, minH: 70, maxH: 260 };
-      case 'elba': return { minW: 10, maxW: 9999, minH: 10, maxH: 9999 };
-      case 'plisse31': return { minW: 125, maxW: 500, minH: 120, maxH: 300 };
-      default: return { minW: 30, maxW: 200, minH: 30, maxH: 250 };
-    }
+    return getProductDimensionLimits(productId, Number(height) || 0)
+      ?? { minW: 30, maxW: 200, minH: 30, maxH: 250 };
   };
 
   const { minW, maxW, minH, maxH } = getMinMax();

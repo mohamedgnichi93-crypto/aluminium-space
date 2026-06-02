@@ -14,6 +14,7 @@ const Dashboard = lazy(() => import('./pages/Dashboard'));
 const About = lazy(() => import('./pages/About'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const ClientPortal = lazy(() => import('./pages/ClientPortal'));
+const Devis = lazy(() => import('./pages/Devis'));
 
 const pageVariants = {
   initial: { opacity: 0, y: 20 },
@@ -36,7 +37,7 @@ function AnimatedRoutes() {
           <Route path="dashboard" element={<motion.div {...pageVariants} initial="initial" animate="animate" exit="exit"><Dashboard /></motion.div>} />
           <Route path="dashbord" element={<Navigate to="/dashboard" replace />} />
           <Route path="admin" element={<Navigate to="/dashboard" replace />} />
-          <Route path="devis" element={<Navigate to="/produits" replace />} />
+          <Route path="devis" element={<motion.div {...pageVariants} initial="initial" animate="animate" exit="exit"><Devis /></motion.div>} />
           <Route path="mon-espace" element={<motion.div {...pageVariants} initial="initial" animate="animate" exit="exit"><ClientPortal /></motion.div>} />
           <Route path="*" element={<motion.div {...pageVariants} initial="initial" animate="animate" exit="exit"><NotFound /></motion.div>} />
         </Route>

@@ -205,7 +205,7 @@ INSERT INTO products (slug, name, type, category_fr, category_ar, description_fr
     "base_per_m2": 326000
   }',
   '["Blanc", "Noir"]',
-  '/images/elba.webp',
+  '/images/elba-v2.webp',
   '/produits/elba',
   false,
   true,
@@ -227,7 +227,7 @@ INSERT INTO products (slug, name, type, category_fr, category_ar, description_fr
   '["Déverrouillage à aimant", "Rail extra plat", "Maille noire de série"]',
   '31mm',
   '31mm',
-  100, 500, 100, 300,
+  125, 500, 120, 300,
   1115,
   false,
   '{

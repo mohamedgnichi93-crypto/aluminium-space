@@ -1,14 +1,17 @@
-// ═══════════════════════════════════════════════════════════════
-//  ALU SPACE — AI Agent Service v5 (Full OpenAI + Supabase)
-//  ALL responses powered by OpenAI with dynamic Supabase data.
-//  Price calculation is handled by OpenAI using price_tables.
-// ═══════════════════════════════════════════════════════════════
-
-import { getSettings, ensureSettingsLoaded, type BusinessSettings } from '../store/settingsStore';
+import { ensureSettingsLoaded, getSettings, type BusinessSettings } from '../store/settingsStore';
 import { getProducts, type SupabaseProduct } from '../store/productsStore';
-import { getFaq, type FaqEntry } from '../store/faqStore';
+import { products as localProducts } from '../data/products';
+import { calculatePrice, getProductDimensionLimits } from '../utils/priceCalculator';
+import { getRemisePercent } from '../utils/remiseCalculator';
 
-export type Lang = 'fr' | 'ar' | 'tn' | 'en' | 'it';
+export type AgentLanguage = 'fr' | 'en' | 'it' | 'ar' | 'tn';
+
+export interface DevisAction {
+  slug: string;
+  w: number;
+  h: number;
+  qty: number;
+}
 
 export interface ConvMemory {
   clientName: string | null;
@@ -17,777 +20,672 @@ export interface ConvMemory {
   lastHeight: number | null;
 }
 
-export interface Message {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-  action?: AgentAction;
-  actionLabel?: string;
-  suggestions?: string[];
-  detectedLang?: Lang;
-  productImage?: string;
-  rating?: 'up' | 'down' | null;
-  awaitingDimensions?: boolean;
-  awaitingQuantity?: boolean;
-}
-
 export interface AgentAction {
-  type:
-  | 'navigate_to_page'
-  | 'scroll_to_section';
+  type: 'navigate_to_page' | 'scroll_to_section';
   params?: Record<string, string | number>;
   closeAfter?: boolean;
 }
 
-export interface AIResponse {
-  text: string;
+export interface Message {
+  id?: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp?: Date;
   action?: AgentAction;
   actionLabel?: string;
   suggestions?: string[];
+  detectedLang?: AgentLanguage;
   productImage?: string;
-  detectedLang?: Lang;
+  rating?: 'up' | 'down' | null;
+  image?: string;
+  language?: AgentLanguage;
   awaitingDimensions?: boolean;
   awaitingQuantity?: boolean;
+  devisAction?: DevisAction;
 }
 
-
-// ─── SESSION STATE ───────────────────────────────────────────────
-function updateSessionLang(l: Lang) {
-  if (typeof localStorage !== 'undefined') {
-    localStorage.setItem('alu_chat_lang', l);
-  }
+export interface AIResponse {
+  text: string;
+  image?: string;
+  language: AgentLanguage;
+  awaitingDimensions?: boolean;
+  awaitingQuantity?: boolean;
+  devisAction?: DevisAction;
+  action?: AgentAction;
+  actionLabel?: string;
+  suggestions?: string[];
+  detectedLang?: AgentLanguage;
+  productImage?: string;
 }
-let sessionCount = 0;
 
-export function resetSessionCount(lang?: Lang) { sessionCount = 0; updateSessionLang(lang || 'fr'); }
+interface Dimensions {
+  width: number;
+  height: number;
+}
 
-const detectLanguage = (text: string): Lang => {
-  // Arabic script → ar
-  if (/[\u0600-\u06FF]/.test(text)) return 'ar';
-  
-  // Use saved language from localStorage
-  if (typeof localStorage !== 'undefined') {
-    const saved = localStorage.getItem('alu_chat_lang') as Lang;
-    if (saved && ['fr', 'ar', 'en', 'it'].includes(saved)) return saved;
-  }
-  
-  return 'fr';
+type QuoteProduct = Pick<SupabaseProduct, 'slug' | 'name' | 'image_url'>;
+
+interface CalculatedQuote {
+  product: QuoteProduct;
+  dimensions: Dimensions;
+  quantity: number;
+  color: string;
+  unitPrice: number;
+  grossHT: number;
+  remisePercent: number;
+  remise: number;
+  netHT: number;
+  fodec: number;
+  tva: number;
+  timbre: number;
+  totalTTC: number;
+}
+
+const VALID_LANGUAGES: AgentLanguage[] = ['fr', 'en', 'it', 'ar', 'tn'];
+const DEFAULT_LANGUAGE: AgentLanguage = 'fr';
+const TN_WORDS = /\b(aslema|barcha|chnia|chniya|ena|ey|kifech|mazel|mrigla|na3am|n7eb|nta|rou7|sahha|taw|thamnou|thmen|winou|yezzi|9adech|3andi|7aja)\b/i;
+const PRICING_WORDS = /\b(prix|tarif|cout|co[uû]t|cost|price|preventivo|devis|quote|somme|total|thaman|thamnou|thmen)\b|سعر|ثمن|عرض سعر/i;
+const DETAIL_WORDS = /\b(detail|details|d[eé]tail|d[eé]tails|calcul|breakdown|dettaglio|dettagli|تفاصيل)\b/i;
+const DEVIS_WORDS = /\b(devis|quote|preventivo|commander|commande|order|confirm|confirmer|valider|validate)\b|عرض سعر|طلب/i;
+const AFFIRMATIVE_WORDS = /^(oui|yes|ok|okay|d'accord|parfait|confirme|confirm|valide|validate|ey|na3am|si|نعم)[.! ]*$/i;
+const COLOR_WORDS = /\b(blanc|white|bianco|noir|black|nero|gris|grey|gray|grigio|beige|marron|brown|brun|bronze)\b/i;
+
+const COPY = {
+  product: {
+    fr: 'Quel produit souhaitez-vous chiffrer ? Indiquez par exemple Colibri, Sidney, Sidney AC, Elba ou Plisse 31.',
+    en: 'Which product would you like to price? For example: Colibri, Sidney, Sidney AC, Elba, or Plisse 31.',
+    it: 'Quale prodotto desideri preventivare? Ad esempio: Colibri, Sidney, Sidney AC, Elba o Plisse 31.',
+    ar: 'ما هو المنتج الذي تريد تسعيره؟ مثال: Colibri أو Sidney أو Sidney AC أو Elba أو Plisse 31.',
+    tn: 'Chnia el produit elli t7eb ta3melou devis? Mathalan Colibri, Sidney, Sidney AC, Elba walla Plisse 31.',
+  },
+  dimensions: {
+    fr: (product: string) => `Indiquez les dimensions de ${product} en centimètres, par exemple 120 x 220 cm.`,
+    en: (product: string) => `Please provide the ${product} dimensions in centimetres, for example 120 x 220 cm.`,
+    it: (product: string) => `Indica le dimensioni di ${product} in centimetri, ad esempio 120 x 220 cm.`,
+    ar: (product: string) => `يرجى إرسال مقاسات ${product} بالسنتيمتر، مثال: 120 x 220 سم.`,
+    tn: (product: string) => `A3tini dimensions mta3 ${product} bel cm, mathalan 120 x 220 cm.`,
+  },
+  quantity: {
+    fr: 'Quelle quantité souhaitez-vous ?',
+    en: 'How many units would you like?',
+    it: 'Quante unità desideri?',
+    ar: 'ما هي الكمية المطلوبة؟',
+    tn: '9adech t7eb men pièce?',
+  },
+  unavailable: {
+    fr: (product: string, limits: string) => `Ces dimensions ne sont pas disponibles pour ${product}. Plage acceptée : ${limits}.`,
+    en: (product: string, limits: string) => `Those dimensions are not available for ${product}. Accepted range: ${limits}.`,
+    it: (product: string, limits: string) => `Queste dimensioni non sono disponibili per ${product}. Intervallo accettato: ${limits}.`,
+    ar: (product: string, limits: string) => `هذه المقاسات غير متوفرة لمنتج ${product}. النطاق المقبول: ${limits}.`,
+    tn: (product: string, limits: string) => `Dimensions hedhouma ma yemchiwch m3a ${product}. El plage disponible: ${limits}.`,
+  },
+  action: {
+    fr: 'Parfait. Je vous redirige vers le devis prérempli pour vérifier vos choix.',
+    en: 'Perfect. I am taking you to the prefilled quote so you can review your choices.',
+    it: 'Perfetto. Ti porto al preventivo precompilato per verificare le tue scelte.',
+    ar: 'ممتاز. سأحولك إلى عرض السعر المعبأ مسبقاً لمراجعة اختياراتك.',
+    tn: 'Mrigla. Taw nemchi bik lel devis prérempli bech tثبت choix mte3ek.',
+  },
+  fallback: {
+    fr: 'Je rencontre un souci technique. Vous pouvez nous contacter au +216 53 186 611.',
+    en: 'I am having a technical issue. You can contact us at +216 53 186 611.',
+    it: 'Sto riscontrando un problema tecnico. Puoi contattarci al +216 53 186 611.',
+    ar: 'أواجه مشكلة تقنية. يمكنك التواصل معنا على +216 53 186 611.',
+    tn: 'Fama mochkla technique. Tnajjem teklemna 3al +216 53 186 611.',
+  },
 };
 
-function parseLangFromResponse(text: string): Lang | null {
-  const match = text.match(/^\[lang:(fr|ar|en|it)\]/);
-  return match ? (match[1] as Lang) : null;
+function normalizeText(text: string) {
+  return text
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
 }
 
-function stripLangTag(text: string): string {
-  return text.replace(/^\[lang:(fr|ar|en|it)\]\n?/, '').trim();
+function detectLanguage(text: string, savedLanguage?: string): AgentLanguage {
+  if (/[\u0600-\u06ff]/.test(text)) return 'ar';
+  if (TN_WORDS.test(text)) return 'tn';
+  if (savedLanguage && VALID_LANGUAGES.includes(savedLanguage as AgentLanguage)) {
+    return savedLanguage as AgentLanguage;
+  }
+  return DEFAULT_LANGUAGE;
 }
 
-// ─── PARSE PRODUCT IMAGE FROM OPENAI RESPONSE ───────────────────
-function parseImageFromResponse(text: string): string | null {
-  const match = text.match(/\[image:(colibri-50|sidney-50|sidney-50-ac|elba|plisse31)\]/);
-  return match ? match[1] : null;
+function parseLanguage(text: string, fallback: AgentLanguage): AgentLanguage {
+  const match = text.match(/\[lang:(fr|en|it|ar|tn)\]/i);
+  return match ? (match[1].toLowerCase() as AgentLanguage) : fallback;
 }
 
-function stripImageTag(text: string): string {
-  return text.replace(/\n?\[image:(colibri-50|sidney-50|sidney-50-ac|elba|plisse31)\]/g, '').trim();
+function parseImage(text: string) {
+  const image = text.match(/\[image:([^\]]+)\]/i)?.[1];
+  if (image === '/images/elba.webp') return '/images/elba-v2.webp';
+  return image && /^\/images\/[\w.-]+$/.test(image) ? image : undefined;
 }
 
-// ─── PARSE AWAITING DIMENSIONS FROM OPENAI RESPONSE ─────────────
-function parseAwaitingFromResponse(text: string): boolean {
-  return /\[await:dimensions\]/.test(text);
+function parseAwaitingDimensions(text: string) {
+  return /\[awaiting:dimensions\]/i.test(text);
 }
 
-function stripAwaitingTag(text: string): string {
-  return text.replace(/\n?\[await:dimensions\]/g, '').trim();
+function parseAwaitingQuantity(text: string) {
+  return /\[awaiting:quantity\]/i.test(text);
 }
 
-function parseAwaitingQuantity(text: string): boolean {
-  return /\[await:quantity\]/.test(text);
+function stripControlTags(text: string) {
+  return text
+    .replace(/\n?\[image:[^\]]+\]/gi, '')
+    .replace(/\n?\[lang:(?:fr|en|it|ar|tn)\]/gi, '')
+    .replace(/\n?\[awaiting:(?:dimensions|quantity)\]/gi, '')
+    .replace(/\n?\[action:devis:[^\]]+\]/gi, '')
+    .trim();
 }
 
-function stripAwaitingQuantity(text: string): string {
-  return text.replace(/\n?\[await:quantity\]/g, '').trim();
+function parseDimensions(text: string): Dimensions | undefined {
+  // Standard: NUMxNUM or NUM*NUM or NUM/NUM
+  const stdMatch = text.match(/(\d{2,4})\s*[xX×*\/]\s*(\d{2,4})/);
+  if (stdMatch) {
+    const w = parseInt(stdMatch[1]);
+    const h = parseInt(stdMatch[2]);
+    if (w >= 20 && w <= 600 && h >= 20 && h <= 600) return { width: w, height: h };
+  }
+
+  // Natural FR: largeur 90 hauteur 130
+  const frMatch = text.match(/largeur\s*:?\s*(\d{2,4}).*?hauteur\s*:?\s*(\d{2,4})/i);
+  if (frMatch) {
+    const w = parseInt(frMatch[1]);
+    const h = parseInt(frMatch[2]);
+    if (w >= 20 && w <= 600 && h >= 20 && h <= 600) return { width: w, height: h };
+  }
+
+  // Natural FR: hauteur 130 largeur 90 (reversed)
+  const frRevMatch = text.match(/hauteur\s*:?\s*(\d{2,4}).*?largeur\s*:?\s*(\d{2,4})/i);
+  if (frRevMatch) {
+    const h = parseInt(frRevMatch[1]);
+    const w = parseInt(frRevMatch[2]);
+    if (w >= 20 && w <= 600 && h >= 20 && h <= 600) return { width: w, height: h };
+  }
+
+  // Natural AR/TN: عرض 90 ارتفاع 130
+  const arMatch = text.match(/عرض\s*:?\s*(\d{2,4}).*?ارتفاع\s*:?\s*(\d{2,4})/);
+  if (arMatch) {
+    const w = parseInt(arMatch[1]);
+    const h = parseInt(arMatch[2]);
+    if (w >= 20 && w <= 600 && h >= 20 && h <= 600) return { width: w, height: h };
+  }
+
+  // L90 H130 or W90 H130
+  const lMatch = text.match(/[LlWw]\s*(\d{2,4})\s*[HhTt]\s*(\d{2,4})/);
+  if (lMatch) {
+    const w = parseInt(lMatch[1]);
+    const h = parseInt(lMatch[2]);
+    if (w >= 20 && w <= 600 && h >= 20 && h <= 600) return { width: w, height: h };
+  }
+
+  return undefined;
+}
+
+function parseQuantity(text: string, allowBareNumber = false) {
+  const normalized = normalizeText(text);
+  const match =
+    normalized.match(/\b(?:qty|quantite|quantity|qte|pieces?|unites?|units?|pezzi|ka3bet|قطعة|قطع)\s*[:=]?\s*(\d{1,3})\b/i) ??
+    normalized.match(/\b(\d{1,3})\s*(?:pieces?|unites?|units?|pezzi|ka3bet|قطعة|قطع)\b/i);
+
+  if (match) return Number(match[1]);
+
+  if (allowBareNumber) {
+    const bareNumber = normalized.match(/^\s*(\d{1,3})\s*$/);
+    if (bareNumber) return Number(bareNumber[1]);
+  }
+
+  return undefined;
+}
+
+function findProductInText(text: string, products: QuoteProduct[]) {
+  const PRODUCT_ALIASES: Record<string, string> = {
+    'kolibri': 'colibri-50',
+    'colibri': 'colibri-50',
+    'colibrì': 'colibri-50',
+    'colibri 50': 'colibri-50',
+    'colibri50': 'colibri-50',
+    'sidney': 'sidney-50',
+    'sidney 50': 'sidney-50',
+    'sidney50': 'sidney-50',
+    'sidney ac': 'sidney-50-ac',
+    'sidney50ac': 'sidney-50-ac',
+    'sidney 50 ac': 'sidney-50-ac',
+    'elba': 'elba',
+    'plisse': 'plisse31',
+    'plissé': 'plisse31',
+    'plisse 31': 'plisse31',
+    'plissé 31': 'plisse31',
+    'plisse31': 'plisse31',
+  };
+  
+  // Normalize: lowercase, remove accents, trim
+  function normalizeProductName(t: string): string {
+    return t.toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .trim();
+  }
+  
+  const normalized = normalizeProductName(text);
+  for (const [alias, slug] of Object.entries(PRODUCT_ALIASES)) {
+    if (normalized.includes(normalizeProductName(alias))) {
+      const found = products.find(p => p.slug === slug);
+      if (found) return found;
+    }
+  }
+
+  const normalizedOld = normalizeText(text);
+  return products
+    .slice()
+    .sort((a, b) => b.slug.length - a.slug.length)
+    .find((product) => {
+      const slug = normalizeText(product.slug).replace(/-/g, ' ');
+      const name = normalizeText(product.name);
+      const aliases: Record<string, string[]> = {
+        'colibri-50': ['colibri', 'colibri 50'],
+        'sidney-50': ['sidney', 'sidney 50'],
+        'sidney-50-ac': ['sidney ac', 'sidney 50 ac'],
+        elba: ['elba'],
+        plisse31: ['plisse', 'plisse 31'],
+      };
+      return normalizedOld.includes(slug) || normalizedOld.includes(name) || aliases[product.slug]?.some((alias) => normalizedOld.includes(alias));
+    });
+}
+
+function findProduct(text: string, history: Message[], products: QuoteProduct[]) {
+  return (
+    findProductInText(text, products) ??
+    history
+      .slice()
+      .reverse()
+      .map((message) => findProductInText(message.content, products))
+      .find(Boolean)
+  );
+}
+
+function findDimensions(text: string, history: Message[]) {
+  return (
+    parseDimensions(text) ??
+    history
+      .slice()
+      .reverse()
+      .map((message) => parseDimensions(message.content))
+      .find(Boolean)
+  );
+}
+
+function findQuantity(text: string, history: Message[], productSlug?: string, dimensions?: Dimensions) {
+  const latestAssistant = history.filter((message) => message.role === 'assistant').at(-1);
+  const current = parseQuantity(text, Boolean(latestAssistant?.awaitingQuantity));
+  if (current) return current;
+
+  // Robust parsing: if we have dimensions in the text, let's extract quantity from remaining numbers
+  if (dimensions) {
+    let cleanText = text;
+    // Strip dimensions from the text
+    cleanText = cleanText.replace(new RegExp(`\\b${dimensions.width}\\b`, 'g'), '');
+    cleanText = cleanText.replace(new RegExp(`\\b${dimensions.height}\\b`, 'g'), '');
+    
+    // Strip product name numbers (like 50, 31)
+    if (productSlug === 'colibri-50' || productSlug === 'sidney-50' || productSlug === 'sidney-50-ac') {
+      cleanText = cleanText.replace(/\b50\b/g, '');
+    }
+    if (productSlug === 'plisse31') {
+      cleanText = cleanText.replace(/\b31\b/g, '');
+    }
+
+    const numbers = cleanText.match(/\b\d{1,3}\b/g);
+    if (numbers && numbers.length > 0) {
+      return parseInt(numbers[0]);
+    }
+  }
+
+  return history
+    .slice()
+    .reverse()
+    .map((message) => parseQuantity(message.content))
+    .find(Boolean);
+}
+
+function findColor(text: string, history: Message[]) {
+  const parsed =
+    normalizeText(text).match(COLOR_WORDS)?.[1] ??
+    history
+      .slice()
+      .reverse()
+      .map((message) => normalizeText(message.content).match(COLOR_WORDS)?.[1])
+      .find(Boolean);
+
+  if (!parsed || ['blanc', 'white', 'bianco'].includes(parsed)) return 'Blanc';
+  if (['noir', 'black', 'nero'].includes(parsed)) return 'Noir';
+  return parsed;
+}
+
+function isPricingConversation(text: string, history: Message[], products: QuoteProduct[]) {
+  const latestAssistant = history.filter((message) => message.role === 'assistant').at(-1);
+  return (
+    PRICING_WORDS.test(text) ||
+    DETAIL_WORDS.test(text) ||
+    Boolean(findProductInText(text, products)) ||
+    Boolean(parseDimensions(text)) ||
+    Boolean(latestAssistant?.awaitingDimensions) ||
+    Boolean(latestAssistant?.awaitingQuantity) ||
+    Boolean(latestAssistant?.content.includes('TTC'))
+  );
+}
+
+function wantsQuoteAction(text: string, history: Message[]) {
+  if (DEVIS_WORDS.test(text)) return true;
+
+  const latestAssistant = history.filter((message) => message.role === 'assistant').at(-1);
+  return AFFIRMATIVE_WORDS.test(text.trim()) && Boolean(latestAssistant?.content.match(/\b(devis|quote|preventivo)\b|عرض سعر/i));
+}
+
+function formatTnd(valueInMillimes: number) {
+  return `${(valueInMillimes / 1000).toFixed(3).replace('.', ',')} TND`;
+}
+
+function getProductImage(product: QuoteProduct) {
+  return product.slug === 'elba' ? '/images/elba-v2.webp' : product.image_url ?? undefined;
+}
+
+function getQuoteProducts(products: SupabaseProduct[]): QuoteProduct[] {
+  const activeProducts = products.filter((product) => product.is_active);
+  if (activeProducts.length > 0) return activeProducts;
+
+  return localProducts.map((product) => ({
+    slug: product.id,
+    name: product.name,
+    image_url: product.imageUrl,
+  }));
 }
 
 
-// ─── EXTRACT DIMENSIONS ─────────────────────────────────────────
-function extractDimensions(text: string): { largeur: number; hauteur: number } | null {
-  const match = text.match(/(\d{2,4})\s*[x×X*/]\s*(\d{2,4})/);
-  if (!match) return null;
+function calculateQuote(
+  product: QuoteProduct,
+  dimensions: Dimensions,
+  quantity: number,
+  color: string,
+  settings: BusinessSettings,
+): CalculatedQuote | undefined {
+  const price = calculatePrice({
+    productId: product.slug,
+    width: dimensions.width,
+    height: dimensions.height,
+    color,
+  });
+
+  if (!price) return undefined;
+
+  const grossHT = price.unitPrice * quantity;
+  const remisePercent = getRemisePercent(quantity);
+  const remise = (grossHT * remisePercent) / 100;
+  const netHT = grossHT - remise;
+  const fodec = (netHT * settings.fodecPercent) / 100;
+  const taxableBase = netHT + fodec;
+  const tva = (taxableBase * settings.tvaPercent) / 100;
+  const timbre = settings.timbreFiscal * 1000;
+
   return {
-    largeur: parseInt(match[1]),
-    hauteur: parseInt(match[2]),
+    product,
+    dimensions,
+    quantity,
+    color,
+    unitPrice: price.unitPrice,
+    grossHT,
+    remisePercent,
+    remise,
+    netHT,
+    fodec,
+    tva,
+    timbre,
+    totalTTC: taxableBase + tva + timbre,
   };
 }
 
+function buildSummary(quote: CalculatedQuote, language: AgentLanguage) {
+  const total = formatTnd(quote.totalTTC);
+  const dimensions = `${quote.dimensions.width} x ${quote.dimensions.height} cm`;
+  const units: Record<AgentLanguage, string> = {
+    fr: quote.quantity > 1 ? 'pièces' : 'pièce',
+    en: quote.quantity > 1 ? 'units' : 'unit',
+    it: 'unità',
+    ar: 'قطعة',
+    tn: quote.quantity > 1 ? 'ka3bet' : 'ka3ba',
+  };
+  const common = `${quote.product.name} - ${dimensions} - ${quote.quantity} ${units[language]}`;
 
-// ─── NEEDS PRICING DATA ─────────────────────────────────────────
-function needsPricingData(userText: string, history: Message[]): boolean {
-  const t = userText.toLowerCase();
+  const summaries: Record<AgentLanguage, string> = {
+    fr: `${common}\nTotal TTC : ${total}\n\nJe peux vous donner le détail du calcul ou préparer un devis prérempli.`,
+    en: `${common}\nTotal incl. tax: ${total}\n\nI can provide the calculation details or prepare a prefilled quote.`,
+    it: `${common}\nTotale IVA inclusa: ${total}\n\nPosso mostrarti il dettaglio del calcolo o preparare un preventivo precompilato.`,
+    ar: `${common}\nالإجمالي شامل الضريبة: ${total}\n\nيمكنني عرض تفاصيل الحساب أو تجهيز عرض سعر معبأ مسبقاً.`,
+    tn: `${common}\nTotal TTC: ${total}\n\nNnajjem na3tik détail mta3 calcul walla n7adherlek devis prérempli.`,
+  };
 
-  // 1. Current message has dimensions
-  if (/\d{2,4}\s*[x×X*/]\s*\d{2,4}/.test(userText)) return true;
+  return summaries[language];
+}
 
-  // 2. Current message has price keywords
-  if (/(prix|tarif|coût|combien|how much|سعر|ثمن|كم|devis|9adech|chhal|cost|price)/.test(t)) return true;
+function buildDetails(quote: CalculatedQuote, language: AgentLanguage) {
+  const labels: Record<AgentLanguage, string[]> = {
+    fr: ['Prix unitaire HT', 'Total brut HT', 'Remise', 'Net HT', 'FODEC', 'TVA', 'Timbre fiscal', 'Total TTC'],
+    en: ['Unit price excl. tax', 'Gross total excl. tax', 'Discount', 'Net excl. tax', 'FODEC', 'VAT', 'Tax stamp', 'Total incl. tax'],
+    it: ['Prezzo unitario IVA esclusa', 'Totale lordo IVA esclusa', 'Sconto', 'Netto IVA esclusa', 'FODEC', 'IVA', 'Bollo fiscale', 'Totale IVA inclusa'],
+    ar: ['سعر الوحدة دون الضريبة', 'الإجمالي الخام دون الضريبة', 'الخصم', 'الصافي دون الضريبة', 'FODEC', 'الضريبة على القيمة المضافة', 'الطابع الجبائي', 'الإجمالي شامل الضريبة'],
+    tn: ['Thmen unité HT', 'Total brut HT', 'Remise', 'Net HT', 'FODEC', 'TVA', 'Timbre fiscal', 'Total TTC'],
+  };
+  const [unitPrice, grossHT, remise, netHT, fodec, tva, timbre, totalTTC] = labels[language];
+  const lines = [
+    `${quote.product.name} - ${quote.dimensions.width} x ${quote.dimensions.height} cm x ${quote.quantity}`,
+    `${unitPrice} : ${formatTnd(quote.unitPrice)}`,
+    `${grossHT} : ${formatTnd(quote.grossHT)}`,
+    `${remise} (${quote.remisePercent} %) : -${formatTnd(quote.remise)}`,
+    `${netHT} : ${formatTnd(quote.netHT)}`,
+    `${fodec} : ${formatTnd(quote.fodec)}`,
+    `${tva} : ${formatTnd(quote.tva)}`,
+    `${timbre} : ${formatTnd(quote.timbre)}`,
+    `${totalTTC} : ${formatTnd(quote.totalTTC)}`,
+  ];
 
-  // 3. Current message mentions a product name
-  if (/(colibri|sidney|elba|pliss|moustiquaire|mosquito|zanzariera)/.test(t)) return true;
+  const introductions: Record<AgentLanguage, string> = {
+    fr: 'Voici le détail du calcul :',
+    en: 'Here is the calculation breakdown:',
+    it: 'Ecco il dettaglio del calcolo:',
+    ar: 'إليك تفاصيل الحساب:',
+    tn: 'Haw el détail mta3 calcul:',
+  };
 
-  // 4. LOOK BACK through last 6 messages for active pricing session
-  const recentHistory = history.slice(-6);
+  return `${introductions[language]}\n${lines.join('\n')}`;
+}
 
-  for (const msg of recentHistory) {
-    const content = msg.content.toLowerCase();
+function localResponse(
+  text: string,
+  language: AgentLanguage,
+  options: Partial<Pick<AIResponse, 'image' | 'awaitingDimensions' | 'awaitingQuantity' | 'devisAction'>> = {},
+): AIResponse {
+  return { text, language, ...options };
+}
 
-    // A user message in recent history had dimensions → still in session
-    if (msg.role === 'user' && /\d{2,4}\s*[x×X*/]\s*\d{2,4}/.test(msg.content)) {
-      return true;
-    }
+function getClientId() {
+  const key = 'alu-ai-client-id';
+  const existing = window.localStorage.getItem(key);
+  if (existing) return existing;
 
-    // Any recent message mentioned a product → pricing context active
-    if (/(colibri|sidney|elba|pliss)/.test(content)) return true;
+  const clientId = window.crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  window.localStorage.setItem(key, clientId);
+  return clientId;
+}
 
-    // Assistant asked about color/dimensions/quantity → active quote flow
-    if (
-      msg.role === 'assistant' &&
-      /(couleur|color|colore|dimension|largeur|hauteur|quantit|قياس|أبعاد|لون)/.test(content)
-    ) {
-      return true;
-    }
+async function callEdgeFunction(userText: string, history: Message[], language: AgentLanguage) {
+  const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`, {
+    method: 'POST',
+    headers: {
+      apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+      'Content-Type': 'application/json',
+      'x-client-id': getClientId(),
+    },
+    body: JSON.stringify({
+      messages: [
+        ...history.slice(-12).map(({ role, content }) => ({ role, content })),
+        { role: 'user', content: userText },
+      ],
+    }),
+  });
 
-    // Assistant gave a price calculation → stay in pricing mode
-    if (
-      msg.role === 'assistant' &&
-      /(prix ht|net ht|total ttc|fodec|remise|tva)/.test(content)
-    ) {
-      return true;
-    }
+  if (!response.ok) {
+    throw new Error(`AI Edge Function returned ${response.status}`);
   }
 
-  return false;
-}
-
-// ─── FORMAT PRICE TABLES FOR OPENAI ─────────────────────────────
-function formatPriceTables(product: SupabaseProduct): string {
-  try {
-    const pt = product.price_tables as any;
-    if (!pt) return '';
-
-    let result = '';
-
-    // CASE 1: ELBA (base_per_m2)
-    if (pt.base_per_m2) {
-      const pricePerM2 = Math.round(pt.base_per_m2 / 1000);
-      result += `Prix au m²: ${pricePerM2} DT HT\n`;
-      result += `Formule: Largeur (m) × Hauteur (m) × ${pricePerM2} DT\n`;
-      result += `Exemple: 1.20m × 1.50m × ${pricePerM2} = ${Math.round(1.2 * 1.5 * pricePerM2)} DT HT\n`;
-      return result;
-    }
-
-    // CASE 2: PLISSÉ 31 (nested width→heightRange→price)
-    // Detect Plissé 31 structure: keys are numeric strings like "125","180"...
-    const widthKeys = Object.keys(pt).filter(k => /^\d+$/.test(k));
-    if (widthKeys.length > 0) {
-      result += `Tableau des prix (DT HT):\n`;
-      result += `Largeur max (cm) | Plage hauteur | Prix HT\n`;
-      
-      widthKeys.forEach(widthKey => {
-        const heightRanges = pt[widthKey];
-        if (typeof heightRanges === 'object') {
-          Object.entries(heightRanges).forEach(([heightRange, price]) => {
-            const priceNum = Math.round((price as number) / 1000);
-            result += `Largeur ≤ ${widthKey} cm, Hauteur ${heightRange} cm → ${priceNum} DT\n`;
-          });
-        }
-      });
-      return result;
-    }
-
-    // CASE 3: Sidney-style: width tiers with heights array
-    const widthTierKeys = Object.keys(pt).filter(k => k.startsWith('width'));
-    if (widthTierKeys.length > 0) {
-      widthTierKeys.forEach(tierKey => {
-        const maxWidth = tierKey.replace('width', '');
-        const tier = pt[tierKey];
-        if (tier?.heights && tier?.prices) {
-          result += `Largeur ≤ ${maxWidth} cm:\n`;
-          tier.heights.forEach((h: number, i: number) => {
-            const price = Math.round(tier.prices[i] / 1000);
-            result += `  Hauteur ${h} cm → ${price} DT\n`;
-          });
-          result += '\n';
-        }
-      });
-      return result;
-    }
-
-    // height170 tier
-    if (pt.height170?.widths && pt.height170?.prices) {
-      result += `Hauteur ≤ 170 cm:\n`;
-      result += `Largeur (cm) | Prix HT (DT)\n`;
-      pt.height170.widths.forEach((w: number, i: number) => {
-        const price = Math.round(pt.height170.prices[i] / 1000);
-        result += `${w} cm → ${price} DT\n`;
-      });
-    }
-
-    // height250 tier
-    if (pt.height250?.widths && pt.height250?.prices) {
-      result += `\nHauteur 171–250 cm:\n`;
-      result += `Largeur (cm) | Prix HT (DT)\n`;
-      pt.height250.widths.forEach((w: number, i: number) => {
-        const price = Math.round(pt.height250.prices[i] / 1000);
-        result += `${w} cm → ${price} DT\n`;
-      });
-    }
-
-    // special rules
-    if (pt.rules?.if_height_gt_170_max_width) {
-      result += `\nRègle: si hauteur > 170 cm → largeur max = ${pt.rules.if_height_gt_170_max_width} cm\n`;
-    }
-
-    return result;
-  } catch {
-    return '';
+  const data = await response.json();
+  if (typeof data?.content !== 'string') {
+    throw new Error('AI Edge Function returned an invalid response');
   }
+
+  const responseLanguage = parseLanguage(data.content, language);
+  return localResponse(stripControlTags(data.content), responseLanguage, {
+    image: parseImage(data.content),
+    awaitingDimensions: parseAwaitingDimensions(data.content),
+    awaitingQuantity: parseAwaitingQuantity(data.content),
+  });
 }
 
-// ─── BUILD DYNAMIC SYSTEM PROMPT ─────────────────────────────────
-function buildDynamicSystemPrompt(
-  products: SupabaseProduct[],
-  settings: BusinessSettings,
-  faq: FaqEntry[],
-  lang: Lang,
-  includePricing: boolean = false,
-): string {
-
-  // Build product sections — include full price tables only when needed
-  const productsSection = products.map(p => {
-    const desc = lang === 'ar' ? p.description_ar :
-      lang === 'tn' ? p.description_tn :
-        lang === 'en' ? p.description_en :
-          lang === 'it' ? p.description_it : p.description_fr;
-
-    const pricingBlock = includePricing
-      ? `\nTables de prix HT (Blanc):\n${formatPriceTables(p)}\nNoir: +10% | Couleurs: +15%`
-      : `\nPrix à partir de ${p.base_price} DT (demander dimensions pour prix exact)`;
-
-    return `━━━ PRODUIT ${p.sort_order}: ${p.name} (slug: ${p.slug}) ━━━
-Type: ${p.type} | Prix de base: ${p.base_price} DT ${p.price_per_m2 ? '/m²' : ''}
-Dimensions: ${p.min_width}–${p.max_width}cm (L) × ${p.min_height}–${p.max_height}cm (H)
-Description: ${desc || p.description_fr || ''}${pricingBlock}`;
-  }).join('\n\n');
-
-  // Build FAQ section
-  const faqSection = faq.map(f => {
-    const q = lang === 'ar' ? f.question_ar :
-      lang === 'tn' ? f.question_tn :
-        lang === 'en' ? f.question_en :
-          lang === 'it' ? f.question_it : f.question_fr;
-    const a = lang === 'ar' ? f.answer_ar :
-      lang === 'tn' ? f.answer_tn :
-        lang === 'en' ? f.answer_en :
-          lang === 'it' ? f.answer_it : f.answer_fr;
-    return `Q: ${q || f.question_fr}\nR: ${a || f.answer_fr}`;
-  }).join('\n\n');
-
-
-  const tva = settings.tvaPercent ?? 19;
-  const fodec = settings.fodecPercent ?? 1;
-  const timbre = settings.timbreFiscal ?? 1;
-
-  return `━━━ LANGUAGE DETECTION — MANDATORY ━━━
-At the VERY START of EVERY response, write the detected 
-language code on its own line in this exact format:
-[lang:fr] or [lang:ar] or [lang:en] or [lang:it]
-
-Detection rules:
-- Arabic script (ا ب ت...) → [lang:ar]
-- French or Maghrebi Latin text → [lang:fr]
-- English text → [lang:en]
-- Italian text → [lang:it]
-
-EXAMPLES:
-User: 'bonjour' → start with [lang:fr]
-User: 'مرحبا' → start with [lang:ar]  
-User: 'hello' → start with [lang:en]
-User: 'ciao' → start with [lang:it]
-User: 'slm' or 'ahla' or 'labes' → start with [lang:fr]
-
-CRITICAL: The [lang:xx] tag must be the FIRST thing in 
-your response, on its own line. Never skip it.
-
-Tu es Asmos, assistant commercial expert d'Aluminium Space, spécialiste menuiserie aluminium et partenaire Grifo Flex (Italie) à Mghira, Tunis, Tunisie.
-TON OBJECTIF: Convertir chaque visiteur en client.
-
-━━━ IDENTITÉ ━━━
-Prénom: Asmos | Ton: Chaleureux, expert, direct
-━━━ RÈGLE LANGUE ━━━
-Détecte automatiquement la langue du dernier message de 
-l'utilisateur et réponds DANS LA MÊME LANGUE.
-- Message en darija tunisienne → réponds en darija tunisienne
-- Message en français → réponds en français  
-- Message en arabe classique → réponds en arabe classique
-- Message en anglais → réponds en anglais
-- Message en italien → réponds en italien
-NOMS DE PRODUITS: toujours en latin (Colibrì 50, Sidney 50, 
-Sidney 50 AC, Elba, Plissé 31, Grifo Flex, Aluminium Space).
-Tout le reste dans la langue détectée.
-
-Si l'utilisateur fait du small talk (salutation, humeur,
-expressions comme 'cv', 'glegt', 'labes', 'bhi', 'top'):
-→ Réponds brièvement et chaleureusement
-→ Puis redirige naturellement vers les produits
-→ NE DIS JAMAIS 'Je suis spécialisé uniquement'
-
-Exemple 'glegt': 
-'Haha glegt 3leh! Kifech naaounek fi moustikarat? 😄'
-
-Exemple 'chnya el ajwe2':
-'Skhona barsha! W moustiquaires mte3na yprotégiwek 
-men el bou3oud s7a7. Chkoun el produit eli t7eb? 😊'
-
-Seulement si question VRAIMENT hors-sujet 
-(politique, sport, cuisine, médecine...) 
-→ refuser poliment UNE seule fois puis proposer de l'aide.
-
-
-━━━ TOUS LES PRODUITS AVEC TABLES DE PRIX ━━━
-
-${productsSection}
-
-━━━ PARAMÈTRES COMMERCIAUX ACTUELS ━━━
-Remise commerciale: selon quantité (voir règles ci-dessous)
-TVA: ${tva}%
-FODEC: ${fodec}%
-Timbre fiscal: ${timbre} DT
-
-━━━ CALCUL PRIX — RÈGLES OBLIGATOIRES ━━━
-FORMAT DES DIMENSIONS — RÈGLE ABSOLUE:
-Quand tu vois [Dimensions parsed: Largeur=X cm, Hauteur=Y cm]
-dans le message utilisateur, utilise EXACTEMENT ces valeurs.
-Ne jamais inverser ou recalculer les dimensions.
-Largeur = X cm (première valeur)
-Hauteur = Y cm (deuxième valeur)
-Ces valeurs sont définitives et correctes.
-
-Pour calculer le prix exact:
-1. Identifier le tier de hauteur ou largeur:
-   - COLIBRÌ 50: Hauteur ≤ 170 cm → table 'Hauteur ≤ 170 cm'
-                 Hauteur 171–250 cm → table 'Hauteur 171–250 cm'
-   - SIDNEY 50:  Largeur ≤ 160 cm → table 'Largeur ≤ 160 cm'
-                 Largeur 161–200 cm → table 'Largeur 161–200 cm'
-   - SIDNEY 50 AC: Largeur ≤ 320 cm → table 'Largeur ≤ 320 cm'
-                   Largeur 321–400 cm → table 'Largeur 321–400 cm'
-   - ELBA: prix = (L/100) × (H/100) × prix_base_m2
-   - PLISSÉ 31: trouver largeur et plage de hauteur dans la table
-2. Arrondir la dimension au multiple de 10 SUPÉRIEUR
-   (ex: 125 cm → 130 cm, 120 cm reste 120 cm)
-3. Lire le prix HT correspondant DIRECTEMENT dans la table
-   (les prix sont déjà en DT, pas de conversion nécessaire)
-4. Appliquer couleur: Blanc = prix de base,
-   Noir = ×1.10, Couleurs = ×1.15
-5. ━━━ REMISE PAR QUANTITÉ ━━━
-RÈGLE ABSOLUE — appliquer EXACTEMENT selon ce tableau:
-  Nombre total = 1 → Remise 15%
-  Nombre total = 2 → Remise 15%
-  Nombre total = 3 → Remise 30%
-  Nombre total = 4 → Remise 30%
-  Nombre total = 5 → Remise 30%
-  Nombre total = 6 → Remise 40%
-  Nombre total = 7 → Remise 40%
-  Nombre total = 8 → Remise 40%
-  Nombre total = 9 → Remise 40%
-  Nombre total = 10 → Remise 40%
-  Nombre total ≥ 11 → Remise 50%
-NE JAMAIS appliquer 30% si le total est 1 ou 2.
-NE JAMAIS appliquer 40% si le total est entre 3 et 5.
-
-CALCUL:
-- Compter le nombre TOTAL de produits (pas par ligne)
-- Appliquer le % correspondant sur le TOTAL Brut HT
-- Remise = Total Brut HT × remise%
-- Net HT = Total Brut HT - Remise
-- FODEC (1%) = Net HT × 0.01
-- Base TVA = Net HT + FODEC
-- TVA (19%) = Base TVA × 0.19
-- Timbre = 1.000 DT (fixe)
-- TOTAL TTC = Base TVA + TVA + Timbre
-
-EXEMPLE 1 — 1 produit, petite quantité (tier 15%):
-  Colibrì 50, 120×120, Blanc, Qty 2:
-  Prix HT unitaire: 357 DT
-  Total Brut HT: 357 × 2 = 714 DT
-  Nombre total produits: 2 → Tier 1-2 → Remise 15%
-  Remise 15%: -107.100 DT
-  Net HT: 606.900 DT
-  FODEC 1%: 6.069 DT
-  Base TVA: 612.969 DT
-  TVA 19%: 116.464 DT
-  Timbre: 1.000 DT
-  TOTAL TTC: 730.433 DT
-
-EXEMPLE 2 — 1 produit, quantité moyenne (tier 30%):
-  Colibrì 50, 120×120, Blanc, Qty 4:
-  Prix HT unitaire: 357 DT
-  Total Brut HT: 357 × 4 = 1,428 DT
-  Nombre total produits: 4 → Tier 3-5 → Remise 30%
-  Remise 30%: -428.400 DT
-  Net HT: 999.600 DT
-  FODEC 1%: 9.996 DT
-  Base TVA: 1,009.596 DT
-  TVA 19%: 191.823 DT
-  Timbre: 1.000 DT
-  TOTAL TTC: 1,202.419 DT
-
-EXEMPLE 3 — Commande multi-produits (tier 30%):
-  Colibrì 50, 120×120, Blanc, Qty 1: 357 DT HT
-  Sidney 50, 150×200, Blanc, Qty 1: 627 DT HT
-  Elba, 100×150, Blanc, Qty 1: 489 DT HT
-  Nombre total produits: 1+1+1 = 3 → Tier 3-5 → Remise 30%
-  Total Brut HT: 357 + 627 + 489 = 1,473 DT
-  Remise 30%: -441.900 DT
-  Net HT: 1,031.100 DT
-  FODEC 1%: 10.311 DT
-  Base TVA: 1,041.411 DT
-  TVA 19%: 197.868 DT
-  Timbre: 1.000 DT
-  TOTAL TTC: 1,240.279 DT
-
-
-6. AFFICHAGE DES PRIX — RÈGLE STRICTE :
-   - Par défaut, affiche UNIQUEMENT le Total TTC :
-     "Pour X unité(s) de **NOM_PRODUIT** en LxH cm :
-     • **Total TTC : X,XXX DT**"
-   - Ne montre JAMAIS HT / Remise / Net HT / FODEC / Base TVA / TVA / Timbre par défaut.
-   - Affiche le détail COMPLET uniquement si l'utilisateur demande explicitement : "détail", "comment calculé", "détaille le prix", "pourquoi ce prix", "justificatif"
-7. Terminer par : "Souhaitez-vous le détail du calcul ou passer au devis ?"
-
-IMPORTANT:
-- Ne JAMAIS utiliser le 'prix de base' quand les dimensions sont connues
-  → toujours lire la table de prix
-- Arrondir la dimension au multiple de 10 supérieur pour trouver le prix
-- Si les dimensions dépassent les limites → informer l'utilisateur des limites max
-- Sans dimensions → DEMANDER les dimensions obligatoirement
-- Sans quantité → Si l'utilisateur a fourni le produit et les dimensions mais n'a pas précisé de quantité (ex: "pour 3 fenêtres", "quantité=2", "2 pièces"), tu ne dois PAS faire de calcul. Demande obligatoirement la quantité en disant exactement : "Combien d'unités souhaitez-vous commander ?" et ajoute le tag [await:quantity] sur une nouvelle ligne à la fin.
-- Les prix sont en format X,XXX DT (3 décimales, virgule)
-
-━━━ CONTACT & INFOS ━━━
-Tél: ${settings.phone1} / ${settings.phone2}
-WhatsApp: ${settings.whatsapp} → https://wa.me/${(settings.whatsapp || '').replace(/\D/g, '')}
-Email: ${settings.email}
-Adresse: ${settings.address}, ${settings.city}
-Horaires: Lun–Ven ${settings.hoursWeekday} | Sam ${settings.hoursSaturday} | Dim ${settings.sundayHours}
-
-━━━ FAQ ━━━
-${faqSection}
-
-━━━ CONNAISSANCE APPROFONDIE ━━━
-
-ALUMINIUM SPACE:
-- PME tunisienne, fondée à Mghira, Ben Arous, Tunis
-- Revendeur exclusif et installateur agréé Grifo Flex® en Tunisie
-- Équipe de techniciens spécialisés en installation à domicile
-- Service: Tunis et Grand Tunis (Manouba, Ben Arous, Ariana, etc.)
-- Showroom: 125 lot Laaroussi, Mghira — visite sur RDV et sans RDV
-
-GRIFO FLEX®:
-- Marque italienne premium fondée en 1974
-- Leader européen des moustiquaires sur mesure
-- Certifications: ISO 9001, produits testés CE
-- Fabrication: Italie (Vérone)
-- Distribution: 30+ pays en Europe et Méditerranée
-- Toutes les moustiquaires sont 100% sur mesure
-
-MATÉRIAUX ET QUALITÉ:
-- Structure: profilés aluminium extrudé anodisé
-- Couleurs: Blanc RAL 9010, Noir mat RAL 9005
-- Maille: fibre de verre tissée, recouverte PVC
-- Maille noire de série (meilleure visibilité extérieure)
-- Résistance UV, intempéries, corrosion marine
-- Joints: doubles joints-brosses pour étanchéité parfaite
-- Mécanisme: ressort à rappel automatique (silencieux)
-
-INSTALLATION:
-- Pose par vissage mural (cheville + vis inox fournis)
-- Temps d'installation: 30-60 min par fenêtre/porte
-- Aucune modification du cadre existant
-- Compatible: PVC, aluminium, bois, béton
-- Notre équipe se déplace à domicile (inclus dans le prix)
-- Garantie installation: 1 an main d'œuvre + 3 ans produit
-
-CLIENTÈLE:
-- Particuliers (appartements, villas, maisons)
-- Promoteurs immobiliers (chantiers en gros)
-- Hôtels et résidences touristiques
-- Bureaux et locaux commerciaux
-
-AVANTAGES MOUSTIQUAIRES ALUMINIUM VS PLASTIQUE:
-- Durée de vie: 15-20 ans vs 3-5 ans plastique
-- Esthétique: profilés fins, design discret
-- Sur mesure: s'adapte à toute ouverture
-- Garantie: 3 ans vs souvent aucune garantie plastique
-- SAV: techniciens disponibles après installation
-
-SAISON ET CONSEILS:
-- Haute saison: mars à octobre (moustiques actifs)
-- Recommandation: installer avant l'été (délai 3-7j)
-- Entretien annuel: nettoyage maille + lubrification coulisses
-- Pièces de rechange: disponibles (maille, ressorts, joints)
-
-━━━ NAVIGATION ━━━
-Tu peux guider l'utilisateur vers les pages du site :
-- Voir les produits → page /produits
-- Devis → page /produits
-- Contact → page /contact
-- À propos → page /about
-
-━━━ STRATÉGIE DE CONVERSION ━━━
-- Hésite → "La Colibrì est notre bestseller. Vos dimensions ?"
-- Veut devis → "Cliquez sur 'Faire un Devis' pour un prix en 2 minutes !"
-- Veut appeler → "WhatsApp : ${settings.whatsapp}, on répond rapidement 😊"
-- "Je réfléchis" → "L'été arrive vite et l'installation prend 3–7 jours. On calcule le prix maintenant ?"
-- Toujours terminer par une question ou un appel à l'action.
-
-━━━ FORMAT ━━━
-- Max 3 phrases sauf pour les tableaux de prix
-- Jamais de listes à puces dans la réponse (sauf prix)
-- Toujours terminer par une question ou CTA
-
-━━━ PRODUCT IMAGE TAG ━━━
-When your response is specifically about ONE product
-(explaining features, giving price, comparing details),
-add this tag on a NEW LINE at the very END of your response:
-[image:SLUG]
-
-Where SLUG is one of:
-- colibri-50
-- sidney-50
-- sidney-50-ac
-- elba
-- plisse31
-
-ONLY add [image:SLUG] when:
-✅ User asked specifically about that product
-✅ You gave a price calculation for that product
-✅ User asked to see or describe that product
-
-NEVER add [image:SLUG] when:
-❌ Greeting or small talk
-❌ General overview of all products
-❌ FAQ questions (payment, guarantee, hours)
-❌ Company info questions
-
-━━━ AWAITING DIMENSIONS TAG ━━━
-When you are asking the user to provide dimensions 
-(width × height in cm) to calculate a price,
-add this tag at the END of your response on a new line:
-[await:dimensions]
-
-ONLY add [await:dimensions] when:
-✅ You explicitly asked the user to send dimensions
-✅ Your message ends with a question about measurements
-
-NEVER add it for other questions.
-
-━━━ RÈGLES CRITIQUES D'AFFICHAGE ET DE QUANTITÉ (MANDATOIRES) ━━━
-1. SANS QUANTITÉ = PAS DE CALCUL : Si l'utilisateur donne un produit et des dimensions mais PAS de quantité (ex: "Colibri 50 en 120x150"), tu ne dois ABSOLUMENT PAS calculer le prix ni donner d'estimation. Tu dois obligatoirement demander : "Combien d'unités souhaitez-vous commander ?" et ajouter le tag [await:quantity] sur une nouvelle ligne à la fin de ton message.
-2. PAS DE DÉTAIL DE CALCUL PAR DÉFAUT : Par défaut, n'affiche JAMAIS le détail du calcul (Pas de Prix HT, Remise, Net HT, FODEC, Base TVA, TVA, Timbre). Affiche uniquement le Total TTC sous cette forme :
-   "Pour X unité(s) de **NOM_PRODUIT** en LxH cm :
-   • **Total TTC : X,XXX DT**"
-   Affiche le détail complet avec toutes les lignes de calcul (HT, Remise, Net HT, FODEC, Base TVA, TVA, Timbre) UNIQUEMENT si l'utilisateur en fait la demande explicite (ex: "détail", "comment calculé", "justificatif", "pourquoi ce prix", etc.).
-
-RAPPEL FINAL: Réponds dans la même langue que le dernier message de l'utilisateur. Zéro mélange de langues autorisé.`;
-}
-
-// ─── CALL OPENAI VIA EDGE FUNCTION ───────────────────────────────
-async function callOpenAI(
+async function handleDeterministicQuote(
   userText: string,
   history: Message[],
-  systemPrompt: string,
-  lang: Lang,
-  onChunk: (chunk: string) => void,
-  base64Image?: string | null,
-  dims?: { largeur: number; hauteur: number } | null,
-): Promise<string> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => {
-    controller.abort();
-  }, 30000); // 30 seconds
+  language: AgentLanguage,
+  products: QuoteProduct[],
+): Promise<AIResponse | undefined> {
+  // Only handle deterministically if user is asking for price
+  const PRICE_INTENT = [
+    // French
+    'prix', 'combien', 'coût', 'tarif', 'devis', 'thaman',
+    // Tunisian
+    'qaddech', '9addech', '9adech', 'bech', 'calcul',
+    'ka3bet', 'ka3ba', 'pièces', 'unités', 'pieces',
+    // Numbers alone as quantity after awaiting state
+    // (only if last bot message was awaiting quantity)
+    // Arabic  
+    'سعر', 'كم', 'تمن', 'حساب',
+    // English/Italian
+    'price', 'cost', 'quote', 'prezzo'
+  ];
+  
+  const lastBotMessage = history
+    .filter(m => m.role === 'assistant')
+    .slice(-1)[0]?.content ?? '';
+  
+  const isAwaitingQuantity = 
+    lastBotMessage.includes('[await:quantity]') ||
+    lastBotMessage.includes('[awaiting:quantity]') ||
+    lastBotMessage.includes('Combien') ||
+    lastBotMessage.includes('quantité') ||
+    lastBotMessage.includes('ka3bet') ||
+    lastBotMessage.includes('كمية') ||
+    lastBotMessage.includes('Combien d\'unités');
+  
+  const PRODUCT_KEYWORDS = ['colibri', 'kolibri', 'sidney', 'elba', 'plisse', 'plissée', 'moustiquaire'];
+  
+  const hasProductInCurrentMsg = PRODUCT_KEYWORDS.some(k => 
+    userText.toLowerCase().includes(k.toLowerCase())
+  );
+  
+  const hasPriceIntent = PRICE_INTENT.some(k =>
+    userText.toLowerCase().includes(k.toLowerCase())
+  );
+  
+  const isPureNumber = /^\s*\d+\s*$/.test(userText.trim());
+  
+  // Only intercept if:
+  // 1. Current message has price intent, OR
+  // 2. Current message has product name + dimensions, OR  
+  // 3. Bot was awaiting quantity AND user sent a number
+  if (!hasPriceIntent && !hasProductInCurrentMsg && 
+      !(isAwaitingQuantity && isPureNumber)) {
+    return undefined; // Let AI handle it
+  }
+
+  if (!isPricingConversation(userText, history, products)) return undefined;
+
+  const isImageRequested = /image|photo|taswira|chousni|3ayyarli|show me|picture|voir le produit|wriha|chapha/i.test(userText);
+  if (isImageRequested) return undefined;
+
+  const product = findProduct(userText, history, products);
+  if (!product) return undefined;
+
+  const dimensions = findDimensions(userText, history);
+  if (!dimensions) return undefined;
+
+  const limits = getProductDimensionLimits(product.slug, dimensions.height);
+  if (
+    !limits ||
+    dimensions.width < limits.minW ||
+    dimensions.width > limits.maxW ||
+    dimensions.height < limits.minH ||
+    dimensions.height > limits.maxH
+  ) {
+    return undefined;
+  }
+
+  const quantity = findQuantity(userText, history, product.slug, dimensions);
+  if (!quantity || quantity < 1) return undefined;
+
+  const color = findColor(userText, history);
+  await ensureSettingsLoaded();
+  const quote = calculateQuote(product, dimensions, quantity, color, getSettings());
+  if (!quote || quote.totalTTC === 0) return undefined;
+
+
+  if (wantsQuoteAction(userText, history)) {
+    return localResponse(COPY.action[language], language, {
+      image: isImageRequested ? product.image_url ?? undefined : undefined,
+      devisAction: {
+        slug: product.slug,
+        w: dimensions.width,
+        h: dimensions.height,
+        qty: quantity,
+      },
+    });
+  }
+
+  return localResponse(DETAIL_WORDS.test(userText) ? buildDetails(quote, language) : buildSummary(quote, language), language, {
+    image: isImageRequested ? getProductImage(product) : undefined,
+  });
+}
+
+export async function sendMessageToAgent(
+  userText: string,
+  history: Message[],
+  preferredLanguage?: string,
+): Promise<AIResponse> {
+  const language = detectLanguage(userText, preferredLanguage);
 
   try {
-    const recentHistory = history.slice(-10).map(m => ({
-      role: m.role as 'user' | 'assistant',
-      content: m.content,
-    }));
-
-    const messages = [
-      ...recentHistory,
-      {
-        role: 'user',
-        content: base64Image ? [
-          { type: 'text', text: `${userText}\nAnalyze this image. If it shows a window or door opening, suggest the most appropriate Grifo Flex mosquito screen model and explain why.` },
-          { type: 'image_url', image_url: { url: base64Image } }
-        ] : userText
-      },
-    ];
-
-    let finalMessages = messages;
-    if (dims) {
-      // Append explicit parsed dimensions to user message
-      const explicitDims = `\n[Dimensions parsed: Largeur=${dims.largeur} cm, Hauteur=${dims.hauteur} cm]`;
-      // Add to the last message in the messages array before sending
-      const messagesWithDims = [...messages];
-      const lastUserIdx = messagesWithDims.length - 1;
-      if (messagesWithDims[lastUserIdx]?.role === 'user') {
-        const lastMsg = messagesWithDims[lastUserIdx];
-        if (typeof lastMsg.content === 'string') {
-          messagesWithDims[lastUserIdx] = {
-            ...lastMsg,
-            content: lastMsg.content + explicitDims,
-          };
-        } else if (Array.isArray(lastMsg.content)) {
-          const textItem = lastMsg.content.find((item: any) => item.type === 'text');
-          if (textItem) {
-            textItem.text += explicitDims;
-          }
-        }
-      }
-      finalMessages = messagesWithDims;
-    }
-
-    const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
-      },
-      body: JSON.stringify({ messages: finalMessages, systemPrompt }),
-      signal: controller.signal,
-    });
-
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      throw new Error(`OpenAI call failed: ${response.status}`);
-    }
-
-    const data = await response.json();
-
-    if (data?.error) {
-      const errorMessages: Record<string, string> = {
-        fr: "Désolé, une erreur s'est produite. Réessayez.",
-        ar: "عذراً، حدث خطأ. يرجى المحاولة مجدداً.",
-        en: "Sorry, an error occurred. Please try again.",
-        it: "Spiacente, si è verificato un errore. Riprova.",
-      };
-      const msg = errorMessages[lang] || errorMessages['fr'];
-      onChunk(msg);
-      return msg;
-    }
-
-    if (data.content) {
-      onChunk(data.content);
-    }
-
-    return data.content || 'Désolé, je n\'ai pas pu répondre. Essayez de reformuler.';
-  } catch (error: any) {
-    clearTimeout(timeoutId);
-
-    if (error?.name === 'AbortError') {
-      const timeoutMessages: Record<string, string> = {
-        fr: "La réponse prend trop de temps. Veuillez réessayer.",
-        ar: "انتهت مهلة الانتظار. يرجى المحاولة مجدداً.",
-        en: "Request timed out. Please try again.",
-        it: "Timeout della richiesta. Riprova.",
-      };
-      const msg = timeoutMessages[lang] || timeoutMessages['fr'];
-      onChunk(msg);
-      return msg;
-    }
-
-    console.error('AI Error:', error);
-    return {
-      fr: 'Désolé, une erreur est survenue. Réessayez ou contactez-nous au (+216) 53 186 611.',
-      tn: 'Msamha, sar mochkla. 3awed jreb walla atslna 3al (+216) 53 186 611.',
-      ar: 'عذراً، حدث خطأ. أعد المحاولة أو اتصل بنا على (+216) 53 186 611.',
-      en: 'Sorry, an error occurred. Please try again or call us at (+216) 53 186 611.',
-      it: 'Scusa, si è verificato un errore. Riprova o chiamaci al (+216) 53 186 611.',
-    }[lang] || 'Désolé, une erreur est survenue.';
+    const products = getQuoteProducts(await getProducts());
+    return (await handleDeterministicQuote(userText, history, language, products)) ?? await callEdgeFunction(userText, history, language);
+  } catch (error) {
+    console.error('AI agent request failed:', error instanceof Error ? error.message : 'Unexpected error');
+    return localResponse(COPY.fallback[language], language);
   }
 }
 
-// ─── MAIN PROCESS FUNCTION (FIX 5: ALL via OpenAI) ───────────────
 export async function processLocalMessage(
   userText: string,
   history: Message[],
-  onChunk: (chunk: string) => void,
-  preferredLang?: Lang,
-  base64Image?: string | null,
+  _onChunk: (chunk: string) => void,
+  preferredLanguage?: AgentLanguage,
 ): Promise<AIResponse> {
-  // Ensure business settings are loaded from Supabase before anything
-  await ensureSettingsLoaded();
-
-  // Seed session language from site language on first message
-  if (preferredLang && sessionCount === 0) updateSessionLang(preferredLang);
-  sessionCount++;
-
-  const lang = detectLanguage(userText) || preferredLang || 'fr';
-
-  // Fetch context from Supabase (all cached with 5-min TTL)
-  const [products, faq] = await Promise.all([
-    getProducts(),
-    getFaq(),
-  ]);
-  const settings = getSettings();
-
-  // Build dynamic system prompt — only include full price tables when needed
-  const includePricing = needsPricingData(userText, history);
-  const systemPrompt = buildDynamicSystemPrompt(products, settings, faq, lang, includePricing);
-
-  const dims = extractDimensions(userText);
-
-  // Call OpenAI — it handles EVERYTHING (text, prices, FAQ, etc.)
-  const aiText = await callOpenAI(
-    userText, history, systemPrompt, lang, onChunk, base64Image, dims
-  );
-
-
-  // ── Post-process: parse OpenAI response tags ──────────
-
-  // Parse product image from OpenAI response
-  const imageSlug = parseImageFromResponse(aiText);
-  let productImage: string | undefined;
-
-  if (imageSlug) {
-    const matchedProduct = products.find(p => p.slug === imageSlug);
-    productImage = matchedProduct?.image_url || undefined;
-  }
-
-  // Parse awaiting dimensions from OpenAI response
-  const isAwaitingDimensions = parseAwaitingFromResponse(aiText);
-  const awaitingQuantity = parseAwaitingQuantity(aiText);
-
-  // Parse language from OpenAI response
-  const detectedLang = parseLangFromResponse(aiText) || lang;
-
-  // Save detected language to localStorage
-  if (typeof localStorage !== 'undefined') {
-    localStorage.setItem('alu_chat_lang', detectedLang);
-  }
-
-  // Strip all tags from displayed text
-  const cleanText = stripAwaitingQuantity(stripAwaitingTag(stripImageTag(stripLangTag(aiText))));
-
+  const response = await sendMessageToAgent(userText, history, preferredLanguage);
   return {
-    text: cleanText,
-    detectedLang,
+    ...response,
+    detectedLang: response.language,
+    productImage: response.image,
     suggestions: [],
-    productImage,
-    awaitingDimensions: isAwaitingDimensions,
-    awaitingQuantity,
   };
+}
+
+export function resetSessionCount(language: AgentLanguage = DEFAULT_LANGUAGE) {
+  window.localStorage.setItem('alu_chat_lang', language);
 }

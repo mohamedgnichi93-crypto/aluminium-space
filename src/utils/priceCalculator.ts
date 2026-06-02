@@ -23,6 +23,43 @@ export const COLOR_SURCHARGE = {
   STANDARD_PCT: 0,
 } as const;
 
+export interface ProductDimensionLimits {
+  minW: number;
+  maxW: number;
+  minH: number;
+  maxH: number;
+}
+
+export function getProductDimensionLimits(productId: string, height = 0): ProductDimensionLimits | null {
+  switch (productId) {
+    case 'colibri-50':
+      return height > 170
+        ? { minW: 80, maxW: 160, minH: 60, maxH: 250 }
+        : { minW: 60, maxW: 200, minH: 60, maxH: 250 };
+    case 'sidney-50':
+      return { minW: 60, maxW: 200, minH: 150, maxH: 260 };
+    case 'sidney-50-ac':
+      return { minW: 100, maxW: 400, minH: 150, maxH: 260 };
+    case 'elba':
+      return { minW: 40, maxW: 9999, minH: 40, maxH: 9999 };
+    case 'plisse31':
+      return { minW: 125, maxW: 500, minH: 120, maxH: 300 };
+    default:
+      return null;
+  }
+}
+
+export function isWithinProductDimensions(productId: string, width: number, height: number): boolean {
+  const limits = getProductDimensionLimits(productId, height);
+  return Boolean(
+    limits &&
+    width >= limits.minW &&
+    width <= limits.maxW &&
+    height >= limits.minH &&
+    height <= limits.maxH
+  );
+}
+
 export function getColorSurchargePct(color?: string): number {
   if (!color || color === 'Blanc') return 0;
   if (color === 'Noir') return COLOR_SURCHARGE.NOIR_PCT;
@@ -32,6 +69,7 @@ export function getColorSurchargePct(color?: string): number {
 // Returns price object in millimes
 export const calculatePrice = ({ productId, width, height, color }: PriceCalculationParams): PriceResult | null => {
   if (!width || !height) return null;
+  if (!isWithinProductDimensions(productId, width, height)) return null;
 
   let basePrice: number | null = null;
 

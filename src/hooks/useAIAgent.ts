@@ -125,7 +125,7 @@ export function useAIAgentLogic(
   );
 
   const sendMessage = useCallback(
-    async (userText: string, base64Image?: string | null) => {
+    async (userText: string) => {
       const now = Date.now();
       if (now - lastMessageTimeRef.current < MESSAGE_COOLDOWN) return;
       if (!userText.trim() || isLoading) return;
@@ -147,11 +147,13 @@ export function useAIAgentLogic(
           userText, 
           messagesRef.current, 
           (chunk) => setStreamingMessage(prev => prev + chunk),
-          language, 
-          base64Image
+          language
         );
         
-        const { text, action, actionLabel, suggestions, detectedLang, productImage, awaitingDimensions } = response;
+        const {
+          text, action, actionLabel, suggestions, detectedLang, productImage,
+          awaitingDimensions, awaitingQuantity, devisAction,
+        } = response;
 
         const assistantMsg: Message = {
           id: (Date.now() + 1).toString(),
@@ -164,6 +166,8 @@ export function useAIAgentLogic(
           detectedLang,
           productImage,
           awaitingDimensions,
+          awaitingQuantity,
+          devisAction,
           rating: null,
         };
 
@@ -176,6 +180,16 @@ export function useAIAgentLogic(
           setTimeout(() => {
             executeAction(action);
           }, 700);
+        }
+
+        if (devisAction) {
+          const params = new URLSearchParams({
+            produit: devisAction.slug,
+            w: String(devisAction.w),
+            h: String(devisAction.h),
+            qty: String(devisAction.qty),
+          });
+          setTimeout(() => navigate(`/devis?${params.toString()}`), 700);
         }
       } catch {
         const errorMessages: Record<string, string> = {
@@ -195,7 +209,7 @@ export function useAIAgentLogic(
         setStreamingMessage('');
       }
     },
-    [isLoading, language, executeAction, onLanguageDetected, onAutoNavigate]
+    [isLoading, language, executeAction, navigate, onLanguageDetected, onAutoNavigate]
   );
 
   useEffect(() => {

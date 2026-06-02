@@ -85,6 +85,7 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
   const initialProduct = initialProductId ?? searchParams.get('produit');
   const initialW = searchParams.get('w');
   const initialH = searchParams.get('h');
+  const initialQty = searchParams.get('qty');
   const shouldStartAtDimensions = Boolean(initialProduct && products.some(p => p.id === initialProduct));
 
   const [step, setStep] = useState(shouldStartAtDimensions ? 2 : 1);
@@ -100,7 +101,7 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
     resolver: zodResolver(schema),
     defaultValues: {
       productId: initialProduct || '',
-      quantity: 1,
+      quantity: Number(initialQty) > 0 ? Number(initialQty) : 1,
       unitPrice: 0,
       totalPrice: 0,
       color: 'Blanc',
@@ -115,8 +116,9 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
     if (initialProduct && products.some(p => p.id === initialProduct)) {
       if (initialW) setValue('width', Number(initialW));
       if (initialH) setValue('height', Number(initialH));
+      if (Number(initialQty) > 0) setValue('quantity', Number(initialQty));
     }
-  }, [initialProduct, initialW, initialH, setValue]);
+  }, [initialProduct, initialW, initialH, initialQty, setValue]);
 
   const handleAddItem = async (goToStep1: boolean) => {
     const isValid = await trigger(['width', 'height', 'quantity']);
