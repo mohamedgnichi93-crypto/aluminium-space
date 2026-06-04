@@ -144,158 +144,418 @@ export default function RemiseBanner() {
           </motion.div>
 
           {/* -- CENTER BLOCK: Gift Box + Flying Coupons -- */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            style={{
-              position: 'relative',
-              height: isMobile ? '280px' : '460px',
-              width: isMobile ? '100%' : 'auto',
-              display: 'flex',
-              alignItems: 'flex-end',
-              justifyContent: 'center',
-              order: isMobile ? 2 : 0,
-            }}
-          >
-            {/* Flying coupons */}
-            {COUPONS.map((c, i) => (
+          {isMobile ? (
+            /* -- CENTER BLOCK (MOBILE): Gift Box + Flying Coupons -- */
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="relative mx-auto md:hidden"
+              style={{
+                width: '280px',
+                height: '300px',
+                order: 2,
+              }}
+            >
+              {/* Flying coupons - Mobile Staggered Layout */}
+              {/* Card 1: -15% */}
               <motion.div
-                key={i}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: 0.2 + i * 0.1, duration: 0.5 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
                 style={{
                   position: 'absolute',
-                  bottom: isMobile ? `${105 + c.yM}px` : `${165 + c.yD}px`,
-                  left: isMobile ? `calc(50% + ${c.xM}px)` : `calc(50% + ${c.xD}px)`,
-                  transform: `translateX(-50%) rotate(${c.rotate}deg)`,
-                  background: c.big ? '#EAF3DE' : '#fff',
-                  border: `2px dashed ${c.big ? '#639922' : '#B5D4F4'}`,
+                  bottom: '120px',
+                  left: '-10px',
+                  width: '130px',
+                  transform: 'rotate(-3deg)',
+                  background: '#fff',
+                  border: '2px dashed #B5D4F4',
                   borderRadius: '10px',
-                  padding: c.big ? '10px 18px' : '8px 14px',
-                  minWidth: isMobile ? (c.big ? '110px' : '90px') : (c.big ? '150px' : '120px'),
+                  padding: '6px 10px',
                   boxShadow: '0 4px 16px rgba(0,0,0,0.10)',
-                  zIndex: c.big ? 4 : 2,
+                  zIndex: 2,
                   textAlign: 'center',
                 }}
               >
                 <div style={{
                   fontFamily: '"Barlow Condensed", sans-serif',
                   fontWeight: 900,
-                  fontSize: isMobile ? (c.big ? '26px' : '20px') : (c.big ? '36px' : '28px'),
+                  fontSize: '22px',
                   lineHeight: 1,
-                  color: c.big ? '#639922' : '#1D3E61',
-                }}>-{c.pct}%</div>
+                  color: '#1D3E61',
+                }}>-15%</div>
                 <div style={{
                   fontFamily: '"DM Sans", sans-serif',
-                  fontSize: '10px', fontWeight: 700,
-                  letterSpacing: '1.5px', textTransform: 'uppercase',
-                  color: c.big ? '#3B6D11' : '#888780',
+                  fontSize: '9px', fontWeight: 700,
+                  letterSpacing: '1.2px', textTransform: 'uppercase',
+                  color: '#888780',
                   marginTop: '2px',
-                }}>{t(c.labelKey)}</div>
+                }}>{t('home.remise.packs.decouverte.label')}</div>
               </motion.div>
-            ))}
 
-            {/* Floating % signs */}
-            {[
-              { top: '10px', left: '5px', size: '18px', opacity: 0.25 },
-              { top: '20px', right: '0px', size: '14px', opacity: 0.20 },
-              { top: '60%', left: '0px', size: '20px', opacity: 0.18 },
-              { top: '15%', right: '10px', size: '16px', opacity: 0.22 },
-            ].map((s, i) => (
-              <div key={i} style={{
-                position: 'absolute', ...s,
-                fontFamily: '"Barlow Condensed", sans-serif',
-                fontWeight: 900, fontSize: s.size,
-                color: `rgba(99,153,34,${s.opacity})`,
-              }}>%</div>
-            ))}
-
-            {/* Gift Box SVG */}
-            <div style={{ position: 'absolute', bottom: 0 }}>
-              <svg
-                width={isMobile ? "160" : "220"}
-                height={isMobile ? "145" : "200"}
-                viewBox="0 0 220 200"
-                fill="none"
+              {/* Card 2: -30% */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+                style={{
+                  position: 'absolute',
+                  bottom: '160px',
+                  left: '60px',
+                  width: '120px',
+                  transform: 'rotate(2deg)',
+                  background: '#fff',
+                  border: '2px dashed #B5D4F4',
+                  borderRadius: '10px',
+                  padding: '6px 10px',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.10)',
+                  zIndex: 3,
+                  textAlign: 'center',
+                }}
               >
+                <div style={{
+                  fontFamily: '"Barlow Condensed", sans-serif',
+                  fontWeight: 900,
+                  fontSize: '22px',
+                  lineHeight: 1,
+                  color: '#1D3E61',
+                }}>-30%</div>
+                <div style={{
+                  fontFamily: '"DM Sans", sans-serif',
+                  fontSize: '9px', fontWeight: 700,
+                  letterSpacing: '1.2px', textTransform: 'uppercase',
+                  color: '#888780',
+                  marginTop: '2px',
+                }}>{t('home.remise.packs.appartement.label')}</div>
+              </motion.div>
 
-                {/* -- Far glow behind everything -- */}
-                <ellipse cx="110" cy="95" rx="70" ry="30"
-                  fill="rgba(99,153,34,0.15)" />
+              {/* Card 3: -40% (Highlighted Green) */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.4, duration: 0.5 }}
+                style={{
+                  position: 'absolute',
+                  bottom: '195px',
+                  left: '50%',
+                  transform: 'translateX(-45%) rotate(-1deg)',
+                  width: '130px',
+                  background: '#EAF3DE',
+                  border: '2.5px dashed #639922',
+                  borderRadius: '10px',
+                  padding: '8px 12px',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+                  zIndex: 4,
+                  textAlign: 'center',
+                }}
+              >
+                <div style={{
+                  fontFamily: '"Barlow Condensed", sans-serif',
+                  fontWeight: 900,
+                  fontSize: '24px',
+                  lineHeight: 1,
+                  color: '#639922',
+                }}>-40%</div>
+                <div style={{
+                  fontFamily: '"DM Sans", sans-serif',
+                  fontSize: '9px', fontWeight: 700,
+                  letterSpacing: '1.2px', textTransform: 'uppercase',
+                  color: '#3B6D11',
+                  marginTop: '2px',
+                }}>{t('home.remise.packs.confort.label')}</div>
+              </motion.div>
 
-                {/* -- Glow rays shooting upward from open box -- */}
-                <line x1="110" y1="95" x2="80" y2="18"
-                  stroke="rgba(129,192,99,0.30)" strokeWidth="10" strokeLinecap="round"/>
-                <line x1="110" y1="95" x2="110" y2="5"
-                  stroke="rgba(129,192,99,0.35)" strokeWidth="12" strokeLinecap="round"/>
-                <line x1="110" y1="95" x2="140" y2="16"
-                  stroke="rgba(129,192,99,0.30)" strokeWidth="10" strokeLinecap="round"/>
-                <line x1="110" y1="95" x2="62" y2="35"
-                  stroke="rgba(129,192,99,0.18)" strokeWidth="7" strokeLinecap="round"/>
-                <line x1="110" y1="95" x2="158" y2="33"
-                  stroke="rgba(129,192,99,0.18)" strokeWidth="7" strokeLinecap="round"/>
+              {/* Card 4: -50% */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.5, duration: 0.5 }}
+                style={{
+                  position: 'absolute',
+                  bottom: '130px',
+                  right: '-10px',
+                  width: '120px',
+                  transform: 'rotate(3deg)',
+                  background: '#fff',
+                  border: '2px dashed #B5D4F4',
+                  borderRadius: '10px',
+                  padding: '6px 10px',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.10)',
+                  zIndex: 3,
+                  textAlign: 'center',
+                }}
+              >
+                <div style={{
+                  fontFamily: '"Barlow Condensed", sans-serif',
+                  fontWeight: 900,
+                  fontSize: '22px',
+                  lineHeight: 1,
+                  color: '#1D3E61',
+                }}>-50%</div>
+                <div style={{
+                  fontFamily: '"DM Sans", sans-serif',
+                  fontSize: '9px', fontWeight: 700,
+                  letterSpacing: '1.2px', textTransform: 'uppercase',
+                  color: '#888780',
+                  marginTop: '2px',
+                }}>{t('home.remise.packs.villa.label')}</div>
+              </motion.div>
 
-                {/* -- Inner bright glow at opening -- */}
-                <ellipse cx="110" cy="96" rx="44" ry="16"
-                  fill="rgba(129,192,99,0.50)" />
-                <ellipse cx="110" cy="96" rx="28" ry="10"
-                  fill="rgba(180,230,120,0.60)" />
+              {/* Floating % signs */}
+              {[
+                { top: '10px', left: '5px', size: '18px', opacity: 0.25 },
+                { top: '20px', right: '0px', size: '14px', opacity: 0.20 },
+                { top: '60%', left: '0px', size: '20px', opacity: 0.18 },
+                { top: '15%', right: '10px', size: '16px', opacity: 0.22 },
+              ].map((s, i) => (
+                <div key={i} style={{
+                  position: 'absolute', ...s,
+                  fontFamily: '"Barlow Condensed", sans-serif',
+                  fontWeight: 900, fontSize: s.size,
+                  color: `rgba(99,153,34,${s.opacity})`,
+                }}>%</div>
+              ))}
 
-                {/* -- BOX BODY -- */}
-                <rect x="25" y="100" width="170" height="90" rx="8"
-                  fill="#1D3E61"/>
-                <rect x="25" y="100" width="170" height="90" rx="8"
-                  fill="none" stroke="#2a5585" strokeWidth="1.5"/>
-                {/* body shine top edge */}
-                <rect x="30" y="100" width="90" height="5" rx="2"
-                  fill="rgba(255,255,255,0.07)"/>
-                {/* green ribbon on body */}
-                <rect x="101" y="100" width="18" height="90" fill="#639922"/>
+              {/* Gift Box SVG */}
+              <div style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', zIndex: 1 }}>
+                <svg
+                  width="150"
+                  height="136"
+                  viewBox="0 0 220 200"
+                  fill="none"
+                >
+                  {/* -- Far glow behind everything -- */}
+                  <ellipse cx="110" cy="95" rx="70" ry="30"
+                    fill="rgba(99,153,34,0.15)" />
 
-                {/* -- BOX LID - tilted open (rotated around bottom-left corner) -- */}
-                <g transform="rotate(-28, 25, 100)">
-                  <rect x="25" y="72" width="170" height="30" rx="6"
-                    fill="#185FA5"/>
-                  {/* lid ribbon */}
-                  <rect x="25" y="78" width="170" height="18" fill="#639922"/>
-                  {/* lid green stripe aligned with body ribbon */}
-                  <rect x="101" y="72" width="18" height="30" fill="#3B6D11"/>
-                  {/* lid shine */}
-                  <rect x="32" y="72" width="75" height="7" rx="3"
-                    fill="rgba(255,255,255,0.09)"/>
+                  {/* -- Glow rays shooting upward from open box -- */}
+                  <line x1="110" y1="95" x2="80" y2="18"
+                    stroke="rgba(129,192,99,0.30)" strokeWidth="10" strokeLinecap="round"/>
+                  <line x1="110" y1="95" x2="110" y2="5"
+                    stroke="rgba(129,192,99,0.35)" strokeWidth="12" strokeLinecap="round"/>
+                  <line x1="110" y1="95" x2="140" y2="16"
+                    stroke="rgba(129,192,99,0.30)" strokeWidth="10" strokeLinecap="round"/>
+                  <line x1="110" y1="95" x2="62" y2="35"
+                    stroke="rgba(129,192,99,0.18)" strokeWidth="7" strokeLinecap="round"/>
+                  <line x1="110" y1="95" x2="158" y2="33"
+                    stroke="rgba(129,192,99,0.18)" strokeWidth="7" strokeLinecap="round"/>
 
-                  {/* -- BOW on lid -- */}
-                  {/* bow left loop */}
-                  <path d="M110 72 C88 46 52 40 62 60 C68 74 96 72 110 72Z"
-                    fill="#3B6D11"/>
-                  {/* bow right loop */}
-                  <path d="M110 72 C132 46 168 40 158 60 C152 74 124 72 110 72Z"
-                    fill="#639922"/>
-                  {/* bow knot */}
-                  <ellipse cx="110" cy="72" rx="10" ry="8" fill="#27500A"/>
-                  <ellipse cx="110" cy="71" rx="6" ry="4"
-                    fill="rgba(99,153,34,0.65)"/>
-                </g>
+                  {/* -- Inner bright glow at opening -- */}
+                  <ellipse cx="110" cy="96" rx="44" ry="16"
+                    fill="rgba(129,192,99,0.50)" />
+                  <ellipse cx="110" cy="96" rx="28" ry="10"
+                    fill="rgba(180,230,120,0.60)" />
 
-                {/* -- Sparkles inside box -- */}
-                <text x="42" y="162" fill="rgba(255,255,255,0.14)"
-                  fontSize="18" fontFamily="sans-serif">✦</text>
-                <text x="158" y="175" fill="rgba(255,255,255,0.11)"
-                  fontSize="13" fontFamily="sans-serif">✦</text>
-                <text x="58" y="180" fill="rgba(255,255,255,0.09)"
-                  fontSize="10" fontFamily="sans-serif">✦</text>
+                  {/* -- BOX BODY -- */}
+                  <rect x="25" y="100" width="170" height="90" rx="8"
+                    fill="#1D3E61"/>
+                  <rect x="25" y="100" width="170" height="90" rx="8"
+                    fill="none" stroke="#2a5585" strokeWidth="1.5"/>
+                  {/* body shine top edge */}
+                  <rect x="30" y="100" width="90" height="5" rx="2"
+                    fill="rgba(255,255,255,0.07)"/>
+                  {/* green ribbon on body */}
+                  <rect x="101" y="100" width="18" height="90" fill="#639922"/>
 
-                {/* -- Ground shadow -- */}
-                <ellipse cx="110" cy="193" rx="75" ry="7"
-                  fill="rgba(29,62,97,0.13)"/>
+                  {/* -- BOX LID - tilted open (rotated around bottom-left corner) -- */}
+                  <g transform="rotate(-28, 25, 100)">
+                    <rect x="25" y="72" width="170" height="30" rx="6"
+                      fill="#185FA5"/>
+                    {/* lid ribbon */}
+                    <rect x="25" y="78" width="170" height="18" fill="#639922"/>
+                    {/* lid green stripe aligned with body ribbon */}
+                    <rect x="101" y="72" width="18" height="30" fill="#3B6D11"/>
+                    {/* lid shine */}
+                    <rect x="32" y="72" width="75" height="7" rx="3"
+                      fill="rgba(255,255,255,0.09)"/>
 
-              </svg>
-            </div>
-          </motion.div>
+                    {/* -- BOW on lid -- */}
+                    {/* bow left loop */}
+                    <path d="M110 72 C88 46 52 40 62 60 C68 74 96 72 110 72Z"
+                      fill="#3B6D11"/>
+                    {/* bow right loop */}
+                    <path d="M110 72 C132 46 168 40 158 60 C152 74 124 72 110 72Z"
+                      fill="#639922"/>
+                    {/* bow knot */}
+                    <ellipse cx="110" cy="72" rx="10" ry="8" fill="#27500A"/>
+                    <ellipse cx="110" cy="71" rx="6" ry="4"
+                      fill="rgba(99,153,34,0.65)"/>
+                  </g>
+
+                  {/* -- Sparkles inside box -- */}
+                  <text x="42" y="162" fill="rgba(255,255,255,0.14)"
+                    fontSize="18" fontFamily="sans-serif">✦</text>
+                  <text x="158" y="175" fill="rgba(255,255,255,0.11)"
+                    fontSize="13" fontFamily="sans-serif">✦</text>
+                  <text x="58" y="180" fill="rgba(255,255,255,0.09)"
+                    fontSize="10" fontFamily="sans-serif">✦</text>
+
+                  {/* -- Ground shadow -- */}
+                  <ellipse cx="110" cy="193" rx="75" ry="7"
+                    fill="rgba(29,62,97,0.13)"/>
+                </svg>
+              </div>
+            </motion.div>
+          ) : (
+            /* -- CENTER BLOCK (DESKTOP): Gift Box + Flying Coupons -- */
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="hidden md:flex"
+              style={{
+                position: 'relative',
+                height: '460px',
+                width: 'auto',
+                display: 'flex',
+                alignItems: 'flex-end',
+                justifyContent: 'center',
+                order: 0,
+              }}
+            >
+              {/* Flying coupons */}
+              {COUPONS.map((c, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.2 + i * 0.1, duration: 0.5 }}
+                  style={{
+                    position: 'absolute',
+                    bottom: `${165 + c.yD}px`,
+                    left: `calc(50% + ${c.xD}px)`,
+                    transform: `translateX(-50%) rotate(${c.rotate}deg)`,
+                    background: c.big ? '#EAF3DE' : '#fff',
+                    border: `2px dashed ${c.big ? '#639922' : '#B5D4F4'}`,
+                    borderRadius: '10px',
+                    padding: c.big ? '10px 18px' : '8px 14px',
+                    minWidth: c.big ? '150px' : '120px',
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.10)',
+                    zIndex: c.big ? 4 : 2,
+                    textAlign: 'center',
+                  }}
+                >
+                  <div style={{
+                    fontFamily: '"Barlow Condensed", sans-serif',
+                    fontWeight: 900,
+                    fontSize: c.big ? '36px' : '28px',
+                    lineHeight: 1,
+                    color: c.big ? '#639922' : '#1D3E61',
+                  }}>-{c.pct}%</div>
+                  <div style={{
+                    fontFamily: '"DM Sans", sans-serif',
+                    fontSize: '10px', fontWeight: 700,
+                    letterSpacing: '1.5px', textTransform: 'uppercase',
+                    color: c.big ? '#3B6D11' : '#888780',
+                    marginTop: '2px',
+                  }}>{t(c.labelKey)}</div>
+                </motion.div>
+              ))}
+
+              {/* Floating % signs */}
+              {[
+                { top: '10px', left: '5px', size: '18px', opacity: 0.25 },
+                { top: '20px', right: '0px', size: '14px', opacity: 0.20 },
+                { top: '60%', left: '0px', size: '20px', opacity: 0.18 },
+                { top: '15%', right: '10px', size: '16px', opacity: 0.22 },
+              ].map((s, i) => (
+                <div key={i} style={{
+                  position: 'absolute', ...s,
+                  fontFamily: '"Barlow Condensed", sans-serif',
+                  fontWeight: 900, fontSize: s.size,
+                  color: `rgba(99,153,34,${s.opacity})`,
+                }}>%</div>
+              ))}
+
+              {/* Gift Box SVG */}
+              <div style={{ position: 'absolute', bottom: 0 }}>
+                <svg
+                  width="220"
+                  height="200"
+                  viewBox="0 0 220 200"
+                  fill="none"
+                >
+                  {/* -- Far glow behind everything -- */}
+                  <ellipse cx="110" cy="95" rx="70" ry="30"
+                    fill="rgba(99,153,34,0.15)" />
+
+                  {/* -- Glow rays shooting upward from open box -- */}
+                  <line x1="110" y1="95" x2="80" y2="18"
+                    stroke="rgba(129,192,99,0.30)" strokeWidth="10" strokeLinecap="round"/>
+                  <line x1="110" y1="95" x2="110" y2="5"
+                    stroke="rgba(129,192,99,0.35)" strokeWidth="12" strokeLinecap="round"/>
+                  <line x1="110" y1="95" x2="140" y2="16"
+                    stroke="rgba(129,192,99,0.30)" strokeWidth="10" strokeLinecap="round"/>
+                  <line x1="110" y1="95" x2="62" y2="35"
+                    stroke="rgba(129,192,99,0.18)" strokeWidth="7" strokeLinecap="round"/>
+                  <line x1="110" y1="95" x2="158" y2="33"
+                    stroke="rgba(129,192,99,0.18)" strokeWidth="7" strokeLinecap="round"/>
+
+                  {/* -- Inner bright glow at opening -- */}
+                  <ellipse cx="110" cy="96" rx="44" ry="16"
+                    fill="rgba(129,192,99,0.50)" />
+                  <ellipse cx="110" cy="96" rx="28" ry="10"
+                    fill="rgba(180,230,120,0.60)" />
+
+                  {/* -- BOX BODY -- */}
+                  <rect x="25" y="100" width="170" height="90" rx="8"
+                    fill="#1D3E61"/>
+                  <rect x="25" y="100" width="170" height="90" rx="8"
+                    fill="none" stroke="#2a5585" strokeWidth="1.5"/>
+                  {/* body shine top edge */}
+                  <rect x="30" y="100" width="90" height="5" rx="2"
+                    fill="rgba(255,255,255,0.07)"/>
+                  {/* green ribbon on body */}
+                  <rect x="101" y="100" width="18" height="90" fill="#639922"/>
+
+                  {/* -- BOX LID - tilted open (rotated around bottom-left corner) -- */}
+                  <g transform="rotate(-28, 25, 100)">
+                    <rect x="25" y="72" width="170" height="30" rx="6"
+                      fill="#185FA5"/>
+                    {/* lid ribbon */}
+                    <rect x="25" y="78" width="170" height="18" fill="#639922"/>
+                    {/* lid green stripe aligned with body ribbon */}
+                    <rect x="101" y="72" width="18" height="30" fill="#3B6D11"/>
+                    {/* lid shine */}
+                    <rect x="32" y="72" width="75" height="7" rx="3"
+                      fill="rgba(255,255,255,0.09)"/>
+
+                    {/* -- BOW on lid -- */}
+                    {/* bow left loop */}
+                    <path d="M110 72 C88 46 52 40 62 60 C68 74 96 72 110 72Z"
+                      fill="#3B6D11"/>
+                    {/* bow right loop */}
+                    <path d="M110 72 C132 46 168 40 158 60 C152 74 124 72 110 72Z"
+                      fill="#639922"/>
+                    {/* bow knot */}
+                    <ellipse cx="110" cy="72" rx="10" ry="8" fill="#27500A"/>
+                    <ellipse cx="110" cy="71" rx="6" ry="4"
+                      fill="rgba(99,153,34,0.65)"/>
+                  </g>
+
+                  {/* -- Sparkles inside box -- */}
+                  <text x="42" y="162" fill="rgba(255,255,255,0.14)"
+                    fontSize="18" fontFamily="sans-serif">✦</text>
+                  <text x="158" y="175" fill="rgba(255,255,255,0.11)"
+                    fontSize="13" fontFamily="sans-serif">✦</text>
+                  <text x="58" y="180" fill="rgba(255,255,255,0.09)"
+                    fontSize="10" fontFamily="sans-serif">✦</text>
+
+                  {/* -- Ground shadow -- */}
+                  <ellipse cx="110" cy="193" rx="75" ry="7"
+                    fill="rgba(29,62,97,0.13)"/>
+                </svg>
+              </div>
+            </motion.div>
+          )}
 
           {/* -- RIGHT BLOCK: 4 Cards -- */}
           <motion.div

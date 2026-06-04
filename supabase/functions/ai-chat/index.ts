@@ -7,6 +7,7 @@ type ChatMessage = {
 
 const ALLOWED_ORIGINS = new Set([
   'http://localhost:5173',
+  'http://localhost:3000',
   'http://127.0.0.1:5173',
   'https://aluminium-space.netlify.app',
   'https://aluminiumspace.pro',
@@ -15,6 +16,8 @@ const ALLOWED_ORIGINS = new Set([
   'https://www.aluminiumspace.com',
   'https://aluminium-space.tn',
   'https://www.aluminium-space.tn',
+  'https://aluminiumspace-moustiquaires.com',
+  'https://www.aluminiumspace-moustiquaires.com',
 ])
 
 const MAX_MESSAGES = 20

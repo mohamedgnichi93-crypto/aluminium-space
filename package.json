@@ -11,6 +11,9 @@
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
+    "@fontsource/barlow-condensed": "^5.2.8",
+    "@fontsource/dm-sans": "^5.2.8",
+    "@fontsource/rajdhani": "^5.2.7",
     "@hookform/resolvers": "^5.2.2",
     "@supabase/supabase-js": "^2.105.4",
     "framer-motion": "^12.38.0",

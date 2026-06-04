@@ -80,27 +80,27 @@ const Home = () => {
             <div className="hidden md:block w-12 h-[3px] bg-[#81C063] rounded-sm mx-auto" />
           </div>
 
-          <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-6 gap-4 md:gap-5 max-w-6xl mx-auto">
+          <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-6 gap-4 md:gap-5 max-w-6xl mx-auto md:auto-rows-fr">
             {PRODUCTS.map((p, i) => (
-              <Link key={p.id} to={`/produits/${p.id}`} className={`block no-underline group lg:col-span-2 ${i === 3 ? 'lg:col-start-2' : ''} ${i === 4 ? 'lg:col-start-4' : ''}`}>
+              <Link key={p.id} to={`/produits/${p.id}`} className={`block no-underline group lg:col-span-2 h-full flex flex-col ${i === 3 ? 'lg:col-start-2' : ''} ${i === 4 ? 'lg:col-start-4' : ''}`}>
                 {/* Desktop Card: motion.div with animation */}
                 <motion.div
-                  className="hidden md:block bg-[#F5F7FA] rounded-2xl overflow-hidden border border-[#DBDADA] transition-all duration-250 group-hover:border-[#81C063] group-hover:shadow-[0_8px_32px_rgba(29,62,97,0.12)] group-hover:-translate-y-1"
+                  className="hidden md:flex flex-col h-full bg-[#F5F7FA] rounded-2xl overflow-hidden border border-[#DBDADA] transition-all duration-250 group-hover:border-[#81C063] group-hover:shadow-[0_8px_32px_rgba(29,62,97,0.12)] group-hover:-translate-y-1"
                   initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
                 >
-                  <div className="bg-white p-6 flex items-center justify-center border-b border-[#DBDADA] min-h-[160px]">
-                    <picture>
+                  <div className="bg-white p-6 flex items-center justify-center border-b border-[#DBDADA] h-[160px] flex-shrink-0">
+                    <picture className="h-full flex items-center justify-center">
                       <source srcSet={p.image.replace('.png', '.webp')} type="image/webp" />
-                      <img src={p.image} alt={p.name} loading="lazy" decoding="async" className="h-[130px] w-auto max-w-full object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.12)]" />
+                      <img src={p.image} alt={p.name} loading="lazy" decoding="async" className="h-full w-auto max-h-full object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.12)]" />
                     </picture>
                   </div>
-                  <div className="p-4">
-                    <div className="inline-block bg-[#296788]/[0.08] text-[#296788] rounded-md px-2 py-0.5 text-[10px] font-['Rajdhani',_sans-serif] font-bold tracking-[1px] uppercase mb-2">
+                  <div className="p-4 flex-1 flex flex-col">
+                    <div className="inline-block bg-[#296788]/[0.08] text-[#296788] rounded-md px-2 py-0.5 text-[10px] font-['Rajdhani',_sans-serif] font-bold tracking-[1px] uppercase mb-2 self-start">
                       {loc(p.tag)}
                     </div>
                     <h3 className="font-['Rajdhani',_sans-serif] font-bold text-[18px] text-[#2F2D2C] tracking-[1px] mb-1.5">{p.name}</h3>
-                    <p className="font-['DM_Sans',_sans-serif] text-[12px] text-[#818181] leading-relaxed">{loc(p.desc)}</p>
-                    <div className={`flex ${isRTL ? 'flex-row-reverse' : 'flex-row'} items-center gap-1 mt-3 text-[#81C063] font-['Rajdhani',_sans-serif] font-bold text-[12px] tracking-[1px] uppercase`}>
+                    <p className="font-['DM_Sans',_sans-serif] text-[12px] text-[#818181] leading-relaxed flex-1">{loc(p.desc)}</p>
+                    <div className={`flex ${isRTL ? 'flex-row-reverse' : 'flex-row'} items-center gap-1 mt-auto pt-3 text-[#81C063] font-['Rajdhani',_sans-serif] font-bold text-[12px] tracking-[1px] uppercase`}>
                       {t('home.view_product')}
                       <ArrowRight size={13} className="no-rtl-flip" />
                     </div>
