@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { Search, Download, ChevronRight, Package, Clock, CheckCircle, Wrench, Calendar, Star, XCircle, Copy, Check, User, ShoppingBag, MessageCircle, Ruler, CreditCard } from 'lucide-react';
+import { Search, Download, ChevronRight, Package, Clock, CheckCircle, Wrench, Calendar, Star, XCircle, Copy, Check, User, ShoppingBag, MessageCircle, Ruler, CreditCard, Loader2 } from 'lucide-react';
 import { getOrderById } from '../store/ordersStore';
 import { generatePDF } from '../utils/pdfGenerator';
 import type { Order } from '../store/ordersStore';
 import PageSEO from '../components/ui/PageSEO';
+import { BUSINESS } from '../config/businessConfig';
 
 
 type LangKey = 'fr' | 'ar' | 'tn' | 'en' | 'it';
@@ -107,6 +108,7 @@ const ClientPortal = () => {
   const [notFound, setNotFound] = useState(false);
   const [searched, setSearched] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
 
   const handleSearch = async () => {
     if (!code.trim()) return;
@@ -143,6 +145,18 @@ const ClientPortal = () => {
     navigator.clipboard.writeText(id);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleDownloadPDF = async () => {
+    if (!order || isDownloadingPdf) return;
+    setIsDownloadingPdf(true);
+    try {
+      await generatePDF(order);
+    } catch (error) {
+      console.error('Failed to generate client PDF:', error);
+    } finally {
+      setIsDownloadingPdf(false);
+    }
   };
 
   const currentStepIndex = order ? STATUS_STEPS.findIndex(s => s.key === order.status) : -1;
@@ -462,16 +476,17 @@ const ClientPortal = () => {
                 {/* Action buttons */}
                 <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', gap: '12px', flexWrap: 'wrap' }}>
                   <motion.button
-                    onClick={() => generatePDF(order)}
-                    animate={{ scale: [1, 1.02, 1] }}
+                    onClick={handleDownloadPDF}
+                    disabled={isDownloadingPdf}
+                    animate={isDownloadingPdf ? { scale: 1 } : { scale: [1, 1.02, 1] }}
                     transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-                    style={{ flex: 1, minWidth: '140px', height: '52px', background: 'linear-gradient(135deg, #1D3E61, #1A5DA8)', color: 'white', border: 'none', borderRadius: '12px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '14px', letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer', display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'box-shadow 0.2s', boxShadow: '0 4px 16px rgba(26,93,168,0.3)' }}
+                    style={{ flex: 1, minWidth: '140px', height: '52px', background: 'linear-gradient(135deg, #1D3E61, #1A5DA8)', color: 'white', border: 'none', borderRadius: '12px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '14px', letterSpacing: '1px', textTransform: 'uppercase', cursor: isDownloadingPdf ? 'not-allowed' : 'pointer', opacity: isDownloadingPdf ? 0.75 : 1, display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'box-shadow 0.2s', boxShadow: '0 4px 16px rgba(26,93,168,0.3)' }}
                   >
-                    <Download size={18} />
+                    {isDownloadingPdf ? <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> : <Download size={18} />}
                     {loc(content.download_pdf)}
                   </motion.button>
                   <a
-                    href={`https://wa.me/21657099070?text=${encodeURIComponent(`Bonjour, je veux des informations sur ma commande #${order.id}`)}`}
+                    href={`${BUSINESS.whatsapp}?text=${encodeURIComponent(`Bonjour, je veux des informations sur ma commande #${order.id}`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{ flex: 1, minWidth: '140px', height: '52px', background: '#25D366', color: 'white', border: 'none', borderRadius: '12px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '14px', letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer', display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'center', gap: '8px', textDecoration: 'none', transition: 'all 0.2s', boxShadow: '0 4px 16px rgba(37,211,102,0.3)' }}

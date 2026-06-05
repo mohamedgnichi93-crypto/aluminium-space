@@ -1,11 +1,11 @@
 import type { UseFormRegister, FieldErrors, UseFormWatch, UseFormSetValue } from 'react-hook-form';
-import { calculatePrice, formatPrice, getProductDimensionLimits } from '../../utils/priceCalculator';
+import { calculatePrice, formatPrice, getProductPricingOverrides, resolveProductDimensionLimits } from '../../utils/priceCalculator';
 import { getRemisePercent } from '../../utils/remiseCalculator';
 import { getSettings } from '../../store/settingsStore';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import { Minus, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { products } from '../../data/products';
+import type { Product } from '../../data/products';
 import { STANDARD_COLORS, EXTENDED_COLORS, ALL_COLORS } from '../../data/colors';
 import { Portal } from '../ui/Portal';
 import type { DevisFormData } from './DevisWizard';
@@ -18,10 +18,11 @@ interface Props {
   onNext: () => void;
   onPrev: () => void;
   productId: string;
+  products: Product[];
   onAddAnother: () => void;
 }
 
-const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, productId, onAddAnother }: Props) => {
+const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, productId, products, onAddAnother }: Props) => {
   const { t, i18n } = useTranslation();
   const isRTL = ['ar', 'tn'].includes(i18n.language);
   const width = watch('width');
@@ -38,12 +39,14 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
   const setOpeningType = (val: 'fenetre' | 'porte') => setValue('openingType', val);
 
   const product = products.find(p => p.id === productId);
+  const pricingOverrides = useMemo(() => getProductPricingOverrides(product), [product]);
   const showSelector = true;
 
   const [showOpeningTypeError, setShowOpeningTypeError] = useState(false);
 
-  const [isMinimumPrice, setIsMinimumPrice] = useState(false);
+  const isMinimumPrice = false;
   const [outOfBounds, setOutOfBounds] = useState(false);
+  const [dimensionError, setDimensionError] = useState('');
   const [needsCustomQuote, setNeedsCustomQuote] = useState(false);
   const [autoSwitched, setAutoSwitched] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
@@ -107,40 +110,39 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
     }
 
     if (width > 0 && height > 0) {
-      const limits = getProductDimensionLimits(productId, Number(height));
+      const limits = resolveProductDimensionLimits(productId, Number(height), pricingOverrides.dimensionLimits);
+      const widthNum = Number(width);
+      const heightNum = Number(height);
+      const wClamped = limits ? Math.max(widthNum, limits.minW) : widthNum;
+      const hClamped = limits ? Math.max(heightNum, limits.minH) : heightNum;
+      const areaM2 = (wClamped * hClamped) / 10000;
+      const dimensionMessage = !limits
+        ? t('quote.dimensions_notice', "Dimensions non valides pour ce produit.")
+        : wClamped > limits.maxW || hClamped > limits.maxH
+          ? `Dimensions maximales: ${limits.maxW} x ${limits.maxH} cm`
+          : limits.maxArea && areaM2 > limits.maxArea
+            ? `Surface maximale pour ELBA: ${limits.maxArea} m2`
+            : '';
 
-      if (
-        !limits ||
-        width < limits.minW ||
-        width > limits.maxW ||
-        height < limits.minH ||
-        height > limits.maxH
-      ) {
+      if (dimensionMessage) {
         setOutOfBounds(true);
-        setIsMinimumPrice(false);
+        setDimensionError(dimensionMessage);
         setNeedsCustomQuote(false);
         setValue('unitPrice', 0);
         setValue('totalPrice', 0);
         return;
       } else {
         setOutOfBounds(false);
+        setDimensionError('');
       }
 
-      // Check if below minimum (Info)
-      let currentIsMin = false;
-      if (productId === 'elba') {
-        if ((width / 100) * (height / 100) < 1) currentIsMin = true;
-      } else if (productId === 'sidney-50' || productId === 'sidney-50-ac') {
-        // For Sidney, table starts at H=220
-        if (height < 220) currentIsMin = true;
-      }
-      setIsMinimumPrice(currentIsMin);
       const priceResult = calculatePrice({
         productId,
         width: Number(width),
         height: Number(height),
         meshType: meshType as any,
-        color
+        color,
+        ...pricingOverrides,
       });
 
       if (priceResult !== null && priceResult.unitPrice > 0) {
@@ -154,16 +156,16 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
       }
     } else {
       setOutOfBounds(false);
-      setIsMinimumPrice(false);
+      setDimensionError('');
       setNeedsCustomQuote(false);
       setValue('unitPrice', 0);
       setValue('totalPrice', 0);
     }
-  }, [width, height, quantity, meshType, productId, color, setValue]);
+  }, [width, height, quantity, meshType, productId, color, pricingOverrides, setValue, t]);
 
   // SVG Visualizer calculations
   const getMinMax = () => {
-    return getProductDimensionLimits(productId, Number(height) || 0)
+    return resolveProductDimensionLimits(productId, Number(height) || 0, pricingOverrides.dimensionLimits)
       ?? { minW: 30, maxW: 200, minH: 30, maxH: 250 };
   };
 
@@ -926,7 +928,7 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
               ) : outOfBounds ? (
                 <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '10px', padding: '14px', marginBottom: '16px' }}>
                   <p style={{ color: '#DC2626', fontSize: '14px', fontFamily: 'Inter, sans-serif', display: 'flex', gap: '8px' }}>
-                    <span>⚠️</span> {t('quote.dimensions_notice', "Dimensions dépassent le maximum autorisé.")}
+                    <span>⚠️</span> {dimensionError || t('quote.dimensions_notice', "Dimensions dépassent le maximum autorisé.")}
                   </p>
                 </div>
               ) : (
@@ -964,13 +966,6 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
                       </div>
                     </div>
                   </div>
-                  {isMinimumPrice && productId !== 'elba' && (
-                    <div style={{ background: 'rgba(29,62,97,0.05)', border: '1px solid rgba(29,62,97,0.18)', borderRadius: '10px', padding: '14px', marginBottom: '16px' }}>
-                      <p style={{ color: '#1D3E61', fontSize: '14px', fontFamily: 'Inter, sans-serif', display: 'flex', gap: '8px' }}>
-                        <span>ℹ️</span> {t('quote.min_price_notice', "Prix calculé pour la dimension minimale disponible.")}
-                      </p>
-                    </div>
-                  )}
                   {productId === 'elba' && Number(width) > 0 && Number(height) > 0 && !needsCustomQuote && (
                     <div style={{ background: 'rgba(29,62,97,0.05)', border: '1px solid rgba(29,62,97,0.18)', borderRadius: '10px', padding: '14px', marginBottom: '16px' }}>
                       <p style={{ color: '#1D3E61', fontSize: '14px', fontFamily: 'Inter, sans-serif', display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -1029,7 +1024,8 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
                           width: Number(width),
                           height: Number(height),
                           meshType: meshType as any,
-                          color
+                          color,
+                          ...pricingOverrides,
                         });
 
                         if (priceResult && (priceResult.colorSurchargePct ?? 0) > 0) {

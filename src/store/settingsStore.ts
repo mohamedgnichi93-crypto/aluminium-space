@@ -114,7 +114,8 @@ export async function loadSettings(): Promise<BusinessSettings> {
       const { data, error } = await supabase
         .from('business_settings')
         .select('*')
-        .single();
+        .eq('key', 'default')
+        .maybeSingle();
       
       if (error || !data) return cache;
       cache = fromDB(data);
@@ -158,7 +159,8 @@ export async function saveSettings(patch: Partial<BusinessSettings>): Promise<vo
     const { data: existing } = await supabase
       .from('business_settings')
       .select('id')
-      .single();
+      .eq('key', 'default')
+      .maybeSingle();
 
     if (existing?.id) {
       await supabase
@@ -169,7 +171,7 @@ export async function saveSettings(patch: Partial<BusinessSettings>): Promise<vo
       // If no row exists, insert the full cached state
       await supabase
         .from('business_settings')
-        .insert(toDB(cache));
+        .insert({ key: 'default', ...toDB(cache) });
     }
   } catch (err) {
     console.error('Settings sync failed:', err);
@@ -183,7 +185,8 @@ export async function resetSettings(): Promise<void> {
     const { data } = await supabase
       .from('business_settings')
       .select('id')
-      .single();
+      .eq('key', 'default')
+      .maybeSingle();
     
     if (data?.id) {
       await supabase

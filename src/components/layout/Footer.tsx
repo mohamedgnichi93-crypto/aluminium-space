@@ -2,6 +2,7 @@ import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { MapPin, Phone, Mail, MessageCircle, MessageSquare, Globe } from 'lucide-react';
+import { BUSINESS } from '../../config/businessConfig';
 
 const Footer = () => {
   const { t } = useTranslation();
@@ -83,7 +84,7 @@ const Footer = () => {
                   ), color: '#000000', url: 'https://tiktok.com/@aluminium.space', label: 'TikTok'
                 },
                 { icon: <MessageCircle className="w-[18px] h-[18px]" />, color: '#0084FF', url: 'https://m.me/aluminium.space.tunisie', label: 'Messenger' },
-                { icon: <MessageSquare className="w-[18px] h-[18px]" />, color: '#25D366', url: 'https://wa.me/21657099070', label: 'WhatsApp' }
+                { icon: <MessageSquare className="w-[18px] h-[18px]" />, color: '#25D366', url: BUSINESS.whatsapp, label: 'WhatsApp' }
               ].map((social, idx) => (
                 <Fragment key={social.label}>
                   <a
@@ -171,25 +172,25 @@ const Footer = () => {
               <li style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '14px' }}>
                 <Phone size={16} style={{ flexShrink: 0, marginTop: '2px', color: '#81C063' }} />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontFamily: 'DM Sans, sans-serif' }}>
-                  <a href="tel:+21653186611" className="transition-colors" style={{ color: 'rgba(255,255,255,0.85)' }} onMouseEnter={(e) => e.currentTarget.style.color = 'white'} onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.85)'}>(+216) 53 186 611</a>
-                  <a href="tel:+21657099070" className="transition-colors" style={{ color: 'rgba(255,255,255,0.85)' }} onMouseEnter={(e) => e.currentTarget.style.color = 'white'} onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.85)'}>(+216) 57 099 070</a>
+                  <a href={`tel:${BUSINESS.phone1Href}`} className="transition-colors" style={{ color: 'rgba(255,255,255,0.85)' }} onMouseEnter={(e) => e.currentTarget.style.color = 'white'} onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.85)'}>{BUSINESS.phone1}</a>
+                  <a href={`tel:${BUSINESS.phone2Href}`} className="transition-colors" style={{ color: 'rgba(255,255,255,0.85)' }} onMouseEnter={(e) => e.currentTarget.style.color = 'white'} onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.85)'}>{BUSINESS.phone2}</a>
                 </div>
               </li>
               <li style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '14px' }}>
                 <svg width="16" height="16" style={{ flexShrink: 0, marginTop: '2px' }} viewBox="0 0 24 24" fill="none" stroke="#81C063" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                 <div style={{ fontFamily: 'DM Sans, sans-serif' }}>
-                  <a href="https://wa.me/21657099070" target="_blank" rel="noopener noreferrer" className="transition-colors" style={{ color: 'rgba(255,255,255,0.85)' }} onMouseEnter={(e) => e.currentTarget.style.color = 'white'} onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.85)'}>WhatsApp: +216 57 099 070</a>
+                  <a href={BUSINESS.whatsapp} target="_blank" rel="noopener noreferrer" className="transition-colors" style={{ color: 'rgba(255,255,255,0.85)' }} onMouseEnter={(e) => e.currentTarget.style.color = 'white'} onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.85)'}>WhatsApp: {BUSINESS.phone2}</a>
                 </div>
               </li>
               <li style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '14px' }}>
                 <Mail size={16} style={{ flexShrink: 0, marginTop: '2px', color: '#81C063' }} />
                 <div style={{ fontFamily: 'DM Sans, sans-serif' }}>
-                  <a href="mailto:contact@aluminiumspace.com" className="transition-colors" style={{ color: 'rgba(255,255,255,0.85)' }} onMouseEnter={(e) => e.currentTarget.style.color = 'white'} onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.85)'}>contact@aluminiumspace.com</a>
+                  <a href={`mailto:${BUSINESS.email}`} className="transition-colors" style={{ color: 'rgba(255,255,255,0.85)' }} onMouseEnter={(e) => e.currentTarget.style.color = 'white'} onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.85)'}>{BUSINESS.email}</a>
                 </div>
               </li>
               <li>
                 <a
-                  href="https://aluminiumspace.pro/"
+                  href={BUSINESS.website}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'rgba(255,255,255,0.75)', textDecoration: 'none', fontSize: '14px', fontFamily: 'DM Sans, sans-serif', transition: 'color 0.2s' }}
@@ -197,7 +198,7 @@ const Footer = () => {
                   onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.75)'}
                 >
                   <Globe size={16} style={{ color: '#81C063', flexShrink: 0 }} />
-                  aluminiumspace.pro
+                  {BUSINESS.websiteLabel}
                 </a>
               </li>
             </ul>

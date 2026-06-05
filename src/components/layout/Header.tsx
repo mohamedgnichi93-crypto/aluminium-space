@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Menu, X, Globe, MessageCircle, MessageSquare, User, Download, Home, LayoutGrid, Info, Phone, ChevronRight, Check, Loader, Smartphone, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePWAInstall } from '../../hooks/usePWAInstall';
+import { BUSINESS } from '../../config/businessConfig';
 
 const languages = [
   { code: 'tn', label: 'تونسي', dir: 'rtl', flag: 'https://flagcdn.com/16x12/tn.png' },
@@ -142,7 +143,7 @@ const Header = () => {
       <div className="container mx-auto px-4 h-full flex items-center justify-between gap-4 relative" style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
 
         {/* Logo */}
-        <a href="https://aluminiumspace.pro/" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: '10px', textDecoration: 'none', flexShrink: 0 }} className="group">
+        <a href={BUSINESS.website} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: '10px', textDecoration: 'none', flexShrink: 0 }} className="group">
           <img src="/logo-aluminium-space.png" alt="ALU SPACE Logo"
             className="no-rtl-flip"
             style={{ height: '58px', width: 'auto', objectFit: 'contain', transform: 'none', display: 'block' }}
@@ -568,7 +569,7 @@ const Header = () => {
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <a
-                      href="https://wa.me/21657099070" target="_blank" rel="noopener noreferrer"
+                      href={BUSINESS.whatsapp} target="_blank" rel="noopener noreferrer"
                       style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: '#25D366', color: 'white', borderRadius: '10px', height: '48px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '14px', letterSpacing: '1.5px', textTransform: 'uppercase', textDecoration: 'none' }}
                     >
                       <MessageSquare size={16} />

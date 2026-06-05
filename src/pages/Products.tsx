@@ -3,12 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, Ruler, Award, CheckCircle, XCircle, Link as LinkIcon, FileText, X as XIcon } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { products } from '../data/products';
 import ProductCard from '../components/products/ProductCard';
 import HowItWorks from '../components/ui/HowItWorks';
 import PageSEO from '../components/ui/PageSEO';
 const DevisWizard = lazy(() => import('../components/devis/DevisWizard'));
 import ItalyFlag from '../components/ui/ItalyFlag';
+import { usePublicProducts } from '../hooks/usePublicProducts';
 
 type FilterType = 'all' | 'plisse' | 'enroulable' | 'panneau';
 type LangKey = 'fr' | 'ar' | 'tn' | 'en' | 'it';
@@ -78,6 +78,7 @@ const Products = () => {
   const [showDevis, setShowDevis] = useState(false);
   const [devisProductId, setDevisProductId] = useState<string | undefined>(undefined);
   const [searchParams] = useSearchParams();
+  const { products } = usePublicProducts();
   const lang = (i18n.language as LangKey) || 'fr';
   const loc = (obj: Record<string, string>) => obj[lang] ?? obj.fr;
 
@@ -106,6 +107,8 @@ const Products = () => {
   const filteredProducts = activeFilter === 'all'
     ? products
     : products.filter(p => p.category === activeFilter);
+  const visibleProductIds = new Set(products.map(product => product.id));
+  const filteredComparisonData = comparisonData.filter(item => visibleProductIds.has(item.id));
 
   const filters: { key: FilterType; label: Record<LangKey, string> }[] = [
     { key: 'all', label: { fr: 'Tous', ar: 'الكل', tn: 'الكل', en: 'All', it: 'Tutti' } },
@@ -292,8 +295,8 @@ const Products = () => {
                 </tr>
               </thead>
               <tbody>
-                {comparisonData.map((item, i) => (
-                  <tr key={item.id} style={{ borderBottom: i < comparisonData.length - 1 ? '1px solid #E8EDF5' : 'none', background: i % 2 === 0 ? 'white' : '#F8FAFD' }}>
+                {filteredComparisonData.map((item, i) => (
+                  <tr key={item.id} style={{ borderBottom: i < filteredComparisonData.length - 1 ? '1px solid #E8EDF5' : 'none', background: i % 2 === 0 ? 'white' : '#F8FAFD' }}>
                     <td style={{ padding: '16px 20px' }}>
                       <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: '12px' }}>
                         <img src={item.image} alt={item.name} className="no-rtl-flip" style={{ width: '44px', height: '44px', objectFit: 'contain', background: '#F5F7FA', borderRadius: '8px', padding: '4px', transform: 'none' }} />

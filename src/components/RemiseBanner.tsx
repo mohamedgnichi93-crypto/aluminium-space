@@ -609,7 +609,9 @@ export default function RemiseBanner() {
                 <div style={{
                   fontFamily: '"Barlow Condensed", sans-serif',
                   fontWeight: 900, fontSize: isMobile ? '52px' : '48px',
-                  lineHeight: 0.9, letterSpacing: '-1px',
+                  lineHeight: 1, letterSpacing: '0px',
+                  fontVariantNumeric: 'tabular-nums',
+                  whiteSpace: 'nowrap',
                   color: card.hot ? '#639922' : '#1D3E61',
                   marginBottom: '6px',
                   textAlign: isMobile ? 'center' : 'left',

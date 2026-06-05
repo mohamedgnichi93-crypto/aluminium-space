@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { products as staticProducts, type Product, type ProductCategory } from '../data/products';
 
 export interface SupabaseProduct {
   id: string;
@@ -36,6 +37,60 @@ const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 let cache: SupabaseProduct[] = [];
 let cacheTime = 0;
 let fetchPromise: Promise<SupabaseProduct[]> | null = null;
+let lastFetchFailed = false;
+
+const DESCRIPTION_KEYS: Record<string, string> = {
+  'colibri-50': 'products.colibri50_desc',
+  'sidney-50': 'products.sidney50_desc',
+  'sidney-50-ac': 'products.sidney50ac_desc',
+  elba: 'products.elba_desc',
+  plisse31: 'products.plisse31_desc',
+};
+
+const CATEGORY_BY_SLUG: Record<string, ProductCategory> = {
+  'colibri-50': 'plisse',
+  'sidney-50': 'enroulable',
+  'sidney-50-ac': 'plisse',
+  elba: 'panneau',
+  plisse31: 'plisse',
+};
+
+function normalizeImageUrl(imageUrl: string | null | undefined, fallback?: string): string {
+  if (!imageUrl) return fallback || '/images/colibri-50.webp';
+  if (imageUrl === '/images/elba.webp') return '/images/elba-v2.webp';
+  return imageUrl;
+}
+
+function categoryFromProduct(product: SupabaseProduct, slug: string, fallback?: Product): ProductCategory {
+  if (fallback?.category) return fallback.category;
+  if (CATEGORY_BY_SLUG[slug]) return CATEGORY_BY_SLUG[slug];
+
+  const raw = `${product.type || ''} ${product.category_fr || ''}`.toLowerCase();
+  if (raw.includes('panneau') || raw.includes('fixe')) return 'panneau';
+  if (raw.includes('enroul')) return 'enroulable';
+  return 'plisse';
+}
+
+export function toPublicProduct(product: SupabaseProduct): Product {
+  const slug = product.slug || product.id;
+  const fallback = staticProducts.find(item => item.id === slug);
+
+  return {
+    id: slug,
+    name: product.name || fallback?.name || slug,
+    category: categoryFromProduct(product, slug, fallback),
+    description: product.description_fr || fallback?.description || '',
+    descriptionKey: DESCRIPTION_KEYS[slug] || fallback?.descriptionKey || `products.${slug}_desc`,
+    imageUrl: normalizeImageUrl(product.image_url, fallback?.imageUrl),
+    minW: product.min_width || fallback?.minW,
+    maxW: product.max_width || fallback?.maxW,
+    minH: product.min_height || fallback?.minH,
+    maxH: product.max_height || fallback?.maxH,
+    maxArea: fallback?.maxArea,
+    basePrice: product.base_price || fallback?.basePrice,
+    pricePerM2: product.price_per_m2 || fallback?.pricePerM2,
+  };
+}
 
 async function fetchProducts(): Promise<SupabaseProduct[]> {
   try {
@@ -47,14 +102,17 @@ async function fetchProducts(): Promise<SupabaseProduct[]> {
 
     if (error) {
       console.error('Failed to fetch products:', error);
+      lastFetchFailed = true;
       return cache;
     }
 
     cache = (data || []) as SupabaseProduct[];
     cacheTime = Date.now();
+    lastFetchFailed = false;
     return cache;
   } catch (err) {
     console.error('Products fetch error:', err);
+    lastFetchFailed = true;
     return cache;
   } finally {
     fetchPromise = null;
@@ -76,6 +134,22 @@ export async function refreshProducts(): Promise<SupabaseProduct[]> {
   cacheTime = 0;
   fetchPromise = null;
   return fetchProducts();
+}
+
+export async function getPublicProductCatalog(): Promise<{ products: Product[]; source: 'supabase' | 'fallback' }> {
+  const remoteProducts = await getProducts();
+  if (remoteProducts.length > 0) {
+    return { products: remoteProducts.map(toPublicProduct), source: 'supabase' };
+  }
+  if (lastFetchFailed) {
+    return { products: staticProducts, source: 'fallback' };
+  }
+  return { products: [], source: 'supabase' };
+}
+
+export async function getPublicProducts(): Promise<Product[]> {
+  const catalog = await getPublicProductCatalog();
+  return catalog.products;
 }
 
 /** Get all products including inactive (for dashboard). */

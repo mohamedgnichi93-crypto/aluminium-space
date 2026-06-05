@@ -1,14 +1,15 @@
 import { useTranslation } from 'react-i18next';
-import { products } from '../../data/products';
 import { motion } from 'framer-motion';
+import type { Product } from '../../data/products';
 
 interface Props {
+  products: Product[];
   selectedProductId: string;
   onSelect: (id: string) => void;
   onNext: () => void;
 }
 
-const StepProduct = ({ selectedProductId, onSelect, onNext }: Props) => {
+const StepProduct = ({ products, selectedProductId, onSelect, onNext }: Props) => {
   const { t, i18n } = useTranslation();
   const isRTL = ['ar', 'tn'].includes(i18n.language);
 

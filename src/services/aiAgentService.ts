@@ -63,7 +63,8 @@ interface Dimensions {
   height: number;
 }
 
-type QuoteProduct = Pick<SupabaseProduct, 'slug' | 'name' | 'image_url'>;
+type QuoteProduct = Pick<SupabaseProduct, 'slug' | 'name' | 'image_url'> &
+  Partial<Pick<SupabaseProduct, 'min_width' | 'max_width' | 'min_height' | 'max_height' | 'base_price' | 'price_per_m2'>>;
 
 interface CalculatedQuote {
   product: QuoteProduct;
@@ -399,6 +400,12 @@ function getQuoteProducts(products: SupabaseProduct[]): QuoteProduct[] {
     slug: product.id,
     name: product.name,
     image_url: product.imageUrl,
+    min_width: product.minW,
+    max_width: product.maxW,
+    min_height: product.minH,
+    max_height: product.maxH,
+    base_price: product.basePrice,
+    price_per_m2: product.pricePerM2,
   }));
 }
 
@@ -415,6 +422,15 @@ function calculateQuote(
     width: dimensions.width,
     height: dimensions.height,
     color,
+    dimensionLimits: {
+      minW: product.min_width,
+      maxW: product.max_width,
+      minH: product.min_height,
+      maxH: product.max_height,
+      maxArea: product.slug === 'elba' ? 21 : undefined,
+    },
+    basePrice: product.base_price,
+    pricePerM2: product.price_per_m2,
   });
 
   if (!price) return undefined;
@@ -619,12 +635,16 @@ async function handleDeterministicQuote(
   if (!dimensions) return undefined;
 
   const limits = getProductDimensionLimits(product.slug, dimensions.height);
+  if (!limits) return undefined;
+
+  const wClamped = Math.max(dimensions.width, limits.minW);
+  const hClamped = Math.max(dimensions.height, limits.minH);
+  const areaM2 = (wClamped * hClamped) / 10000;
+
   if (
-    !limits ||
-    dimensions.width < limits.minW ||
-    dimensions.width > limits.maxW ||
-    dimensions.height < limits.minH ||
-    dimensions.height > limits.maxH
+    wClamped > limits.maxW ||
+    hClamped > limits.maxH ||
+    (limits.maxArea && areaM2 > limits.maxArea)
   ) {
     return undefined;
   }

@@ -4,6 +4,8 @@ import type { Order } from '../store/ordersStore';
 import { ALL_COLORS } from '../data/colors';
 import { formatPrice as formatPriceUtil, formatPriceDT } from './formatPrice';
 import { getRemisePercent } from './remiseCalculator';
+import { supabase } from '../lib/supabase';
+import { BUSINESS } from '../config/businessConfig';
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
 const COLORS = {
@@ -22,6 +24,14 @@ const MARGIN = { left: 14, right: 14, top: 14, bottom: 20 };
 const PAGE_W = 210;
 const PAGE_H = 297;
 const CONTENT_W = PAGE_W - MARGIN.left - MARGIN.right; // 182mm
+const IMAGE_MAP: Record<string, string> = {
+  'colibri-50': '/images/colibri-50.png',
+  'sidney-50': '/images/sidney-50.png',
+  'sidney-50-ac': '/images/sidney-50-ac.png',
+  elba: '/images/elba.png',
+  plisse31: '/images/plisse31.png',
+};
+// TODO: Create /images/pdf/ with compressed product PNGs under 200KB each.
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
 function resolveAssetUrl(path: string): string {
@@ -52,50 +62,132 @@ function todayFR(): string {
 
 // ─── SECTION BUILDERS ─────────────────────────────────────────────────────────
 
-function drawHeader(doc: jsPDF, orderId?: string): void {
+function drawHeader(doc: jsPDF, orderId?: string, title = 'DEVIS', separatorOffset = 0): number {
   // Blue top accent bar
   doc.setFillColor(...COLORS.blue);
   doc.rect(0, 0, PAGE_W, 3, 'F');
 
-  // Logo area (left) — enlarged, no text below
+  // ── LEFT: Aluminium Space logo (small icon + brand text next to it) ─────────
   try {
-    const logoUrl = resolveAssetUrl('/images/logo-devis.png');
-    doc.addImage(logoUrl, 'PNG', MARGIN.left, 6, 21, 28);
+    const aluUrl = resolveAssetUrl('/logo-aluminium-space-new.png');
+    // logo-aluminium-space-new.png is the new square 1024x1024 icon.
+    // We render it at 18x18mm at X=14, Y=5 to match the height of Grifo Flex logo.
+    doc.addImage(aluUrl, 'PNG', MARGIN.left, 5, 18, 18);
   } catch {
-    // Logo fallback: text
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(14);
-    doc.setTextColor(...COLORS.darkNavy);
-    doc.text('ALUMINIUM SPACE', MARGIN.left, 22);
+    // Silent fallback
   }
 
-  // DEVIS OFFICIEL title (right)
+  // Brand text next to the icon (shifted to X=35 to prevent overlap with the 18mm wide logo)
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(22);
-  doc.setTextColor(...COLORS.blue);
-  doc.text('DEVIS', PAGE_W - MARGIN.right, 18, { align: 'right' });
+  doc.setFontSize(11);
+  doc.setTextColor(26, 46, 74); // #1a2e4a
+  doc.text('ALUMINIUM SPACE', 35, 13);
 
-  // Date + Validité (right)
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8.5);
-  doc.setTextColor(...COLORS.darkGray);
-  doc.text(`Date : ${todayFR()}`, PAGE_W - MARGIN.right, 25, { align: 'right' });
-  doc.text('Validité : 10 jours', PAGE_W - MARGIN.right, 30, { align: 'right' });
-  if (orderId) {
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8.5);
-    doc.setTextColor(...COLORS.blue);
-    doc.text(`Code de suivi : #${orderId}`, PAGE_W - MARGIN.right, 35, { align: 'right' });
+  // Subtitle with flags around it: TN flag (left) + "Menuiserie Aluminium" + IT flag (right)
+  try {
+    const tnFlagUrl = resolveAssetUrl('/images/flag-tn.png');
+    const itFlagUrl = resolveAssetUrl('/images/flag-it.png');
+    const textY = 18;
+    const flagY = 15.6; // Y=15.6 aligns the top of the 2.8mm flags inline with the text (baseline Y=18)
+    const flagH = 2.8;
+    const flagW = 4;
+    const startX = 35; // Shifted to X=35 to prevent overlap with the logo
+
+    // 1. TN flag FIRST (left)
+    doc.addImage(tnFlagUrl, 'PNG', startX, flagY, flagW, flagH);
+
+    // 2. Text in the middle
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.setTextColor(100, 100, 100);
+    doc.text('Menuiserie Aluminium', startX + flagW + 1.5, textY);
+
+    // 3. IT flag LAST (right after text)
+    const textWidth = doc.getTextWidth('Menuiserie Aluminium');
+    doc.addImage(itFlagUrl, 'PNG', startX + flagW + 1.5 + textWidth + 1.5, flagY, flagW, flagH);
+  } catch {
+    // Fallback: text only
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.setTextColor(100, 100, 100);
+    doc.text('Menuiserie Aluminium', 35, 18);
   }
 
-  // Horizontal separator
+  // ── RIGHT: Grifo Flex logo ──────────────────────────────────────────────────
+  try {
+    const grifoUrl = resolveAssetUrl('/images/grifo-flex-logo.png');
+    // Grifo Flex logo is resized to 38x18mm so both logos have exactly the same height (18mm) and Y=5 alignment
+    doc.addImage(grifoUrl, 'PNG', 158, 5, 38, 18);
+  } catch {
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(...COLORS.blue);
+    doc.text('GRIFO FLEX TUNISIE', 158, 13);
+  }
+
+  // ── CENTER: Title (below both logos) ────────────────────────────────────────
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(20);
+  doc.setTextColor(...COLORS.blue);
+  doc.text(title, PAGE_W / 2, 27, { align: 'center' });
+
+  // ── Header Sub-Content (Centered below Title) ──────────────────────────────
+  let sepY = 50 + separatorOffset;
+
+  if (title === 'BON DE COMMANDE') {
+    const infoY = 33;
+    const centerX = PAGE_W / 2;
+
+    // Line 1 — Address
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(60, 60, 60);
+    doc.text(
+      `${BUSINESS.address}, ${BUSINESS.city}`,
+      centerX, infoY, { align: 'center' }
+    );
+
+    // Line 2 — Phones
+    doc.text(
+      `${BUSINESS.phone1}  |  ${BUSINESS.phone2}`,
+      centerX, infoY + 5, { align: 'center' }
+    );
+
+    // Line 3 — Email + Date (same line)
+    doc.text(
+      `${BUSINESS.email}  |  Date : ${todayFR()}`,
+      centerX, infoY + 10, { align: 'center' }
+    );
+
+    sepY = infoY + 14; // Y = 47
+  } else {
+    // ── Date + Validité + Code (centered below DEVIS) ──────────────────────────
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(...COLORS.darkGray);
+    doc.text(`Date : ${todayFR()}`, PAGE_W / 2, 34, { align: 'center' });
+    if (title === 'DEVIS') {
+      doc.text('Validité : 10 jours', PAGE_W / 2, 39, { align: 'center' });
+    }
+    if (orderId) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.setTextColor(...COLORS.blue);
+      const codeY = title === 'DEVIS' ? 44 : 39;
+      doc.text(`Code de suivi : ${orderId}`, PAGE_W / 2, codeY, { align: 'center' });
+    }
+  }
+
+  // ── Horizontal separator ────────────────────────────────────────────────────
   doc.setDrawColor(...COLORS.blue);
   doc.setLineWidth(0.6);
-  doc.line(MARGIN.left, 36, PAGE_W - MARGIN.right, 36);
+  doc.line(MARGIN.left, sepY, PAGE_W - MARGIN.right, sepY);
+
+  return sepY;
 }
 
-function drawFromTo(doc: jsPDF, order: Order): number {
-  const startY = 41;
+function drawFromTo(doc: jsPDF, order: Order, startYOverride?: number): number {
+  const startY = startYOverride ?? 56;
   const colW = CONTENT_W / 2 - 3;
 
   // DE block
@@ -109,16 +201,16 @@ function drawFromTo(doc: jsPDF, order: Order): number {
 
   doc.setTextColor(...COLORS.darkNavy);
   doc.setFontSize(9);
-  doc.text('Aluminium Space', MARGIN.left + 4, startY + 12);
+  doc.text(BUSINESS.name, MARGIN.left + 4, startY + 12);
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7.5);
   doc.setTextColor(...COLORS.darkGray);
   const deLines = [
-    '125 lot Laaroussi, Mghira',
-    'Tunis, Tunisie',
-    'Tél : (+216) 53 186 611',
-    'Email : contact@aluminiumspace.com',
+    BUSINESS.address,
+    BUSINESS.city,
+    `Tel : ${BUSINESS.phone1}`,
+    `Email : ${BUSINESS.email}`,
   ];
   deLines.forEach((line, i) => {
     doc.text(line, MARGIN.left + 4, startY + 18 + i * 5);
@@ -165,6 +257,26 @@ async function getBase64Image(url: string): Promise<string> {
   } catch { return ''; }
 }
 
+async function loadProductImageMap(): Promise<Record<string, string>> {
+  const entries = await Promise.all(
+    Object.entries(IMAGE_MAP).map(async ([productId, path]) => [
+      productId,
+      await getBase64Image(resolveAssetUrl(path)),
+    ] as const)
+  );
+  return Object.fromEntries(entries);
+}
+
+function drawColorCircle(doc: jsPDF, colorName: string, cx: number, cy: number, radius = 3): void {
+  const colorObj = ALL_COLORS.find(c => c.name === colorName) ?? { name: 'Blanc', hex: '#FFFFFF' };
+  doc.setFillColor(colorObj.hex);
+  const isLight = colorObj.hex === '#F5F5F5' || colorObj.hex === '#FFFFFF' ||
+    colorObj.hex?.toLowerCase() === '#fff' || colorObj.hex?.toLowerCase() === '#fafafa';
+  doc.setDrawColor(isLight ? 120 : 180, isLight ? 120 : 180, isLight ? 120 : 180);
+  doc.setLineWidth(0.3);
+  doc.circle(cx, cy, radius, 'FD');
+}
+
 async function drawItemsTable(doc: jsPDF, order: Order, startY: number): Promise<number> {
   // Column widths — must sum to 182mm
   // Desc(58) + Dims(30) + Qty(12) + PU(28) + Rem(26) + Net(28) = 182 ✅
@@ -180,16 +292,12 @@ async function drawItemsTable(doc: jsPDF, order: Order, startY: number): Promise
     (item.color ? '\nCouleur :    ' + item.color + ((item.colorSurchargePct ?? 0) > 0 ? ` (+${item.colorSurchargePct}%)` : '') : ''),
     `${item.width}\u00A0×\u00A0${item.height}\u00A0cm`,
     String(item.quantity || 1),
-    formatDTWithUnit(item.baseUnitPrice),
-    formatDTWithUnit(item.unitPrice * (remisePct / 100)),
-    formatDTWithUnit(item.unitPrice * (item.quantity || 1) * (1 - remisePct / 100)),
+    formatDTWithUnit(Number(item.baseUnitPrice ?? item.unitPrice ?? 0)),
+    formatDTWithUnit(Number(item.unitPrice || 0) * (remisePct / 100)),
+    formatDTWithUnit(Number(item.unitPrice || 0) * (item.quantity || 1) * (1 - remisePct / 100)),
   ]);
 
-  const colibriImg = await getBase64Image(resolveAssetUrl('/images/colibri-50.png'));
-  const sidneyImg = await getBase64Image(resolveAssetUrl('/images/sidney-50.png'));
-  const sidneyAcImg = await getBase64Image(resolveAssetUrl('/images/sidney-50-ac.png'));
-  const elbaImg = await getBase64Image(resolveAssetUrl('/images/elba.png'));
-  const plisseImg = await getBase64Image(resolveAssetUrl('/images/plisse31.png'));
+  const imageMap = await loadProductImageMap();
 
   autoTable(doc, {
     startY,
@@ -202,7 +310,7 @@ async function drawItemsTable(doc: jsPDF, order: Order, startY: number): Promise
       'Net\u00A0HT',
     ]],
     body: tableData,
-    margin: { left: MARGIN.left, right: MARGIN.right },
+    margin: { left: MARGIN.left, right: MARGIN.right, bottom: 22 },
     tableWidth: CONTENT_W,
     styles: {
       fontSize: 8.5,
@@ -301,14 +409,6 @@ async function drawItemsTable(doc: jsPDF, order: Order, startY: number): Promise
         }
 
         // 2. Draw Product Image
-        const imageMap: Record<string, string> = {
-          'colibri-50': colibriImg,
-          'sidney-50': sidneyImg,
-          'sidney-50-ac': sidneyAcImg,
-          'elba': elbaImg,
-          'plisse31': plisseImg,
-        };
-
         const imgPath = imageMap[item.productId];
         if (imgPath) {
           try {
@@ -459,11 +559,11 @@ function drawPageFooter(doc: jsPDF, pageNum: number, totalPages: number): void {
   doc.setFontSize(7);
   doc.setTextColor(100, 100, 100);
   doc.text(
-    'Siège Social: LOT 125 LOTISSEMENT LAROUSSI 1EL MGHIRA - TUNIS CP: 2074 | Tél: 53 186 611 - Mobile: 57 099 070',
+    `${BUSINESS.siretLabel} | Tél: ${BUSINESS.phone1} - Mobile: ${BUSINESS.phone2}`,
     PAGE_W / 2, PAGE_H - 16, { align: 'center' }
   );
   doc.text(
-    'Matricule Fiscal: 1651250W/A/M/000 | Email: aluminium.space1@gmail.com | RIB: 11 05500 01215002788 56 - Agence: BOUMHEL',
+    `Matricule Fiscal: ${BUSINESS.matriculeFiscal} | Email: ${BUSINESS.emailAlt} | RIB: ${BUSINESS.rib} - Agence: ${BUSINESS.ribAgence}`,
     PAGE_W / 2, PAGE_H - 11, { align: 'center' }
   );
 
@@ -497,7 +597,7 @@ export async function generatePDF(order: Order): Promise<void> {
     // Add new page
     doc.addPage();
     drawHeader(doc, order.id);
-    afterTotals = drawTotals(doc, order, 42);
+    afterTotals = drawTotals(doc, order, 56);
   } else {
     afterTotals = drawTotals(doc, order, afterTable);
   }
@@ -508,8 +608,7 @@ export async function generatePDF(order: Order): Promise<void> {
   if (!condFits) {
     doc.addPage();
     drawHeader(doc, order.id);
-    drawConditions(doc, 42);
-    drawPageFooter(doc, 3, 3);
+    drawConditions(doc, 56);
   } else {
     drawConditions(doc, condY);
   }
@@ -524,6 +623,289 @@ export async function generatePDF(order: Order): Promise<void> {
   // Save
   const clientName = order.clientInfo?.fullName?.replace(/\s+/g, '_') || 'Client';
   doc.save(`Devis_AluminiumSpace_${clientName}_${todayFR().replace(/\//g, '-')}.pdf`);
+}
+
+// ─── BON DE COMMANDE ──────────────────────────────────────────────────────────
+export async function generateBonDeCommande(order: Order): Promise<void> {
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+  // Header with "BON DE COMMANDE" title
+  const sepY = drawHeader(doc, undefined, 'BON DE COMMANDE');
+
+  const tableStartY = sepY + 4;
+
+  // Pre-load product images once before autoTable because didDrawCell is sync.
+  const imageMap = await loadProductImageMap();
+
+  // Build designation string per item
+  function buildDesignation(item: any): string {
+    let name = item.productName ?? '';
+    if (item.openingType === 'fenetre') name += ' — Fenêtre';
+    else if (item.openingType === 'porte') name += ' — Porte';
+    if (item.meshType) name += '\nToile : ' + item.meshType.toUpperCase();
+    return name;
+  }
+
+  // Column widths: 28 + 67 + 35 + 35 + 17 = 182 = CONTENT_W
+  const body = order.items.map((item: any) => [
+    '',  // column 0: image (drawn in didDrawCell)
+    buildDesignation(item),
+    '',  // column 2: color (circle + name drawn in didDrawCell)
+    `${item.width} ×\u00A0${item.height} cm`,
+    String(item.quantity || 1),
+  ]);
+
+  autoTable(doc, {
+    startY: tableStartY,
+    head: [['Image', 'Désignation', 'Couleur', 'Dimensions', 'Qté']],
+    body,
+    margin: { left: MARGIN.left, right: MARGIN.right, bottom: 22 },
+    tableWidth: CONTENT_W,
+    styles: {
+      overflow: 'linebreak',
+      lineColor: [220, 220, 220],
+      lineWidth: 0.2,
+    },
+    headStyles: {
+      fillColor: COLORS.blue,
+      textColor: COLORS.white,
+      fontStyle: 'bold',
+      fontSize: 9.5,
+      halign: 'center',
+      valign: 'middle',
+    },
+    bodyStyles: {
+      fontSize: 9,
+      textColor: COLORS.darkGray,
+      valign: 'middle',
+      cellPadding: { top: 4, bottom: 4, left: 3, right: 3 },
+    },
+    alternateRowStyles: {
+      fillColor: COLORS.lightGray,
+    },
+    columnStyles: {
+      0: { cellWidth: 28, halign: 'center', valign: 'middle' },
+      1: { cellWidth: 67, valign: 'middle' },
+      2: { cellWidth: 35, halign: 'center', valign: 'middle' },
+      3: { cellWidth: 35, halign: 'center', valign: 'middle' },
+      4: { cellWidth: 17, halign: 'center', valign: 'middle' },
+    },
+    didParseCell(data) {
+      if (data.section === 'body') {
+        data.cell.styles.minCellHeight = 30;
+      }
+    },
+    didDrawCell: (data) => {
+      if (data.section !== 'body') return;
+      const item = order.items[data.row.index];
+      if (!item) return;
+
+      // Column 0: Product image
+      if (data.column.index === 0) {
+        const imgData = imageMap[item.productId];
+        if (imgData) {
+          try {
+            const imgSize = 22;
+            const cx = data.cell.x + data.cell.width / 2;
+            const cy = data.cell.y + data.cell.height / 2;
+            doc.addImage(imgData, 'PNG', cx - imgSize / 2, cy - imgSize / 2, imgSize, imgSize);
+          } catch { /* silent */ }
+        }
+      }
+
+      // Column 2: Color circle + name
+      if (data.column.index === 2) {
+        const colorName = item.color ?? 'Blanc';
+
+        const cx = data.cell.x + data.cell.width / 2;
+        const cy = data.cell.y + data.cell.height / 2 - 4;
+
+        drawColorCircle(doc, colorName, cx, cy);
+
+        doc.setFontSize(7.5);
+        doc.setTextColor(...COLORS.darkGray);
+        doc.text(colorName, cx, cy + 7, { align: 'center' });
+      }
+    },
+  });
+
+  // Footer on all pages
+  const totalPages = doc.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    doc.setPage(i);
+    drawPageFooter(doc, i, totalPages);
+  }
+
+  // Save
+  doc.save(`BonDeCommande_AluminiumSpace_${order.id}.pdf`);
+}
+
+// ─── FACTURE HELPERS ──────────────────────────────────────────────────────────
+
+async function getNextFactureNumber(): Promise<string> {
+  const { data, error } = await supabase.rpc('get_next_facture_number');
+  if (error) {
+    console.error('Facture number RPC failed:', error);
+    return Date.now().toString();
+  }
+  return String(data ?? Date.now());
+}
+
+// ─── NUMBER TO FRENCH WORDS ───────────────────────────────────────────────────
+
+function numberToFrenchWords(n: number): string {
+  const units = ['', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf',
+    'dix', 'onze', 'douze', 'treize', 'quatorze', 'quinze', 'seize', 'dix-sept', 'dix-huit', 'dix-neuf'];
+  const tens = ['', '', 'vingt', 'trente', 'quarante', 'cinquante', 'soixante', 'soixante', 'quatre-vingt', 'quatre-vingt'];
+
+  function convertBelow100(num: number): string {
+    if (num < 20) return units[num];
+    const t = Math.floor(num / 10);
+    const u = num % 10;
+    if (t === 7 || t === 9) {
+      // 70-79 → soixante-dix... / 90-99 → quatre-vingt-dix...
+      return tens[t] + (u === 0 && t === 7 ? '-dix' : u === 1 && t === 7 ? ' et onze' : '-' + units[10 + u]);
+    }
+    if (t === 8 && u === 0) return 'quatre-vingts';
+    if (u === 1 && (t === 2 || t === 3 || t === 4 || t === 5 || t === 6)) return tens[t] + ' et un';
+    return tens[t] + (u ? '-' + units[u] : '');
+  }
+
+  function convertBelow1000(num: number): string {
+    if (num < 100) return convertBelow100(num);
+    const h = Math.floor(num / 100);
+    const rest = num % 100;
+    let result = '';
+    if (h === 1) result = 'cent';
+    else result = units[h] + ' cent';
+    if (rest === 0 && h > 1) result += 's';
+    else if (rest > 0) result += ' ' + convertBelow100(rest);
+    return result;
+  }
+
+  function convert(num: number): string {
+    if (num === 0) return 'zéro';
+    if (num < 1000) return convertBelow1000(num);
+    const thousands = Math.floor(num / 1000);
+    const rest = num % 1000;
+    let result = '';
+    if (thousands === 1) result = 'mille';
+    else result = convertBelow1000(thousands) + ' mille';
+    if (rest > 0) result += ' ' + convertBelow1000(rest);
+    return result;
+  }
+
+  // Split into dinars and millimes
+  const dinars = Math.floor(n);
+  const millimes = Math.round((n - dinars) * 1000);
+
+  let result = convert(dinars) + ' dinar' + (dinars > 1 ? 's' : '');
+  if (millimes > 0) {
+    result += ' et ' + convert(millimes) + ' millime' + (millimes > 1 ? 's' : '');
+  }
+  return result;
+}
+
+// ─── FACTURE ──────────────────────────────────────────────────────────────────
+export async function generateFacture(order: Order): Promise<void> {
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+  // Header with "FACTURE" title
+  const sepY = drawHeader(doc, order.id, 'FACTURE');
+
+  // FACTURE N°
+  const factureNum = await getNextFactureNumber();
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(11);
+  doc.setTextColor(...COLORS.blue);
+  doc.text(`FACTURE N° : ${factureNum}`, PAGE_W / 2, sepY + 6, { align: 'center' });
+
+  // Client info (DE / À)
+  const afterFromTo = drawFromTo(doc, order, sepY + 12);
+
+  // Items table
+  const afterTable = await drawItemsTable(doc, order, afterFromTo);
+
+  // Check if totals fit on current page
+  const totalsHeight = 80;
+  const extraSectionHeight = 50; // montant + reglement + signature
+  const remainingSpace = PAGE_H - MARGIN.bottom - afterTable;
+
+  let afterTotals: number;
+  if (remainingSpace < totalsHeight + extraSectionHeight) {
+    doc.addPage();
+    drawHeader(doc, order.id, 'FACTURE');
+    afterTotals = drawTotals(doc, order, 56);
+  } else {
+    afterTotals = drawTotals(doc, order, afterTable);
+  }
+
+  // ── MONTANT EN LETTRES ──
+  const ttcDT = order.totalTTC / 1000;
+  const montantLettre = numberToFrenchWords(ttcDT);
+
+  let lettresY = afterTotals + 8;
+
+  // Check if montant + reglement + signature fit
+  if (lettresY + 50 > PAGE_H - MARGIN.bottom - 14) {
+    doc.addPage();
+    drawHeader(doc, order.id, 'FACTURE');
+    lettresY = 56;
+  }
+
+  doc.setFillColor(248, 250, 252);
+  doc.roundedRect(MARGIN.left, lettresY, CONTENT_W, 14, 2, 2, 'F');
+  doc.setDrawColor(220, 220, 220);
+  doc.setLineWidth(0.2);
+  doc.roundedRect(MARGIN.left, lettresY, CONTENT_W, 14, 2, 2, 'S');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.setTextColor(60, 60, 60);
+  doc.text('MONTANT EN LETTRES :', MARGIN.left + 4, lettresY + 5);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7.5);
+  doc.text(montantLettre.toUpperCase(), MARGIN.left + 4, lettresY + 10, {
+    maxWidth: CONTENT_W - 8,
+  });
+
+  // ── RÈGLEMENT ──
+  const reglY = lettresY + 20;
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.setTextColor(60, 60, 60);
+  doc.text('RÈGLEMENT :', MARGIN.left, reglY);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`${formatDTWithUnit(order.totalTTC)}`, MARGIN.left + 30, reglY);
+
+  // ── SIGNATURE / CACHE ──
+  const sigLabelY = reglY + 8;
+  const sigX = PAGE_W - MARGIN.right - 50;
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.setTextColor(...COLORS.blue);
+  doc.text('Signature & Cachet', sigX + 25, sigLabelY, { align: 'center' });
+
+  try {
+    const sigUrl = resolveAssetUrl('/images/signature-cache.png');
+    const sigB64 = await getBase64Image(sigUrl);
+    doc.addImage(sigB64, 'PNG', sigX, sigLabelY + 2, 50, 25);
+  } catch {
+    // Fallback: dotted line placeholder
+    doc.setDrawColor(180, 180, 180);
+    doc.setLineWidth(0.3);
+    doc.line(sigX, sigLabelY + 20, sigX + 50, sigLabelY + 20);
+  }
+
+  // Footer on all pages
+  const totalPages = doc.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    doc.setPage(i);
+    drawPageFooter(doc, i, totalPages);
+  }
+
+  // Save
+  doc.save(`FACTURE_AluminiumSpace_${order.id}.pdf`);
 }
 
 // Keep backward compatibility

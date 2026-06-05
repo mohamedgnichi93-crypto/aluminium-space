@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { getOrders, updateOrderStatus, updateOrder, moveToTrash, getTrashOrders, restoreFromTrash, permanentlyDeleteOrder, emptyTrash } from '../store/ordersStore';
 import type { Order } from '../store/ordersStore';
-import { generatePDF } from '../utils/pdfGenerator';
+import { generatePDF, generateBonDeCommande, generateFacture } from '../utils/pdfGenerator';
 import { toast } from '../hooks/useToast';
 import { supabase } from '../lib/supabase';
 import OrderDetailModal from '../components/dashboard/OrderDetailModal';
@@ -32,6 +32,10 @@ const formatDT = (num: number): string => {
     maximumFractionDigits: 3,
   }).format(num / 1000) + ' DT';
 };
+
+type PdfKind = 'devis' | 'bon' | 'facture';
+
+const pdfTaskId = (orderId: string, kind: PdfKind) => `${orderId}:${kind}`;
 
 
 
@@ -67,6 +71,7 @@ const Dashboard = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+  const [generatingPdfId, setGeneratingPdfId] = useState<string | null>(null);
 
   // --- TABS & FILTERS ---
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -245,12 +250,44 @@ const Dashboard = () => {
   };
 
   const handleDownloadPDF = async (order: Order) => {
+    if (generatingPdfId) return;
+    setGeneratingPdfId(pdfTaskId(order.id, 'devis'));
     try {
-      generatePDF(order);
+      await generatePDF(order);
       toast.success('PDF téléchargé');
     } catch (error) {
       console.error(error);
       toast.error('Erreur lors de la génération du PDF');
+    } finally {
+      setGeneratingPdfId(null);
+    }
+  };
+
+  const handleDownloadBonDeCommande = async (order: Order) => {
+    if (generatingPdfId) return;
+    setGeneratingPdfId(pdfTaskId(order.id, 'bon'));
+    try {
+      await generateBonDeCommande(order);
+      toast.success('Bon de commande téléchargé');
+    } catch (error) {
+      console.error(error);
+      toast.error('Erreur lors de la génération du bon de commande');
+    } finally {
+      setGeneratingPdfId(null);
+    }
+  };
+
+  const handleDownloadFacture = async (order: Order) => {
+    if (generatingPdfId) return;
+    setGeneratingPdfId(pdfTaskId(order.id, 'facture'));
+    try {
+      await generateFacture(order);
+      toast.success('Facture téléchargée');
+    } catch (error) {
+      console.error(error);
+      toast.error('Erreur lors de la génération de la facture');
+    } finally {
+      setGeneratingPdfId(null);
     }
   };
 
@@ -507,6 +544,9 @@ const Dashboard = () => {
                     handleStatusChange={handleStatusChange}
                     handleMoveToTrash={handleMoveToTrash}
                     handleDownloadPDF={handleDownloadPDF}
+                    handleDownloadBonDeCommande={handleDownloadBonDeCommande}
+                    handleDownloadFacture={handleDownloadFacture}
+                    generatingPdfId={generatingPdfId}
                     setSelectedOrder={setSelectedOrder}
                     setEditingOrder={setEditingOrder}
                     formatDT={formatDT}
@@ -523,6 +563,9 @@ const Dashboard = () => {
             onClose={() => setSelectedOrder(null)}
             onStatusChange={handleStatusChange}
             onDownloadPDF={handleDownloadPDF}
+            onDownloadBonDeCommande={handleDownloadBonDeCommande}
+            onDownloadFacture={handleDownloadFacture}
+            generatingPdfId={generatingPdfId}
           />
         )}
 

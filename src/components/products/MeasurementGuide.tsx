@@ -209,7 +209,7 @@ const MeasurementGuide: React.FC<Props> = ({ productId, productName, onClose }) 
       doc.setTextColor(150, 150, 150);
       doc.setFontSize(8);
       doc.setFont('helvetica', 'normal');
-      doc.text('aluminium-space.tn — Ce mémo est valable 30 jours', 105, 285, { align: 'center' });
+      doc.text('aluminiumspace.pro — Ce mémo est valable 30 jours', 105, 285, { align: 'center' });
 
       doc.save(`mesures-${productId}-${Date.now()}.pdf`);
     });

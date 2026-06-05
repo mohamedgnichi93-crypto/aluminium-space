@@ -3,10 +3,11 @@ import { useParams, Link, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calculator, ChevronDown, Ruler, Bot } from 'lucide-react';
-import { products, priceTables } from '../data/products';
+import { priceTables } from '../data/products';
 import { useAIAgentContext } from '../context/AIAgentContext';
 import DevisModal from '../components/devis/DevisModal';
 import PageSEO from '../components/ui/PageSEO';
+import { usePublicProducts } from '../hooks/usePublicProducts';
 
 
 
@@ -78,6 +79,7 @@ const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
   const { sendMessageToAgent } = useAIAgentContext();
+  const { products, isLoading } = usePublicProducts();
 
 
   const [showMeasure, setShowMeasure] = useState(false);
@@ -88,6 +90,9 @@ const ProductDetail = () => {
   const product = products.find(p => p.id === id);
 
   if (!product) {
+    if (isLoading) {
+      return null;
+    }
     return <Navigate to="/produits" replace />;
   }
 

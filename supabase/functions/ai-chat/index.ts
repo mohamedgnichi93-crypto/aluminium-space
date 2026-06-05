@@ -12,12 +12,6 @@ const ALLOWED_ORIGINS = new Set([
   'https://aluminium-space.netlify.app',
   'https://aluminiumspace.pro',
   'https://www.aluminiumspace.pro',
-  'https://aluminiumspace.com',
-  'https://www.aluminiumspace.com',
-  'https://aluminium-space.tn',
-  'https://www.aluminium-space.tn',
-  'https://aluminiumspace-moustiquaires.com',
-  'https://www.aluminiumspace-moustiquaires.com',
 ])
 
 const MAX_MESSAGES = 20

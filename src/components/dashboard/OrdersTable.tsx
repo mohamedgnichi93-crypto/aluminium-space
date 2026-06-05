@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Search, Eye, Pencil, FileText, Trash2, ChevronLeft, ChevronRight
+  Search, Eye, Pencil, FileText, ClipboardList, Receipt, Trash2, ChevronLeft, ChevronRight, Loader2
 } from 'lucide-react';
 import type { Order } from '../../store/ordersStore';
 
@@ -19,7 +19,10 @@ interface OrdersTableProps {
   setDateFilter: React.Dispatch<React.SetStateAction<string>>;
   handleStatusChange: (orderId: string, status: Order['status']) => Promise<void>;
   handleMoveToTrash: (orderId: string) => Promise<void>;
-  handleDownloadPDF: (order: Order) => void;
+  handleDownloadPDF: (order: Order) => void | Promise<void>;
+  handleDownloadBonDeCommande: (order: Order) => void | Promise<void>;
+  handleDownloadFacture: (order: Order) => void | Promise<void>;
+  generatingPdfId?: string | null;
   setSelectedOrder: React.Dispatch<React.SetStateAction<Order | null>> | ((order: Order | null) => void);
   setEditingOrder: React.Dispatch<React.SetStateAction<Order | null>> | ((order: Order | null) => void);
   formatDT: (num: number) => string;
@@ -41,10 +44,30 @@ const OrdersTable: React.FC<OrdersTableProps> = ({
   handleStatusChange,
   handleMoveToTrash,
   handleDownloadPDF,
+  handleDownloadBonDeCommande,
+  handleDownloadFacture,
+  generatingPdfId,
   setSelectedOrder,
   setEditingOrder,
   formatDT
 }) => {
+  const isGenerating = (orderId: string, kind: 'devis' | 'bon' | 'facture') => generatingPdfId === `${orderId}:${kind}`;
+  const isPdfLocked = Boolean(generatingPdfId);
+  const pdfButtonStyle = (color: string, disabled: boolean): React.CSSProperties => ({
+    width: '32px',
+    height: '32px',
+    borderRadius: '50%',
+    background: 'transparent',
+    border: 'none',
+    cursor: disabled ? 'not-allowed' : 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color,
+    opacity: disabled ? 0.5 : 1,
+    transition: 'all 0.2s',
+  });
+
   return (
     <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #E8EDF5', overflow: 'hidden' }}>
       <div style={{ padding: '20px 24px', borderBottom: '1px solid #E8EDF5', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
@@ -169,8 +192,35 @@ const OrdersTable: React.FC<OrdersTableProps> = ({
                     <button onClick={() => setEditingOrder(JSON.parse(JSON.stringify(order)))} title="Modifier" style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#F59E0B', transition: 'all 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.background = '#FEF3C7'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
                       <Pencil size={16} />
                     </button>
-                    <button onClick={() => handleDownloadPDF(order)} title="Télécharger PDF" style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#27AE60', transition: 'all 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.background = '#E8F8F0'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
-                      <FileText size={16} />
+                    <button
+                      onClick={() => handleDownloadPDF(order)}
+                      disabled={isPdfLocked}
+                      title={isGenerating(order.id, 'devis') ? 'Génération du PDF...' : 'Télécharger PDF'}
+                      style={pdfButtonStyle('#27AE60', isPdfLocked)}
+                      onMouseEnter={(e) => { if (!isPdfLocked) e.currentTarget.style.background = '#E8F8F0'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                    >
+                      {isGenerating(order.id, 'devis') ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <FileText size={16} />}
+                    </button>
+                    <button
+                      onClick={() => handleDownloadBonDeCommande(order)}
+                      disabled={isPdfLocked}
+                      title={isGenerating(order.id, 'bon') ? 'Génération du bon...' : 'Bon de Commande'}
+                      style={pdfButtonStyle('#0D9488', isPdfLocked)}
+                      onMouseEnter={(e) => { if (!isPdfLocked) e.currentTarget.style.background = '#F0FDFA'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                    >
+                      {isGenerating(order.id, 'bon') ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <ClipboardList size={16} />}
+                    </button>
+                    <button
+                      onClick={() => handleDownloadFacture(order)}
+                      disabled={isPdfLocked}
+                      title={isGenerating(order.id, 'facture') ? 'Génération de la facture...' : 'Télécharger Facture'}
+                      style={pdfButtonStyle('#7C3AED', isPdfLocked)}
+                      onMouseEnter={(e) => { if (!isPdfLocked) e.currentTarget.style.background = '#F5F3FF'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                    >
+                      {isGenerating(order.id, 'facture') ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Receipt size={16} />}
                     </button>
                     <button onClick={() => handleMoveToTrash(order.id)} title="Corbeille" style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#EF4444', transition: 'all 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.background = '#FEE2E2'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
                       <Trash2 size={16} />

@@ -7,8 +7,13 @@ export interface Product {
   description: string;
   descriptionKey: string;
   imageUrl: string;
+  minW?: number;
   maxW?: number;
+  minH?: number;
   maxH?: number;
+  maxArea?: number;
+  basePrice?: number;
+  pricePerM2?: boolean;
 }
 
 export const products: Product[] = [
@@ -46,8 +51,11 @@ export const products: Product[] = [
     descriptionKey: 'products.elba_desc',
     description: 'Moustiquaire à panneau fixe pour fenêtre. Châssis fixe en aluminium blanc. Panneau moustiquaire en fibre de verre recouverte de PVC. Fixations murales en nylon. Joint-brosse périmétral (en option). Joint magnétique périmétral (en option). Sur demande : panneau en aluminium ou acier inox.',
     imageUrl: '/images/elba-v2.webp',
-    maxW: 0,
-    maxH: 0,
+    minW: 40,
+    maxW: 600,
+    minH: 40,
+    maxH: 600,
+    maxArea: 21,
   },
   {
     id: 'plisse31',

@@ -1,12 +1,34 @@
+export const BUSINESS = {
+  name: 'Aluminium Space',
+  legalName: 'ALUMINIUM SPACE',
+  address: '125 lot Laaroussi, Mghira',
+  city: 'Tunis, Tunisie',
+  cp: '2082',
+  phone1: '(+216) 53 186 611',
+  phone2: '(+216) 57 099 070',
+  phone1Href: '+21653186611',
+  phone2Href: '+21657099070',
+  email: 'contact@aluminiumspace.com',
+  emailAlt: 'contact@aluminiumspace.com',
+  website: 'https://aluminiumspace.pro/',
+  websiteLabel: 'aluminiumspace.pro',
+  matriculeFiscal: '1651250W/A/M/000',
+  rib: '11 05500 01215002788 56',
+  ribAgence: 'BOUMHEL',
+  whatsapp: 'https://wa.me/21657099070',
+  whatsappNumber: '21657099070',
+  siretLabel: 'Siège Social: LOT 125 LOTISSEMENT LAROUSSI 1EL MGHIRA - BEN AROUS - TUNIS CP: 2082',
+} as const;
+
 export const BUSINESS_CONFIG = {
-  REMISE_PERCENT: 20,        // discount percentage
-  FODEC_PERCENT: 1,          // FODEC tax
-  TVA_PERCENT: 19,           // VAT
-  TIMBRE_FISCAL: 1.000,      // fiscal stamp
-  COMPANY_NAME: 'Aluminium Space',
-  COMPANY_PHONE1: '+216 53 186 611',
-  COMPANY_PHONE2: '+216 57 099 070',
-  COMPANY_EMAIL: 'contact@aluminiumspace.com',
-  COMPANY_ADDRESS: '125 lot Laaroussi, Mghira, Tunis',
-  WHATSAPP: 'https://wa.me/21657099070',
+  REMISE_PERCENT: 20,
+  FODEC_PERCENT: 1,
+  TVA_PERCENT: 19,
+  TIMBRE_FISCAL: 1.000,
+  COMPANY_NAME: BUSINESS.name,
+  COMPANY_PHONE1: BUSINESS.phone1Href,
+  COMPANY_PHONE2: BUSINESS.phone2Href,
+  COMPANY_EMAIL: BUSINESS.email,
+  COMPANY_ADDRESS: `${BUSINESS.address}, ${BUSINESS.city}`,
+  WHATSAPP: BUSINESS.whatsapp,
 };

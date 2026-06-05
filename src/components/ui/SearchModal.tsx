@@ -2,8 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Search, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { products } from '../../data/products';
 import { useTranslation } from 'react-i18next';
+import { usePublicProducts } from '../../hooks/usePublicProducts';
 
 const SearchModal = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,6 +11,7 @@ const SearchModal = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { products } = usePublicProducts();
 
   const filtered = query.trim()
     ? products.filter(p =>

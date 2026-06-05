@@ -5,6 +5,7 @@ import { ArrowRight } from 'lucide-react';
 import PageSEO from '../components/ui/PageSEO';
 import ItalyFlag from '../components/ui/ItalyFlag';
 import RemiseBanner from '../components/RemiseBanner';
+import { usePublicProducts } from '../hooks/usePublicProducts';
 
 type LangKey = 'fr' | 'ar' | 'tn' | 'en' | 'it';
 
@@ -22,6 +23,19 @@ const Home = () => {
   const isRTL = ['ar', 'tn'].includes(i18n.language);
   const lang = (i18n.language as LangKey) || 'fr';
   const loc = (obj: Record<string, string>) => obj[lang] ?? obj.fr;
+  const { products } = usePublicProducts();
+  const previewProducts = products.map((product) => {
+    const fallback = PRODUCTS.find(item => item.id === product.id);
+    return {
+      id: product.id,
+      name: product.name,
+      image: product.imageUrl,
+      category: product.category,
+      tag: fallback?.tag,
+      desc: fallback?.desc,
+      descriptionKey: product.descriptionKey,
+    };
+  });
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -81,7 +95,7 @@ const Home = () => {
           </div>
 
           <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-6 gap-4 md:gap-5 max-w-6xl mx-auto md:auto-rows-fr">
-            {PRODUCTS.map((p, i) => (
+            {previewProducts.map((p, i) => (
               <Link key={p.id} to={`/produits/${p.id}`} className={`block no-underline group lg:col-span-2 h-full flex flex-col ${i === 3 ? 'lg:col-start-2' : ''} ${i === 4 ? 'lg:col-start-4' : ''}`}>
                 {/* Desktop Card: motion.div with animation */}
                 <motion.div
@@ -96,10 +110,10 @@ const Home = () => {
                   </div>
                   <div className="p-4 flex-1 flex flex-col">
                     <div className="inline-block bg-[#296788]/[0.08] text-[#296788] rounded-md px-2 py-0.5 text-[10px] font-['Rajdhani',_sans-serif] font-bold tracking-[1px] uppercase mb-2 self-start">
-                      {loc(p.tag)}
+                      {p.tag ? loc(p.tag) : t(`products.category_${p.category}`)}
                     </div>
                     <h3 className="font-['Rajdhani',_sans-serif] font-bold text-[18px] text-[#2F2D2C] tracking-[1px] mb-1.5">{p.name}</h3>
-                    <p className="font-['DM_Sans',_sans-serif] text-[12px] text-[#818181] leading-relaxed flex-1">{loc(p.desc)}</p>
+                    <p className="font-['DM_Sans',_sans-serif] text-[12px] text-[#818181] leading-relaxed flex-1">{p.desc ? loc(p.desc) : t(p.descriptionKey)}</p>
                     <div className={`flex ${isRTL ? 'flex-row-reverse' : 'flex-row'} items-center gap-1 mt-auto pt-3 text-[#81C063] font-['Rajdhani',_sans-serif] font-bold text-[12px] tracking-[1px] uppercase`}>
                       {t('home.view_product')}
                       <ArrowRight size={13} className="no-rtl-flip" />
@@ -116,9 +130,9 @@ const Home = () => {
                     </picture>
                   </div>
                   <div className={`w-[60%] p-4 flex flex-col justify-center relative ${isRTL ? 'text-right' : 'text-left'}`}>
-                    <div className="text-[10px] text-[#296788] font-bold font-['Rajdhani',_sans-serif] uppercase mb-1">{loc(p.tag)}</div>
+                    <div className="text-[10px] text-[#296788] font-bold font-['Rajdhani',_sans-serif] uppercase mb-1">{p.tag ? loc(p.tag) : t(`products.category_${p.category}`)}</div>
                     <h3 className="text-[16px] font-bold text-[#2F2D2C] font-['Rajdhani',_sans-serif] mb-1.5">{p.name}</h3>
-                    <p className="text-[12px] text-[#818181] font-['DM_Sans',_sans-serif] leading-tight m-0 line-clamp-2">{loc(p.desc)}</p>
+                    <p className="text-[12px] text-[#818181] font-['DM_Sans',_sans-serif] leading-tight m-0 line-clamp-2">{p.desc ? loc(p.desc) : t(p.descriptionKey)}</p>
                     <div className={`absolute bottom-4 ${isRTL ? 'left-4' : 'right-4'} bg-[#81C063] w-7 h-7 rounded-full flex items-center justify-center`}>
                       <ArrowRight size={14} color="white" className="no-rtl-flip" />
                     </div>

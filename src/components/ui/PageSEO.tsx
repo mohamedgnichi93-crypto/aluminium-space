@@ -15,7 +15,7 @@ interface PageSEOProps {
   noIndex?: boolean;
 }
 
-const BASE_URL = 'https://aluminium-space.tn';
+const CANONICAL_BASE = 'https://aluminiumspace.pro';
 
 const BRAND = 'Aluminium Space';
 
@@ -46,7 +46,7 @@ const PageSEO = ({ titleFr, titleAr, titleEn, titleIt, descFr, descAr, descEn, d
         lang === 'it' ? (descIt ?? defaults.descIt) :
           (descFr ?? defaults.descFr);
 
-  const canonical = `${BASE_URL}${path}`;
+  const canonical = `${CANONICAL_BASE}${path}`;
 
   return (
     <Helmet>
@@ -58,7 +58,7 @@ const PageSEO = ({ titleFr, titleAr, titleEn, titleIt, descFr, descAr, descEn, d
       <meta property="og:description" content={desc} />
       <meta property="og:url" content={canonical} />
       <meta property="og:type" content="website" />
-      <meta property="og:image" content={`${BASE_URL}/logo-aluminium-space.png`} />
+      <meta property="og:image" content={`${CANONICAL_BASE}/logo-aluminium-space.png`} />
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={desc} />

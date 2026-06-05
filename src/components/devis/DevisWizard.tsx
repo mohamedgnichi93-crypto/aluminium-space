@@ -5,13 +5,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { saveOrder } from '../../store/ordersStore';
-import { products } from '../../data/products';
 import { toast } from '../../hooks/useToast';
 import { getSettings } from '../../store/settingsStore';
 import { generatePDF } from '../../utils/pdfGenerator';
 import { Link } from 'react-router-dom';
-import { calculatePrice } from '../../utils/priceCalculator';
+import { calculatePrice, getProductPricingOverrides } from '../../utils/priceCalculator';
 import { getRemisePercent } from '../../utils/remiseCalculator';
+import { usePublicProducts } from '../../hooks/usePublicProducts';
 
 
 import StepProduct from './StepProduct';
@@ -86,6 +86,7 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
   const initialW = searchParams.get('w');
   const initialH = searchParams.get('h');
   const initialQty = searchParams.get('qty');
+  const { products } = usePublicProducts();
   const shouldStartAtDimensions = Boolean(initialProduct && products.some(p => p.id === initialProduct));
 
   const [step, setStep] = useState(shouldStartAtDimensions ? 2 : 1);
@@ -152,7 +153,8 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
           width: data.width,
           height: data.height,
           meshType: data.meshType as 'fibre' | 'aluminium' | 'inox',
-          color: data.color || 'Blanc'
+          color: data.color || 'Blanc',
+          ...getProductPricingOverrides(product),
         });
 
         if (priceResult) {
@@ -260,7 +262,7 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
       setSubmittedOrderId(savedOrder.order_number || savedOrder.id);
 
       // Generate and download PDF with order ID included
-      generatePDF(savedOrder);
+      await generatePDF(savedOrder);
 
       // Build WhatsApp URL (client clicks button on success page)
       const itemLines = items.map(i => `• ${i.productName} ${i.width}×${i.height}cm ×${i.quantity}${i.color ? ` (${i.color})` : ''}`).join('\n');
@@ -451,6 +453,7 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
           <form onSubmit={(e) => e.preventDefault()}>
             {step === 1 && (
               <StepProduct
+                products={products}
                 selectedProductId={productId}
                 onSelect={(id) => setValue('productId', id)}
                 onNext={handleNext}
@@ -465,6 +468,7 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
                 onNext={handleNext}
                 onPrev={handlePrev}
                 productId={productId}
+                products={products}
                 onAddAnother={() => handleAddItem(true)}
               />
             )}
@@ -482,6 +486,7 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
               <StepSummary
                 formData={getValues()}
                 items={items}
+                products={products}
                 onPrev={handlePrev}
                 onSubmitOrder={onSubmit}
                 isSubmitting={isSubmitting}

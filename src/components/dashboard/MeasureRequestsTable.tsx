@@ -7,6 +7,9 @@ import {
 } from '../../store/measureRequestsStore';
 import { saveOrder } from '../../store/ordersStore';
 import { toast } from '../../hooks/useToast';
+import { calculatePrice } from '../../utils/priceCalculator';
+import { getRemisePercent } from '../../utils/remiseCalculator';
+import { getSettings } from '../../store/settingsStore';
 import {
   Search, Phone, MessageSquare, CheckCircle, FileText, Trash2,
   ChevronDown, ChevronUp, Calendar, User, MapPin, Sparkles,
@@ -107,30 +110,52 @@ const MeasureRequestsTable = () => {
       try {
         setActionLoadingId(req.id);
 
-        // Define default calculations for the order
-        const totalHT = 0;
-        const netHT = 0;
-        const remisePercent = 0;
-        const remise = 0;
-        const fodec = 1;
-        const fodecAmount = 0;
-        const baseForTVA = 0;
-        const tva = 19;
-        const tvaAmount = 0;
-        const timbre = 1000;
-        const totalTTC = 1000; // default 1 DT total (just timbre)
+        const width = Number(req.width || 0);
+        const height = Number(req.height || 0);
+        const quantity = Number(req.quantity || 1);
+        const priceResult = calculatePrice({
+          productId: req.productId,
+          width,
+          height,
+          color: 'Blanc',
+        });
+
+        if (!req.productId || !width || !height || !priceResult) {
+          throw new Error('Prix requis avant conversion');
+        }
+
+        const cfg = getSettings();
+        const totalHT = priceResult.unitPrice * quantity;
+        const remisePercent = getRemisePercent(quantity);
+        const remise = totalHT * (remisePercent / 100);
+        const netHT = totalHT - remise;
+        const fodec = cfg.fodecPercent;
+        const fodecAmount = netHT * (fodec / 100);
+        const baseForTVA = netHT + fodecAmount;
+        const tva = cfg.tvaPercent;
+        const tvaAmount = baseForTVA * (tva / 100);
+        const timbre = cfg.timbreFiscal * 1000;
+        const totalTTC = baseForTVA + tvaAmount + timbre;
+
+        if (!totalTTC || totalTTC <= 1000) {
+          throw new Error('Prix requis avant conversion');
+        }
 
         const orderItems = [
           {
             id: crypto.randomUUID().slice(0, 8),
-            productId: req.productId || 'custom',
+            productId: req.productId,
             productName: req.productName || 'Produit personnalisé',
-            width: req.width || 100,
-            height: req.height || 100,
-            quantity: req.quantity || 1,
-            unitPrice: 0,
-            totalPrice: 0,
-            meshType: ''
+            width,
+            height,
+            quantity,
+            baseUnitPrice: priceResult.baseUnitPrice,
+            colorSurchargeAmount: priceResult.colorSurchargeAmount,
+            colorSurchargePct: priceResult.colorSurchargePct,
+            unitPrice: priceResult.unitPrice,
+            totalPrice: totalHT,
+            meshType: '',
+            color: 'Blanc'
           }
         ];
 
@@ -166,7 +191,7 @@ const MeasureRequestsTable = () => {
         await loadRequests();
       } catch (err) {
         console.error(err);
-        toast.error("Erreur lors de la conversion en commande");
+        toast.error(err instanceof Error ? err.message : "Erreur lors de la conversion en commande");
       } finally {
         setActionLoadingId(null);
       }

@@ -1,4 +1,4 @@
-import { X, Phone, Mail, FileText, Calendar, MapPin, MessageCircle, CheckCircle } from 'lucide-react';
+import { X, Phone, Mail, FileText, ClipboardList, Receipt, Calendar, MapPin, MessageCircle, CheckCircle, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import type { Order } from '../../store/ordersStore';
 
@@ -6,7 +6,10 @@ interface Props {
   order: Order;
   onClose: () => void;
   onStatusChange: (id: string, status: Order['status']) => void;
-  onDownloadPDF: (order: Order) => void;
+  onDownloadPDF: (order: Order) => void | Promise<void>;
+  onDownloadBonDeCommande: (order: Order) => void | Promise<void>;
+  onDownloadFacture: (order: Order) => void | Promise<void>;
+  generatingPdfId?: string | null;
 }
 
 const formatDT = (num: number): string => {
@@ -16,8 +19,10 @@ const formatDT = (num: number): string => {
   }).format(num / 1000) + ' DT';
 };
 
-const OrderDetailModal = ({ order, onClose, onStatusChange, onDownloadPDF }: Props) => {
+const OrderDetailModal = ({ order, onClose, onStatusChange, onDownloadPDF, onDownloadBonDeCommande, onDownloadFacture, generatingPdfId }: Props) => {
   const [selectedStatus, setSelectedStatus] = useState<Order['status']>(order.status);
+  const isPdfLocked = Boolean(generatingPdfId);
+  const isGenerating = (kind: 'devis' | 'bon' | 'facture') => generatingPdfId === `${order.id}:${kind}`;
 
   const statusConfig: Record<string, { bg: string; color: string; label: string }> = {
     pending: { bg: '#FEF3C7', color: '#92400E', label: 'En attente' },
@@ -259,13 +264,39 @@ const OrderDetailModal = ({ order, onClose, onStatusChange, onDownloadPDF }: Pro
           <div style={{ display: 'flex', gap: '12px' }}>
             <button
               onClick={() => onDownloadPDF(order)}
+              disabled={isPdfLocked}
               style={{
                 background: 'white', color: '#1A5DA8', border: '1px solid #1A5DA8', borderRadius: '8px',
                 padding: '10px 20px', fontFamily: 'Inter, sans-serif', fontSize: '14px', fontWeight: 600,
-                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', transition: 'all 0.2s',
+                cursor: isPdfLocked ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '8px', transition: 'all 0.2s',
+                opacity: isPdfLocked ? 0.65 : 1,
               }}
             >
-              <FileText size={16} /> Télécharger PDF
+              {isGenerating('devis') ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <FileText size={16} />} Télécharger PDF
+            </button>
+            <button
+              onClick={() => onDownloadBonDeCommande(order)}
+              disabled={isPdfLocked}
+              style={{
+                background: 'white', color: '#0D9488', border: '1px solid #0D9488', borderRadius: '8px',
+                padding: '10px 20px', fontFamily: 'Inter, sans-serif', fontSize: '14px', fontWeight: 600,
+                cursor: isPdfLocked ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '8px', transition: 'all 0.2s',
+                opacity: isPdfLocked ? 0.65 : 1,
+              }}
+            >
+              {isGenerating('bon') ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <ClipboardList size={16} />} Bon de Commande
+            </button>
+            <button
+              onClick={() => onDownloadFacture(order)}
+              disabled={isPdfLocked}
+              style={{
+                background: '#7C3AED', color: 'white', border: 'none', borderRadius: '8px',
+                padding: '10px 20px', fontFamily: 'Inter, sans-serif', fontSize: '14px', fontWeight: 600,
+                cursor: isPdfLocked ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '8px', transition: 'all 0.2s',
+                opacity: isPdfLocked ? 0.65 : 1,
+              }}
+            >
+              {isGenerating('facture') ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Receipt size={16} />} Facture
             </button>
             <button
               onClick={onClose}

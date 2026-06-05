@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { products } from '../../data/products';
+import type { Product } from '../../data/products';
 import { ALL_COLORS } from '../../data/colors';
 
 import { formatPrice } from '../../utils/pdfGenerator';
@@ -11,12 +11,13 @@ import { formatPrice as formatPriceUtil } from '../../utils/formatPrice';
 interface Props {
   formData: DevisFormData;
   items: DevisItem[];
+  products: Product[];
   onPrev: () => void;
   onSubmitOrder: () => void;
   isSubmitting: boolean;
 }
 
-const StepSummary = ({ formData, items, onPrev, onSubmitOrder, isSubmitting }: Props) => {
+const StepSummary = ({ formData, items, products, onPrev, onSubmitOrder, isSubmitting }: Props) => {
   const { t, i18n } = useTranslation();
   const isRTL = ['ar', 'tn'].includes(i18n.language);
 

@@ -4,8 +4,19 @@ import { MapPin, Phone, Mail, Clock, MessageSquare, Send, CheckCircle, AlertCirc
 import { useState, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import PageSEO from '../components/ui/PageSEO';
+import { BUSINESS } from '../config/businessConfig';
 
 type LangKey = 'fr' | 'ar' | 'tn' | 'en' | 'it';
+
+const MAX_MESSAGE_LENGTH = 1000;
+const MAX_NAME_LENGTH = 100;
+const MAX_SUBJECT_LENGTH = 100;
+const MAX_PHONE_LENGTH = 24;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const TN_PHONE_RE = /^(?:\+?216)?[24579]\d{7}$/;
+
+const stripHtml = (value: string) => value.replace(/<[^>]*>/g, '').trim();
+const sanitize = (value: string, maxLength = MAX_MESSAGE_LENGTH) => stripHtml(value).slice(0, maxLength);
 
 const Contact = () => {
   const { t, i18n } = useTranslation();
@@ -20,6 +31,7 @@ const Contact = () => {
   const submitRef = useRef<HTMLButtonElement>(null);
 
   const [form, setForm] = useState({ name: '', phone: '', email: '', subject: '', message: '' });
+  const [errors, setErrors] = useState<Partial<Record<keyof typeof form, string>>>({});
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
 
   const loc = (obj: Record<string, string>) => obj[lang] ?? obj.fr;
@@ -35,12 +47,42 @@ const Contact = () => {
   const L = (key: string) => LABELS[key]?.[lang] || LABELS[key]?.fr || '';
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const field = e.target.name as keyof typeof form;
+    const maxLength =
+      field === 'message' ? MAX_MESSAGE_LENGTH :
+        field === 'phone' ? MAX_PHONE_LENGTH :
+          field === 'subject' ? MAX_SUBJECT_LENGTH :
+            MAX_NAME_LENGTH;
+
+    setForm(prev => ({ ...prev, [field]: sanitize(e.target.value, maxLength) }));
+    setErrors(prev => ({ ...prev, [field]: undefined }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name || !form.phone || !form.message) return;
+    if (status === 'sending') return;
+
+    const clean = {
+      name: sanitize(form.name, MAX_NAME_LENGTH),
+      phone: sanitize(form.phone, MAX_PHONE_LENGTH),
+      email: sanitize(form.email, MAX_NAME_LENGTH),
+      subject: sanitize(form.subject, MAX_SUBJECT_LENGTH),
+      message: sanitize(form.message, MAX_MESSAGE_LENGTH),
+    };
+    const phoneCompact = clean.phone.replace(/[\s().-]/g, '');
+    const nextErrors: Partial<Record<keyof typeof form, string>> = {};
+
+    if (!clean.name) nextErrors.name = 'Nom requis';
+    if (clean.name.length > MAX_NAME_LENGTH) nextErrors.name = 'Nom trop long';
+    if (!clean.phone || !TN_PHONE_RE.test(phoneCompact)) nextErrors.phone = 'Telephone tunisien invalide';
+    if (clean.email && !EMAIL_RE.test(clean.email)) nextErrors.email = 'Email invalide';
+    if (!clean.message) nextErrors.message = 'Message requis';
+    if (clean.message.length > MAX_MESSAGE_LENGTH) nextErrors.message = 'Message trop long';
+
+    setForm(clean);
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
+
     setStatus('sending');
     try {
       const session_id = "contact_" + Date.now() + "_" + 
@@ -48,12 +90,12 @@ const Contact = () => {
       
       const { error } = await supabase.from('messages').insert({
         session_id,
-        client_name: form.name,
-        client_phone: form.phone,
-        client_email: form.email,
-        subject: form.subject,
+        client_name: clean.name,
+        client_phone: clean.phone,
+        client_email: clean.email,
+        subject: clean.subject,
         sender: 'client',
-        content: `[${form.subject || 'Contact'}] ${form.message}`,
+        content: `[${clean.subject || 'Contact'}] ${clean.message}`,
         read_by_admin: false,
         read_by_client: true,
       });
@@ -76,7 +118,7 @@ const Contact = () => {
       color: '#1D3E61',
       bg: 'rgba(29,62,97,0.08)',
       title: loc({ fr: 'Adresse', ar: 'العنوان', tn: 'العنوان', en: 'Address', it: 'Indirizzo' }),
-      lines: ['125 lot Laaroussi, Mghira', 'Tunis, Tunisie'],
+      lines: [BUSINESS.address, BUSINESS.city],
       href: 'https://maps.google.com/?q=125+lot+Laaroussi+Mghira+Ben+Arous+Tunisie',
     },
     {
@@ -84,32 +126,32 @@ const Contact = () => {
       color: '#81C063',
       bg: 'rgba(129,192,99,0.10)',
       title: loc({ fr: 'Téléphone', ar: 'الهاتف', tn: 'الهاتف', en: 'Phone', it: 'Telefono' }),
-      lines: ['(+216) 53 186 611', '(+216) 57 099 070'],
-      href: 'tel:+21653186611',
+      lines: [BUSINESS.phone1, BUSINESS.phone2],
+      href: `tel:${BUSINESS.phone1Href}`,
     },
     {
       icon: MessageSquare,
       color: '#25D366',
       bg: 'rgba(37,211,102,0.08)',
       title: 'WhatsApp',
-      lines: ['+216 57 099 070'],
-      href: 'https://wa.me/21657099070',
+      lines: [BUSINESS.phone2],
+      href: BUSINESS.whatsapp,
     },
     {
       icon: Mail,
       color: '#F59E0B',
       bg: 'rgba(245,158,11,0.08)',
       title: 'Email',
-      lines: ['contact@aluminiumspace.com'],
-      href: 'mailto:contact@aluminiumspace.com',
+      lines: [BUSINESS.email],
+      href: `mailto:${BUSINESS.email}`,
     },
     {
       icon: Globe,
       color: '#81C063',
       bg: 'rgba(129,192,99,0.10)',
       title: loc({ fr: 'Site Web', ar: 'الموقع الإلكتروني', tn: 'الموقع', en: 'Website', it: 'Sito Web' }),
-      lines: ['aluminiumspace.pro'],
-      href: 'https://aluminiumspace.pro/',
+      lines: [BUSINESS.websiteLabel],
+      href: BUSINESS.website,
     },
     {
       icon: Clock,
@@ -131,6 +173,12 @@ const Contact = () => {
     outline: 'none', transition: 'border-color 0.2s, box-shadow 0.2s',
     direction: isRTL ? 'rtl' : 'ltr', boxSizing: 'border-box',
   };
+  const errorStyle: React.CSSProperties = {
+    color: '#DC2626',
+    fontFamily: 'DM Sans, sans-serif',
+    fontSize: '12px',
+    marginTop: '6px',
+  };
 
   return (
     <div style={{ background: '#F5F7FA', minHeight: '100vh' }}>
@@ -139,9 +187,9 @@ const Contact = () => {
         titleFr="Contact — Aluminium Space Mghira, Tunis"
         titleAr="تواصل معنا — Aluminium Space مغيرة، تونس"
         titleEn="Contact — Aluminium Space Mghira, Tunis"
-        descFr="Contactez Aluminium Space à Mghira, Tunis. Devis gratuit ou WhatsApp au +216 57 099 070."
-        descAr="تواصل مع Aluminium Space في مغيرة، تونس. دوفيس مجاني أو عبر واتساب +216 57 099 070."
-        descEn="Contact Aluminium Space in Mghira, Tunis. Free quote or WhatsApp +216 57 099 070."
+        descFr={`Contactez ${BUSINESS.name} à Mghira, Tunis. Devis gratuit ou WhatsApp au ${BUSINESS.phone2}.`}
+        descAr={`تواصل مع ${BUSINESS.name} في مغيرة، تونس. دوفيس مجاني أو عبر واتساب ${BUSINESS.phone2}.`}
+        descEn={`Contact Aluminium Space in Mghira, Tunis. Free quote or WhatsApp ${BUSINESS.phone2}.`}
       />
 
       {/* ── HERO ───────────────────────────────────────────────────────────── */}
@@ -160,17 +208,17 @@ const Contact = () => {
             </p>
             <div className="flex flex-col sm:flex-row" style={{ gap: '12px', justifyContent: 'center' }}>
               <a
-                href="tel:+21657099070"
+                href={`tel:${BUSINESS.phone2Href}`}
                 className="w-full sm:w-auto flex justify-center"
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#81C063', color: 'white', borderRadius: '10px', padding: '12px 24px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '14px', letterSpacing: '1.5px', textTransform: 'uppercase', textDecoration: 'none', transition: 'all 0.2s', boxShadow: '0 4px 16px rgba(129,192,99,0.3)' }}
                 onMouseEnter={e => { e.currentTarget.style.background = '#5e9a43'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = '#81C063'; e.currentTarget.style.transform = 'none'; }}
               >
                 <Phone size={15} />
-                (+216) 57 099 070
+                {BUSINESS.phone2}
               </a>
               <a
-                href="https://wa.me/21657099070"
+                href={BUSINESS.whatsapp}
                 target="_blank" rel="noopener noreferrer"
                 className="w-full sm:w-auto flex justify-center"
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.10)', color: 'white', borderRadius: '10px', padding: '12px 24px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '14px', letterSpacing: '1.5px', textTransform: 'uppercase', textDecoration: 'none', border: '1px solid rgba(255,255,255,0.20)', transition: 'all 0.2s' }}
@@ -280,6 +328,7 @@ const Contact = () => {
                     value={form.name}
                     onChange={handleChange}
                     required
+                    maxLength={MAX_NAME_LENGTH}
                     inputMode="text"
                     autoCapitalize="words"
                     autoComplete="name"
@@ -294,6 +343,7 @@ const Contact = () => {
                     onFocus={e => { e.target.style.borderColor = '#1D3E61'; e.target.style.boxShadow = '0 0 0 3px rgba(29,62,97,0.08)'; e.target.style.background = '#fff'; }}
                     onBlur={e => { e.target.style.borderColor = '#E8EDF5'; e.target.style.boxShadow = 'none'; e.target.style.background = '#FAFBFD'; }}
                   />
+                  {errors.name && <p style={errorStyle}>{errors.name}</p>}
                 </div>
                 <div>
                   <label style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '12px', fontWeight: 600, color: '#3D5166', marginBottom: '6px', display: 'block', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{L('phone')}</label>
@@ -303,6 +353,7 @@ const Contact = () => {
                     value={form.phone}
                     onChange={handleChange}
                     required
+                    maxLength={MAX_PHONE_LENGTH}
                     type="tel"
                     inputMode="tel"
                     autoComplete="tel"
@@ -317,6 +368,7 @@ const Contact = () => {
                     onFocus={e => { e.target.style.borderColor = '#1D3E61'; e.target.style.boxShadow = '0 0 0 3px rgba(29,62,97,0.08)'; e.target.style.background = '#fff'; }}
                     onBlur={e => { e.target.style.borderColor = '#E8EDF5'; e.target.style.boxShadow = 'none'; e.target.style.background = '#FAFBFD'; }}
                   />
+                  {errors.phone && <p style={errorStyle}>{errors.phone}</p>}
                 </div>
               </div>
 
@@ -328,6 +380,7 @@ const Contact = () => {
                   value={form.email}
                   onChange={handleChange}
                   type="email"
+                  maxLength={MAX_NAME_LENGTH}
                   inputMode="email"
                   autoComplete="email"
                   placeholder="exemple@email.com"
@@ -341,6 +394,7 @@ const Contact = () => {
                   onFocus={e => { e.target.style.borderColor = '#1D3E61'; e.target.style.boxShadow = '0 0 0 3px rgba(29,62,97,0.08)'; e.target.style.background = '#fff'; }}
                   onBlur={e => { e.target.style.borderColor = '#E8EDF5'; e.target.style.boxShadow = 'none'; e.target.style.background = '#FAFBFD'; }}
                 />
+                {errors.email && <p style={errorStyle}>{errors.email}</p>}
               </div>
 
               <div>
@@ -362,7 +416,8 @@ const Contact = () => {
                   <option value="produit">{loc({ fr: 'Information produit', ar: 'معلومات المنتج', tn: 'معلومات المنتوج', en: 'Product information', it: 'Info prodotto' })}</option>
                   <option value="installation">{loc({ fr: 'Installation & SAV', ar: 'تركيب وخدمة ما بعد البيع', tn: 'تركيب وخدمة', en: 'Installation & after-sales', it: 'Installazione & assistenza' })}</option>
                   <option value="other">{loc({ fr: 'Autre', ar: 'أخرى', tn: 'أخرى', en: 'Other', it: 'Altro' })}</option>
-                </select>
+                  </select>
+                {errors.subject && <p style={errorStyle}>{errors.subject}</p>}
               </div>
 
               <div>
@@ -373,6 +428,7 @@ const Contact = () => {
                   value={form.message}
                   onChange={handleChange}
                   required
+                  maxLength={MAX_MESSAGE_LENGTH}
                   rows={5}
                   placeholder={loc({ fr: 'Écrivez votre message ici...', ar: 'اكتب رسالتك هنا...', tn: 'اكتب رسالتك هنا...', en: 'Write your message here...', it: 'Scrivi il tuo messaggio qui...' })}
                   onKeyDown={(e) => {
@@ -385,6 +441,7 @@ const Contact = () => {
                   onFocus={e => { e.target.style.borderColor = '#1D3E61'; e.target.style.boxShadow = '0 0 0 3px rgba(29,62,97,0.08)'; e.target.style.background = '#fff'; }}
                   onBlur={e => { e.target.style.borderColor = '#E8EDF5'; e.target.style.boxShadow = 'none'; e.target.style.background = '#FAFBFD'; }}
                 />
+                {errors.message && <p style={errorStyle}>{errors.message}</p>}
               </div>
 
               <button
