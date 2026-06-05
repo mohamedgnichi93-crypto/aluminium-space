@@ -283,7 +283,7 @@ async function drawItemsTable(doc: jsPDF, order: Order, startY: number): Promise
   const COL_WIDTHS = [58, 30, 12, 28, 26, 28];
 
   const totalQty = order.items?.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0) ?? 1;
-  const remisePct = order.remisePercent ?? (order as any).remise_percent ?? getRemisePercent(totalQty);
+  const _remisePct = order.remisePercent ?? (order as any).remise_percent ?? getRemisePercent(totalQty);
 
   const tableData = order.items.map(item => {
     const baseUnitPrice = Number(item.baseUnitPrice ?? item.unitPrice ?? 0);
