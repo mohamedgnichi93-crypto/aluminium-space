@@ -285,17 +285,26 @@ async function drawItemsTable(doc: jsPDF, order: Order, startY: number): Promise
   const totalQty = order.items?.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0) ?? 1;
   const remisePct = order.remisePercent ?? (order as any).remise_percent ?? getRemisePercent(totalQty);
 
-  const tableData = order.items.map(item => [
-    item.productName +
-    (item.openingType === 'fenetre' ? ' — Fenêtre' : item.openingType === 'porte' ? ' — Porte' : '') +
-    (item.meshType ? '\nFilet ' + item.meshType.toUpperCase() : '') +
-    (item.color ? '\nCouleur :    ' + item.color + ((item.colorSurchargePct ?? 0) > 0 ? ` (+${item.colorSurchargePct}%)` : '') : ''),
-    `${item.width}\u00A0×\u00A0${item.height}\u00A0cm`,
-    String(item.quantity || 1),
-    formatDTWithUnit(Number(item.baseUnitPrice ?? item.unitPrice ?? 0)),
-    formatDTWithUnit(Number(item.unitPrice || 0) * (remisePct / 100)),
-    formatDTWithUnit(Number(item.unitPrice || 0) * (item.quantity || 1) * (1 - remisePct / 100)),
-  ]);
+  const tableData = order.items.map(item => {
+    const baseUnitPrice = Number(item.baseUnitPrice ?? item.unitPrice ?? 0);
+    const colorSurchargeAmount = Number(item.colorSurchargeAmount ?? 0);
+    const unitPriceWithColor = baseUnitPrice + colorSurchargeAmount;
+    const netHT = unitPriceWithColor * (item.quantity || 1);
+
+    return [
+      item.productName +
+      (item.openingType === 'fenetre' ? ' — Fenêtre' : item.openingType === 'porte' ? ' — Porte' : '') +
+      (item.meshType ? '\nFilet ' + item.meshType.toUpperCase() : '') +
+      (item.color ? '\nCouleur :    ' + item.color + ((item.colorSurchargePct ?? 0) > 0 ? ` (+${item.colorSurchargePct}%)` : '') : ''),
+      `${item.width}\u00A0×\u00A0${item.height}\u00A0cm`,
+      String(item.quantity || 1),
+      formatDTWithUnit(baseUnitPrice),
+      colorSurchargeAmount > 0
+        ? `+ ${formatDTWithUnit(colorSurchargeAmount * (item.quantity || 1))}`
+        : '—',
+      formatDTWithUnit(netHT),
+    ];
+  });
 
   const imageMap = await loadProductImageMap();
 
@@ -306,7 +315,7 @@ async function drawItemsTable(doc: jsPDF, order: Order, startY: number): Promise
       'Dimensions',
       'Qté',
       'P.U\u00A0HT',
-      `Remise\u00A0${remisePct}%`,
+      'Couleur',
       'Net\u00A0HT',
     ]],
     body: tableData,
@@ -339,7 +348,7 @@ async function drawItemsTable(doc: jsPDF, order: Order, startY: number): Promise
       1: { cellWidth: COL_WIDTHS[1], halign: 'center' },
       2: { cellWidth: COL_WIDTHS[2], halign: 'center' },
       3: { cellWidth: COL_WIDTHS[3], halign: 'right' },
-      4: { cellWidth: COL_WIDTHS[4], halign: 'right', textColor: COLORS.red },
+      4: { cellWidth: COL_WIDTHS[4] },
       5: { cellWidth: COL_WIDTHS[5], halign: 'right', textColor: COLORS.blue, fontStyle: 'bold' },
     },
     didDrawCell: (data) => {
@@ -429,6 +438,17 @@ async function drawItemsTable(doc: jsPDF, order: Order, startY: number): Promise
         data.cell.styles.minCellHeight = 22;
         // Reserve space for the image (18mm + gap)
         data.cell.styles.cellPadding = { top: 4, bottom: 4, left: 3, right: 24 };
+      }
+      // Style the Couleur column dynamically
+      if (data.column.index === 4 && data.row.section === 'body') {
+        const val = data.cell.raw;
+        if (typeof val === 'string' && val.startsWith('+')) {
+          data.cell.styles.textColor = [220, 80, 20];
+          data.cell.styles.halign = 'right';
+        } else {
+          data.cell.styles.textColor = [150, 150, 150];
+          data.cell.styles.halign = 'center';
+        }
       }
     },
   });
