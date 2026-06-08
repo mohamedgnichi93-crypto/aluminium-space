@@ -235,9 +235,8 @@ export default function AIAgent() {
             }}
             className={`fixed z-50 flex flex-col overflow-hidden ${isMobile ? 'bottom-0 right-0 left-0 rounded-t-2xl w-full' : 'bottom-24 right-6 rounded-[20px]'}`}
             style={{
+              top: isMobile ? '72px' : '80px',
               width: isMobile ? '100%' : '380px',
-              height: isMobile ? 'min(82svh, calc(100vh - 3.5rem))' : '580px',
-              maxHeight: isMobile ? 'calc(100vh - 3.5rem)' : 'calc(100vh - 7rem)',
               background: '#FFFFFF',
               boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
             }}

@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -20,6 +21,14 @@ const PRODUCTS = [
 // ─── Home Component ────────────────────────────────────────────────────────────
 const Home = () => {
   const { t, i18n } = useTranslation();
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth < 768 : false
+  );
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
   const isRTL = ['ar', 'tn'].includes(i18n.language);
   const lang = (i18n.language as LangKey) || 'fr';
   const loc = (obj: Record<string, string>) => obj[lang] ?? obj.fr;
@@ -48,6 +57,7 @@ const Home = () => {
       >
         {/* ── LAYER 1: Full-width background video ── */}
         <video
+          key={isMobile ? 'mobile' : 'desktop'}
           autoPlay
           muted
           loop
@@ -64,7 +74,7 @@ const Home = () => {
             willChange: 'transform',
           }}
         >
-          <source src="/videos/site.mp4" type="video/mp4" />
+          <source src={isMobile ? "/videos/final-2.mp4" : "/videos/site.mp4"} type="video/mp4" />
         </video>
 
         {/* ── LAYER 3: Content ── */}

@@ -57,9 +57,8 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
-  const [showInstallModal, setShowInstallModal] = useState(false);
   const location = useLocation();
-  const { canInstall, isInstalled, isInstalling, isIOS, install } = usePWAInstall();
+  const { canInstall, isInstalled, isIOS, install } = usePWAInstall();
   const [showSuccess, setShowSuccess] = useState(false);
   const [initialInstallState] = useState(isInstalled);
   const langRef = useRef<HTMLDivElement>(null);
@@ -227,10 +226,9 @@ const Header = () => {
                   {t('header.installed', 'Installée ✓')}
                 </div>
               ) : null
-            ) : (!canInstall && !isIOS ? null : (
+            ) : !canInstall ? null : (
               <button
-                onClick={canInstall ? install : () => setShowInstallModal(true)}
-                disabled={isInstalling}
+                onClick={install}
                 title={t('header.install_app', "Installer l'application")}
                 style={{
                   display: 'flex', alignItems: 'center', gap: '6px',
@@ -239,24 +237,19 @@ const Header = () => {
                   borderRadius: '8px', padding: '6px 12px',
                   fontFamily: 'Rajdhani, sans-serif', fontWeight: 700,
                   fontSize: '12px', letterSpacing: '1px', textTransform: 'uppercase',
-                  cursor: isInstalling ? 'wait' : 'pointer', transition: 'all 0.2s',
-                  opacity: isInstalling ? 0.7 : 1
+                  cursor: 'pointer', transition: 'all 0.2s',
                 }}
-                onMouseEnter={e => { if(!isInstalling) { e.currentTarget.style.background = '#F0FDF4'; } }}
-                onMouseLeave={e => { if(!isInstalling) { e.currentTarget.style.background = 'white'; } }}
+                onMouseEnter={e => { e.currentTarget.style.background = '#F0FDF4'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'white'; }}
               >
-                {isInstalling ? (
-                  <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }} style={{ display: 'flex' }}>
-                    <Loader size={13} />
-                  </motion.div>
-                ) : isIOS ? (
+                {isIOS ? (
                   <span>📲</span>
                 ) : (
                   <Download size={13} />
                 )}
-                {isInstalling ? 'Installation...' : t('header.install', 'Installer')}
+                {t('header.install', 'Installer')}
               </button>
-            ))}
+            )}
 
             {/* Language */}
             <div className="relative" ref={langRef} style={{ [isRTL ? 'borderRight' : 'borderLeft']: '1px solid #DBDADA', [isRTL ? 'paddingRight' : 'paddingLeft']: '10px' }}>
@@ -347,93 +340,7 @@ const Header = () => {
         </a>
       </div>
 
-      {/* PWA Install Guide Modal */}
-      <AnimatePresence>
-        {showInstallModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[200] flex items-center justify-center"
-            style={{ background: 'rgba(0,0,0,0.55)' }}
-            onClick={() => setShowInstallModal(false)}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.92, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.92, y: 20 }}
-              transition={{ duration: 0.18 }}
-              style={{ position: 'relative', background: 'white', borderRadius: '20px', padding: '28px 28px 24px', maxWidth: '360px', width: 'calc(100% - 32px)', boxShadow: '0 24px 64px rgba(0,0,0,0.25)' }}
-              onClick={e => e.stopPropagation()}
-            >
-              <button 
-                onClick={() => setShowInstallModal(false)}
-                style={{ position: 'absolute', top: '16px', right: '16px', background: '#F1F5F9', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B', cursor: 'pointer', transition: 'background 0.2s' }}
-              >
-                <X size={16} />
-              </button>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
-                <Download size={20} color="#1D3E61" />
-                <h3 style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '17px', color: '#1D3E61', letterSpacing: '1.5px', textTransform: 'uppercase', margin: 0, paddingRight: '24px' }}>
-                  {t('header.install_app', "Installer l'application")}
-                </h3>
-              </div>
-
-              {isIOS && (
-                <div style={{ marginBottom: '20px' }}>
-                  <p style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '13px', color: '#2F2D2C', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '12px' }}>
-                    {t('header.pwa_safari_title', 'Safari (iPhone / iPad)')}
-                  </p>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontFamily: 'DM Sans, sans-serif', fontSize: '14px', color: '#4B5563', textAlign: isRTL ? 'right' : 'left' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <span style={{ flexShrink: 0, width: '24px', height: '24px', borderRadius: '50%', background: '#F0F6FF', color: '#1A5DA8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '12px' }}>1</span>
-                      <span>{t('header.pwa_safari_step1', 'Appuyez sur le bouton Partager 📤 en bas')}</span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <span style={{ flexShrink: 0, width: '24px', height: '24px', borderRadius: '50%', background: '#F0F6FF', color: '#1A5DA8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '12px' }}>2</span>
-                      <span>{t('header.pwa_safari_step2', 'Faites défiler → "Sur l\'écran d\'accueil"')}</span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <span style={{ flexShrink: 0, width: '24px', height: '24px', borderRadius: '50%', background: '#E2FBE8', color: '#27AE60', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '12px' }}>3</span>
-                      <span>{t('header.pwa_safari_step3', 'Appuyez sur "Ajouter"')} ✅</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {!isIOS && (
-                <div style={{ marginBottom: '20px' }}>
-                  <p style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '13px', color: '#2F2D2C', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '12px' }}>
-                    {t('header.pwa_chrome_title', 'Chrome / Edge')}
-                  </p>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontFamily: 'DM Sans, sans-serif', fontSize: '14px', color: '#4B5563', textAlign: isRTL ? 'right' : 'left' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <span style={{ flexShrink: 0, width: '24px', height: '24px', borderRadius: '50%', background: '#F0F6FF', color: '#1A5DA8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '12px' }}>1</span>
-                      <span>{t('header.pwa_chrome_step1', 'Cliquez le menu ⋮ (en haut à droite)')}</span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <span style={{ flexShrink: 0, width: '24px', height: '24px', borderRadius: '50%', background: '#F0F6FF', color: '#1A5DA8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '12px' }}>2</span>
-                      <span>{t('header.pwa_chrome_step2', 'Cliquez "Installer Aluminium Space..."')}</span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <span style={{ flexShrink: 0, width: '24px', height: '24px', borderRadius: '50%', background: '#E2FBE8', color: '#27AE60', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '12px' }}>3</span>
-                      <span>{t('header.pwa_chrome_step3', 'Cliquez sur "Installer"')} ✅</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <button
-                onClick={() => setShowInstallModal(false)}
-                style={{ width: '100%', background: '#1D3E61', color: 'white', border: 'none', borderRadius: '10px', padding: '12px', fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '14px', letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer' }}
-              >
-                {t('common.close', 'Fermer')}
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Mobile Menu */}
       <AnimatePresence>
@@ -455,8 +362,13 @@ const Header = () => {
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: '-100%', opacity: 0 }}
               transition={{ type: 'spring', damping: 28, stiffness: 220 }}
-              className="fixed top-0 left-0 right-0 z-50 flex flex-col"
-              style={{ width: '100%', maxWidth: '100%', background: '#0A1628' }}
+              className="fixed top-0 left-0 right-0 bottom-0 z-[60] flex flex-col"
+              style={{
+                width: '100%',
+                maxWidth: '100%',
+                background: '#0A1628',
+                height: '100dvh',
+              }}
             >
               {/* Panel Header */}
               <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: '2px solid #81C063' }}>
@@ -533,10 +445,10 @@ const Header = () => {
                 </div>
 
                 {/* Mobile PWA Install Card */}
-                {!isInstalled && (canInstall || isIOS) && (
+                {canInstall && (
                   <div style={{ padding: '0 20px', marginTop: '20px' }}>
                     <button
-                      onClick={() => { setMobileMenuOpen(false); if (canInstall) install(); else setShowInstallModal(true); }}
+                      onClick={() => { setMobileMenuOpen(false); install(); }}
                       style={{
                         width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                         background: 'linear-gradient(135deg, rgba(129,192,99,0.15), rgba(129,192,99,0.05))',
