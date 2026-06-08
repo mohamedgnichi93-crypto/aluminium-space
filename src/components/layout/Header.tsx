@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Menu, X, Globe, MessageCircle, MessageSquare, User, Download, Home, LayoutGrid, Info, Phone, ChevronRight, Check, Loader, Smartphone, ArrowRight } from 'lucide-react';
+import { Menu, X, Globe, MessageCircle, MessageSquare, User, Download, Home, LayoutGrid, Info, Phone, ChevronRight, Check, Smartphone, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePWAInstall } from '../../hooks/usePWAInstall';
 import { BUSINESS } from '../../config/businessConfig';
