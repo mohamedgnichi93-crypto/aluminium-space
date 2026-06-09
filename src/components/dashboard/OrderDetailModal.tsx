@@ -1,6 +1,7 @@
 import { X, Phone, Mail, FileText, ClipboardList, Receipt, Calendar, MapPin, MessageCircle, CheckCircle, Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import type { Order } from '../../store/ordersStore';
+import { type Order, updateOrder } from '../../store/ordersStore';
+import { generatePDF } from '../../utils/pdfGenerator';
 
 interface Props {
   order: Order;
@@ -10,6 +11,7 @@ interface Props {
   onDownloadBonDeCommande: (order: Order) => void | Promise<void>;
   onDownloadFacture: (order: Order) => void | Promise<void>;
   generatingPdfId?: string | null;
+  onOrderUpdate?: (updatedOrder: Order) => void | Promise<void>;
 }
 
 const formatDT = (num: number): string => {
@@ -19,8 +21,12 @@ const formatDT = (num: number): string => {
   }).format(num / 1000) + ' DT';
 };
 
-const OrderDetailModal = ({ order, onClose, onStatusChange, onDownloadPDF, onDownloadBonDeCommande, onDownloadFacture, generatingPdfId }: Props) => {
+const OrderDetailModal = ({ order, onClose, onStatusChange, onDownloadPDF, onDownloadBonDeCommande, onDownloadFacture, generatingPdfId, onOrderUpdate }: Props) => {
   const [selectedStatus, setSelectedStatus] = useState<Order['status']>(order.status);
+  const [editingRemise, setEditingRemise] = useState(false);
+  const [remiseInput, setRemiseInput] = useState('');
+  const [savingRemise, setSavingRemise] = useState(false);
+
   const isPdfLocked = Boolean(generatingPdfId);
   const isGenerating = (kind: 'devis' | 'bon' | 'facture') => generatingPdfId === `${order.id}:${kind}`;
 
@@ -51,6 +57,60 @@ const OrderDetailModal = ({ order, onClose, onStatusChange, onDownloadPDF, onDow
   const handleUpdateStatus = () => {
     onStatusChange(order.id, selectedStatus);
     onClose();
+  };
+
+  const handleSaveRemise = async () => {
+    const rp = parseFloat(remiseInput);
+    if (isNaN(rp) || rp < 0 || rp > 100) return;
+
+    setSavingRemise(true);
+    try {
+      const items = order.items ?? [];
+      const totalHT = items.reduce(
+        (sum, it) => sum + ((it.unitPrice ?? 0) * (it.quantity ?? 1)), 0
+      );
+      const fodec    = order.fodec    ?? 1;
+      const tva      = order.tva      ?? 19;
+      const timbre   = order.timbre   ?? 1000;
+
+      const remise       = totalHT * (rp / 100);
+      const netHT        = totalHT - remise;
+      const fodecAmount  = netHT * (fodec / 100);
+      const baseForTVA   = netHT + fodecAmount;
+      const tvaAmount    = baseForTVA * (tva / 100);
+      const totalTTC     = baseForTVA + tvaAmount + timbre;
+
+      const updatedOrder: Order = {
+        ...order,
+        totalHT,
+        remise,
+        remisePercent: rp,
+        netHT,
+        fodecAmount,
+        baseForTVA,
+        tvaAmount,
+        totalTTC,
+      };
+
+      await updateOrder(order.id, updatedOrder);
+      
+      if (onOrderUpdate) {
+        await onOrderUpdate(updatedOrder);
+      }
+
+      setEditingRemise(false);
+      
+      const regen = window.confirm(
+        'Remise mise à jour ✅\nVoulez-vous régénérer le PDF ?'
+      );
+      if (regen) {
+        await generatePDF(updatedOrder);
+      }
+    } catch (err) {
+      console.error('Erreur mise à jour remise:', err);
+    } finally {
+      setSavingRemise(false);
+    }
   };
 
   const brutHT = order.totalHT || 0;
@@ -183,9 +243,79 @@ const OrderDetailModal = ({ order, onClose, onStatusChange, onDownloadPDF, onDow
                 <span style={{ color: '#7A8FA6' }}>Brut HT</span>
                 <span style={{ color: '#0D1B2A', fontWeight: 500 }}>{formatDT(brutHT)}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px', borderBottom: '1px solid #F4F7FB' }}>
-                <span style={{ color: '#7A8FA6' }}>Remise</span>
-                <span style={{ color: '#EF4444', fontWeight: 500 }}>- {formatDT(remise)}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px', borderBottom: '1px solid #F4F7FB', alignItems: 'center' }}>
+                <span style={{ color: '#7A8FA6', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  Remise
+                  {!editingRemise && (
+                    <button
+                      onClick={() => {
+                        setRemiseInput(String(order.remisePercent ?? 0));
+                        setEditingRemise(true);
+                      }}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: '14px', marginLeft: '4px' }}
+                      title="Modifier la remise"
+                    >
+                      ✏️
+                    </button>
+                  )}
+                </span>
+                {editingRemise ? (
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="0.5"
+                      value={remiseInput}
+                      onChange={e => setRemiseInput(e.target.value)}
+                      style={{
+                        width: '60px',
+                        padding: '2px 6px',
+                        border: '1px solid #1A5DA8',
+                        borderRadius: '6px',
+                        fontSize: '13px',
+                        textAlign: 'right',
+                        outline: 'none'
+                      }}
+                      autoFocus
+                    />
+                    <span style={{ fontSize: '13px', color: '#7A8FA6' }}>%</span>
+                    <button
+                      onClick={handleSaveRemise}
+                      disabled={savingRemise}
+                      style={{
+                        background: '#1A5DA8',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        padding: '2px 8px',
+                        fontSize: '12px',
+                        cursor: 'pointer',
+                        opacity: savingRemise ? 0.5 : 1
+                      }}
+                    >
+                      {savingRemise ? '...' : '✅'}
+                    </button>
+                    <button
+                      onClick={() => setEditingRemise(false)}
+                      style={{
+                        background: '#E8EDF5',
+                        color: '#3D5166',
+                        border: 'none',
+                        borderRadius: '6px',
+                        padding: '2px 8px',
+                        fontSize: '12px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      ✕
+                    </button>
+                  </span>
+                ) : (
+                  <span style={{ color: '#EF4444', fontWeight: 500 }}>
+                    - {formatDT(remise)}
+                  </span>
+                )}
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px', borderBottom: '1px solid #F4F7FB', background: '#FAFBFC' }}>
                 <span style={{ color: '#3D5166', fontWeight: 600 }}>Net HT</span>

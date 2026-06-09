@@ -566,6 +566,10 @@ const Dashboard = () => {
             onDownloadBonDeCommande={handleDownloadBonDeCommande}
             onDownloadFacture={handleDownloadFacture}
             generatingPdfId={generatingPdfId}
+            onOrderUpdate={async (updatedOrder) => {
+              await loadData();
+              setSelectedOrder(updatedOrder);
+            }}
           />
         )}
 
