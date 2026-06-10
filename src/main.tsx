@@ -21,6 +21,14 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+// Disable scroll wheel value changes on number inputs globally by blurring focused input
+document.addEventListener('wheel', () => {
+  const el = document.activeElement as HTMLElement;
+  if (el && (el as HTMLInputElement).type === 'number') {
+    el.blur();
+  }
+}, { passive: true });
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ErrorBoundary>

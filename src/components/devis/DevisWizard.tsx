@@ -236,6 +236,7 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
 
       // Calculate total remise
       const totalRemise = items.reduce((sum, item) => sum + (item.totalPrice * (remisePct / 100)), 0);
+      const grossBeforeRemise = items.reduce((sum, item) => sum + (item.totalPrice || item.unitPrice * item.quantity), 0);
 
       const savedOrder = await saveOrder({
         clientInfo: {
@@ -247,6 +248,7 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
         },
         items: items,
         totalHT: globalTotalHT,
+        grossTotalHT: grossBeforeRemise,
         netHT: globalTotalHT, // Net HT is total after remise
         remise: totalRemise,
         remisePercent: remisePct,
@@ -257,7 +259,7 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
         tvaAmount: tva,
         timbre: timbre,
         totalTTC: totalTTC
-      });
+      } as any);
 
       setSubmittedOrderId(savedOrder.order_number || savedOrder.id);
 

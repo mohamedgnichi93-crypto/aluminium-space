@@ -93,13 +93,16 @@ const Header = () => {
   useEffect(() => {
     if (mobileMenuOpen) {
       document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
       document.body.classList.add('menu-open');
     } else {
       document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
       document.body.classList.remove('menu-open');
     }
     return () => {
       document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
       document.body.classList.remove('menu-open');
     };
   }, [mobileMenuOpen]);
@@ -274,7 +277,7 @@ const Header = () => {
 
         {/* Grifo Flex logo — far right (desktop only) */}
         <a
-          href="https://www.grifoflex.com" target="_blank" rel="noopener noreferrer"
+          href="https://grifoflex-tunisie.tn" target="_blank" rel="noopener noreferrer"
           className="hidden md:flex items-center flex-shrink-0"
           style={{ textDecoration: 'none', paddingLeft: '12px', borderLeft: '1px solid #DBDADA' }}
           title="Grifo Flex Tunisie — Partenaire officiel"
@@ -318,7 +321,7 @@ const Header = () => {
 
         {/* Small Grifo Flex logo — mobile header far right */}
         <a
-          href="https://www.grifoflex.com" target="_blank" rel="noopener noreferrer"
+          href="https://grifoflex-tunisie.tn" target="_blank" rel="noopener noreferrer"
           className="flex md:hidden items-center"
           style={{ [isRTL ? 'paddingRight' : 'paddingLeft']: '4px', [isRTL ? 'borderRight' : 'borderLeft']: '1px solid #DBDADA', [isRTL ? 'marginRight' : 'marginLeft']: '2px', flexShrink: 0, overflow: 'visible' }}
           title="Grifo Flex"

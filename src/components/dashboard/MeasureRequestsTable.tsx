@@ -354,7 +354,7 @@ const MeasureRequestsTable = () => {
 
   // Tunisian Phone Code Formatting (+216 prefix)
   const formatPhoneForWA = (phone: string) => {
-    const clean = phone.replace(/\D/g, '');
+    const clean = (phone || '').replace(/\D/g, '');
     if (clean.startsWith('216')) return clean;
     return `216${clean}`;
   };

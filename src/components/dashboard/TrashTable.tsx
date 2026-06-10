@@ -164,7 +164,9 @@ const TrashTable: React.FC<TrashTableProps> = ({
                       {req.productName}
                     </td>
                     <td style={{ padding: '16px', fontSize: '13px', color: '#6B7280' }}>
-                      {req.width && req.height ? `${req.width} x ${req.height} mm` : 'N/A'}
+                      {req.width && req.height
+                        ? `${(req.width / 10).toFixed(1)} x ${(req.height / 10).toFixed(1)} cm`
+                        : 'N/A'}
                     </td>
                     <td style={{ padding: '16px', fontSize: '13px', color: '#6B7280' }}>
                       {req.deletedAt ? new Date(req.deletedAt).toLocaleDateString('fr-FR') : 'N/A'}

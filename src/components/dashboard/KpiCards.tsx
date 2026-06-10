@@ -59,7 +59,7 @@ const KpiCards: React.FC<KpiCardsProps> = ({
           <DollarSign size={24} color="#8B5CF6" />
         </div>
         <div>
-          <div style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '24px', color: '#0D1B2A', lineHeight: 1.2 }}>{formatDT(totalRevenue)}</div>
+          <div style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '24px', color: '#0D1B2A', lineHeight: 1.2, whiteSpace: 'nowrap' }}>{formatDT(totalRevenue)}</div>
           <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#6B7280' }}>CA Total HT</div>
         </div>
       </div>

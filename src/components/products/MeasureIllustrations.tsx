@@ -301,9 +301,9 @@ export const TipsSVG: React.FC<{ k: number }> = ({ k }) => (
     <IllustrationStyles />
     {[
       { icon: '📏', color: 'rgba(212,175,55,0.12)', border: 'rgba(212,175,55,0.3)', text: 'Mesurez toujours DANS l\'embrasure, entre les deux bords du mur' },
-      { icon: '⬇️', color: 'rgba(251,191,36,0.1)', border: 'rgba(251,191,36,0.25)', text: 'Arrondissez toujours au millimètre INFÉRIEUR (ex: 1203mm → 1203mm)' },
+      { icon: '⬇️', color: 'rgba(251,191,36,0.1)', border: 'rgba(251,191,36,0.25)', text: 'Arrondissez toujours au centimètre INFÉRIEUR (ex: 1203cm → 1203cm)' },
       { icon: '📐', color: 'rgba(34,197,94,0.1)', border: 'rgba(134,239,172,0.2)', text: 'Un écart > 0.5cm entre vos mesures = défaut d\'aplomb. Signalez-le !' },
-      { icon: '🔩', color: 'rgba(239,68,68,0.1)', border: 'rgba(252,165,165,0.2)', text: 'Pour fixation mural : prévoyez au moins 50mm de tableau accessible' },
+      { icon: '🔩', color: 'rgba(239,68,68,0.1)', border: 'rgba(252,165,165,0.2)', text: 'Pour fixation mural : prévoyez au moins 50cm de tableau accessible' },
     ].map(({ icon, color, border, text }, i) => (
       <div key={i} className={`tip${i}`} style={{
         background: color,

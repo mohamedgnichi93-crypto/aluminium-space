@@ -293,7 +293,7 @@ async function drawItemsTable(doc: jsPDF, order: Order, startY: number): Promise
       (item.openingType === 'fenetre' ? ' — Fenêtre' : item.openingType === 'porte' ? ' — Porte' : '') +
       (item.meshType ? '\nFilet ' + item.meshType.toUpperCase() : '') +
       (item.color ? '\nCouleur :    ' + item.color + ((item.colorSurchargePct ?? 0) > 0 ? ` (+${item.colorSurchargePct}%)` : '') : ''),
-      `${item.width}\u00A0×\u00A0${item.height}\u00A0cm`,
+      `${item.width}\u00A0×\u00A0${item.height}`,
       String(item.quantity || 1),
       formatDTWithUnit(baseUnitPrice),
       colorSurchargeAmount > 0
@@ -309,7 +309,7 @@ async function drawItemsTable(doc: jsPDF, order: Order, startY: number): Promise
     startY,
     head: [[
       'Description',
-      'Dimensions',
+      'Dimensions (cm)',
       'Qté',
       'P.U\u00A0HT',
       'Couleur',
@@ -668,13 +668,13 @@ export async function generateBonDeCommande(order: Order): Promise<void> {
     '',  // column 0: image (drawn in didDrawCell)
     buildDesignation(item),
     '',  // column 2: color (circle + name drawn in didDrawCell)
-    `${item.width} ×\u00A0${item.height} cm`,
+    `${item.width} ×\u00A0${item.height}`,
     String(item.quantity || 1),
   ]);
 
   autoTable(doc, {
     startY: tableStartY,
-    head: [['Image', 'Désignation', 'Couleur', 'Dimensions', 'Qté']],
+    head: [['Image', 'Désignation', 'Couleur', 'Dimensions (cm)', 'Qté']],
     body,
     margin: { left: MARGIN.left, right: MARGIN.right, bottom: 22 },
     tableWidth: CONTENT_W,
@@ -754,7 +754,7 @@ export async function generateBonDeCommande(order: Order): Promise<void> {
   }
 
   // Save
-  doc.save(`BonDeCommande_AluminiumSpace_${order.id}.pdf`);
+  doc.save(`BonDeCommande_AluminiumSpace.pdf`);
 }
 
 // ─── FACTURE HELPERS ──────────────────────────────────────────────────────────
