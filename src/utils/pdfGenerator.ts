@@ -54,8 +54,12 @@ function formatDTWithUnit(millimes: number): string {
   return `${formatDT(millimes)}\u00A0DT`;
 }
 
-const formatMDTShort = (v: number) =>
-  (v / 1000).toLocaleString('fr-FR', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+const formatMDTShort = (v: number): string => {
+  const num = v / 1000;
+  const parts = num.toFixed(3).split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '\u00A0');
+  return parts.join(',');
+};
 
 function todayFR(): string {
   return new Date().toLocaleDateString('fr-TN', {
