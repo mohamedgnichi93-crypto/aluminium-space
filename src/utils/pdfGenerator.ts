@@ -604,14 +604,14 @@ export async function generatePDF(order: Order): Promise<void> {
   let qrDataUrl: string | null = null;
   try {
     qrDataUrl = await QRCode.toDataURL(qrUrl, {
-      errorCorrectionLevel: 'H',
-      type: 'image/png' as const,
-      quality: 1,
-      margin: 3,
-      width: 300,
-      color: { dark: '#000000', light: '#ffffff' },
+      width: 200,
+      margin: 2,
+      color: {
+        dark: '#000000',
+        light: '#ffffff'
+      }
     });
-  } catch {
+  } catch (e) {
     qrDataUrl = null;
   }
 
@@ -637,14 +637,13 @@ export async function generatePDF(order: Order): Promise<void> {
   const totalsHeight = 80; // approximate
   const remainingSpace = PAGE_H - MARGIN.bottom - afterTable;
 
-  let afterTotals: number;
   if (remainingSpace < totalsHeight) {
     // Add new page
     doc.addPage();
     drawHeader(doc, order.id);
-    afterTotals = drawTotals(doc, order, 56);
+    drawTotals(doc, order, 56);
   } else {
-    afterTotals = drawTotals(doc, order, afterTable);
+    drawTotals(doc, order, afterTable);
   }
 
   // Footer on all pages
