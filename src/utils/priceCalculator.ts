@@ -195,8 +195,8 @@ export const calculatePrice = ({
       break;
     }
     case 'elba': {
-      const areaCm = (w / 100) * (h / 100);
-      const billableM2 = Math.ceil(areaCm);
+      const areaM2 = (w / 100) * (h / 100);
+      const billableM2 = Math.ceil(areaM2);
       const finalM2 = Math.max(1, billableM2);
       const perM2Price = pricePerM2 ? normalizeMillimes(productBasePrice) : null;
       basePrice = finalM2 * (perM2Price ?? 326000);

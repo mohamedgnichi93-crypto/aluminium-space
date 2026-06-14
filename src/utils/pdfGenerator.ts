@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import QRCode from 'qrcode';
 import type { Order } from '../store/ordersStore';
 import { ALL_COLORS } from '../data/colors';
 import { formatPrice as formatPriceUtil, formatPriceDT } from './formatPrice';
@@ -52,6 +53,9 @@ function formatDT(millimes: number): string {
 function formatDTWithUnit(millimes: number): string {
   return `${formatDT(millimes)}\u00A0DT`;
 }
+
+const formatMDTShort = (v: number) =>
+  (v / 1000).toLocaleString('fr-FR', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
 
 function todayFR(): string {
   return new Date().toLocaleDateString('fr-TN', {
@@ -112,11 +116,11 @@ function drawHeader(doc: jsPDF, orderId?: string, title = 'DEVIS', separatorOffs
     doc.text('Menuiserie Aluminium', 35, 18);
   }
 
-  // ── RIGHT: Grifo Flex logo ──────────────────────────────────────────────────
+  // ── RIGHT: Grifo Flex logo (larger for clarity) ─────────────────────────────
   try {
     const grifoUrl = resolveAssetUrl('/images/grifo-flex-logo.png');
-    // Grifo Flex logo is resized to 38x18mm so both logos have exactly the same height (18mm) and Y=5 alignment
-    doc.addImage(grifoUrl, 'PNG', 158, 5, 38, 18);
+    // Grifo Flex logo enlarged to 45x22mm for better clarity in PDF
+    doc.addImage(grifoUrl, 'PNG', 155, 3, 45, 22);
   } catch {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(8);
@@ -124,11 +128,11 @@ function drawHeader(doc: jsPDF, orderId?: string, title = 'DEVIS', separatorOffs
     doc.text('GRIFO FLEX TUNISIE', 158, 13);
   }
 
-  // ── CENTER: Title (below both logos) ────────────────────────────────────────
+  // ── CENTER: Title (below both logos, shifted down slightly) ─────────────────
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(20);
   doc.setTextColor(...COLORS.blue);
-  doc.text(title, PAGE_W / 2, 27, { align: 'center' });
+  doc.text(title, PAGE_W / 2, 30, { align: 'center' });
 
   // ── Header Sub-Content (Centered below Title) ──────────────────────────────
   let sepY = 50 + separatorOffset;
@@ -160,20 +164,20 @@ function drawHeader(doc: jsPDF, orderId?: string, title = 'DEVIS', separatorOffs
 
     sepY = infoY + 14; // Y = 47
   } else {
-    // ── Date + Validité + Code (centered below DEVIS) ──────────────────────────
+    // ── Date + Validité + Code (LEFT-aligned below title) ─────────────────────
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
     doc.setTextColor(...COLORS.darkGray);
-    doc.text(`Date : ${todayFR()}`, PAGE_W / 2, 34, { align: 'center' });
+    doc.text(`Date : ${todayFR()}`, MARGIN.left, 36, { align: 'left' });
     if (title === 'DEVIS') {
-      doc.text('Validité : 10 jours', PAGE_W / 2, 39, { align: 'center' });
+      doc.text('Validité : 10 jours', MARGIN.left, 41, { align: 'left' });
     }
     if (orderId) {
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(9);
       doc.setTextColor(...COLORS.blue);
-      const codeY = title === 'DEVIS' ? 44 : 39;
-      doc.text(`Code de suivi : ${orderId}`, PAGE_W / 2, codeY, { align: 'center' });
+      const codeY = title === 'DEVIS' ? 46 : 41;
+      doc.text(`Code de suivi : ${orderId}`, MARGIN.left, codeY, { align: 'left' });
     }
   }
 
@@ -277,15 +281,19 @@ function drawColorCircle(doc: jsPDF, colorName: string, cx: number, cy: number, 
 }
 
 async function drawItemsTable(doc: jsPDF, order: Order, startY: number): Promise<number> {
-  // Column widths — must sum to 182mm
-  // Desc(58) + Dims(30) + Qty(12) + PU(28) + Rem(26) + Net(28) = 182 ✅
-  const COL_WIDTHS = [58, 30, 12, 28, 26, 28];
+  // Column widths — must sum to 182mm (CONTENT_W)
+  // Desc(44) + Dims(24) + Qty(9) + PU(22) + Remise(16) + PUNet(22) + Couleur(18) + Net(27) = 182 ✅
+  const COL_WIDTHS = [44, 24, 9, 22, 16, 22, 18, 27];
+
+  const remisePct = order.remisePercent ?? 0;
 
 
   const tableData = order.items.map(item => {
     const baseUnitPrice = Number(item.baseUnitPrice ?? item.unitPrice ?? 0);
     const colorSurchargeAmount = Number(item.colorSurchargeAmount ?? 0);
-    const unitPriceWithColor = baseUnitPrice + colorSurchargeAmount;
+    // P.U Net = base unit price after remise (before color surcharge)
+    const puNet = remisePct > 0 ? Math.round(baseUnitPrice * (1 - remisePct / 100)) : baseUnitPrice;
+    const unitPriceWithColor = puNet + colorSurchargeAmount;
     const netHT = unitPriceWithColor * (item.quantity || 1);
 
     return [
@@ -296,8 +304,10 @@ async function drawItemsTable(doc: jsPDF, order: Order, startY: number): Promise
       `${item.width}\u00A0×\u00A0${item.height}`,
       String(item.quantity || 1),
       formatDTWithUnit(baseUnitPrice),
+      remisePct > 0 ? `-${remisePct}%` : '—',
+      formatDTWithUnit(puNet),
       colorSurchargeAmount > 0
-        ? `+ ${formatDTWithUnit(colorSurchargeAmount * (item.quantity || 1))}`
+        ? `+${formatMDTShort(colorSurchargeAmount * (item.quantity || 1))}`
         : '—',
       formatDTWithUnit(netHT),
     ];
@@ -312,15 +322,17 @@ async function drawItemsTable(doc: jsPDF, order: Order, startY: number): Promise
       'Dimensions (cm)',
       'Qté',
       'P.U\u00A0HT',
-      'Couleur',
+      'Remise',
+      'P.U\u00A0Net',
+      'Suppl. couleur',
       'Net\u00A0HT',
     ]],
     body: tableData,
     margin: { left: MARGIN.left, right: MARGIN.right, bottom: 22 },
     tableWidth: CONTENT_W,
     styles: {
-      fontSize: 8.5,
-      cellPadding: { top: 4, bottom: 4, left: 3, right: 3 },
+      fontSize: 7.5,
+      cellPadding: { top: 4, bottom: 4, left: 2, right: 2 },
       overflow: 'linebreak',
       lineColor: [220, 220, 220],
       lineWidth: 0.2,
@@ -329,7 +341,7 @@ async function drawItemsTable(doc: jsPDF, order: Order, startY: number): Promise
       fillColor: COLORS.blue,
       textColor: COLORS.white,
       fontStyle: 'bold',
-      fontSize: 8.5,
+      fontSize: 7.5,
       halign: 'center',
       valign: 'middle',
     },
@@ -345,8 +357,10 @@ async function drawItemsTable(doc: jsPDF, order: Order, startY: number): Promise
       1: { cellWidth: COL_WIDTHS[1], halign: 'center' },
       2: { cellWidth: COL_WIDTHS[2], halign: 'center' },
       3: { cellWidth: COL_WIDTHS[3], halign: 'right' },
-      4: { cellWidth: COL_WIDTHS[4] },
-      5: { cellWidth: COL_WIDTHS[5], halign: 'right', textColor: COLORS.blue, fontStyle: 'bold' },
+      4: { cellWidth: COL_WIDTHS[4], halign: 'center' },
+      5: { cellWidth: COL_WIDTHS[5], halign: 'right', textColor: COLORS.blue as any, fontStyle: 'bold' },
+      6: { cellWidth: COL_WIDTHS[6] },
+      7: { cellWidth: COL_WIDTHS[7], halign: 'right', textColor: COLORS.blue as any, fontStyle: 'bold' },
     },
     didDrawCell: (data) => {
       if (data.section === 'body' && data.column.index === 0 && data.row.index >= 0) {
@@ -361,7 +375,7 @@ async function drawItemsTable(doc: jsPDF, order: Order, startY: number): Promise
 
             // Use the cell's actual font size, not doc's potentially stale state
             const styles = data.cell.styles as any;
-            const fontSize = styles.fontSize || 8.5;
+            const fontSize = styles.fontSize || 7.5;
             const lineHeightFactor = 1.15;
             const lineHeightMM = fontSize * lineHeightFactor * 0.3527;
 
@@ -431,13 +445,29 @@ async function drawItemsTable(doc: jsPDF, order: Order, startY: number): Promise
     didParseCell(data) {
       // Style the sub-label line in description column
       if (data.column.index === 0 && data.row.section === 'body') {
-        data.cell.styles.fontSize = 8.5;
+        data.cell.styles.fontSize = 7.5;
         data.cell.styles.minCellHeight = 22;
         // Reserve space for the image (18mm + gap)
-        data.cell.styles.cellPadding = { top: 4, bottom: 4, left: 3, right: 24 };
+        data.cell.styles.cellPadding = { top: 4, bottom: 4, left: 2, right: 22 };
       }
-      // Style the Couleur column dynamically
+      // Style the Remise column (index 4) in red
       if (data.column.index === 4 && data.row.section === 'body') {
+        const val = data.cell.raw;
+        if (typeof val === 'string' && val.startsWith('-')) {
+          data.cell.styles.textColor = [220, 38, 38];
+        } else {
+          data.cell.styles.textColor = [150, 150, 150];
+        }
+        data.cell.styles.halign = 'center';
+      }
+      // Style the P.U Net column (index 5) in navy bold
+      if (data.column.index === 5 && data.row.section === 'body') {
+        data.cell.styles.fontStyle = 'bold';
+        data.cell.styles.textColor = [26, 93, 168];
+        data.cell.styles.halign = 'right';
+      }
+      // Style the Couleur column dynamically (now index 6)
+      if (data.column.index === 6 && data.row.section === 'body') {
         const val = data.cell.raw;
         if (typeof val === 'string' && val.startsWith('+')) {
           data.cell.styles.textColor = [220, 80, 20];
@@ -446,6 +476,11 @@ async function drawItemsTable(doc: jsPDF, order: Order, startY: number): Promise
           data.cell.styles.textColor = [150, 150, 150];
           data.cell.styles.halign = 'center';
         }
+        data.cell.styles.overflow = 'hidden';
+        data.cell.styles.fontSize = 6.5;
+        data.cell.styles.cellPadding = { top: 3, bottom: 3, left: 2, right: 2 };
+        data.cell.styles.valign = 'middle';
+        data.cell.styles.halign = 'center';
       }
     },
   });
@@ -538,38 +573,7 @@ function drawTotals(doc: jsPDF, order: Order, startY: number): number {
   return y + 14;
 }
 
-function drawConditions(doc: jsPDF, y: number): void {
-  // Background box
-  doc.setFillColor(245, 247, 250); // light gray — explicit RGB, not from COLORS
-  doc.roundedRect(MARGIN.left, y, CONTENT_W, 26, 2, 2, 'F');
-
-  // Border
-  doc.setDrawColor(26, 93, 168); // blue border
-  doc.setLineWidth(0.4);
-  doc.roundedRect(MARGIN.left, y, CONTENT_W, 26, 2, 2, 'S');
-
-  // Title
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8);
-  doc.setTextColor(13, 27, 42); // EXPLICIT dark navy — NOT white
-  doc.text('Conditions générales :', MARGIN.left + 4, y + 6);
-
-  // Condition lines
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7.5);
-  doc.setTextColor(55, 65, 81); // EXPLICIT dark gray — NOT white
-
-  const conditions = [
-    '• Ce devis est valable 10 jours à compter de la date d\'émission.',
-    '• Livraison et installation incluses dans toute la Tunisie.',
-    '• Prix en hors taxes (HT) — TVA 19% et FODEC 1% inclus dans le total TTC.',
-  ];
-
-  conditions.forEach((line, i) => {
-    doc.setTextColor(55, 65, 81); // reset on every line to be safe
-    doc.text(line, MARGIN.left + 4, y + 12 + i * 4);
-  });
-}
+// drawConditions removed — "Conditions générales" no longer shown on devis PDF
 
 function drawPageFooter(doc: jsPDF, pageNum: number, totalPages: number): void {
   doc.setFont('helvetica', 'normal');
@@ -595,39 +599,52 @@ function drawPageFooter(doc: jsPDF, pageNum: number, totalPages: number): void {
 export async function generatePDF(order: Order): Promise<void> {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
+  // Generate QR code pointing to Mon Espace Client with order tracking code
+  const qrUrl = `https://aluminiumspace-moustiquaires.com/mon-espace?code=${order.id}`;
+  let qrDataUrl: string | null = null;
+  try {
+    qrDataUrl = await QRCode.toDataURL(qrUrl, {
+      errorCorrectionLevel: 'H',
+      type: 'image/png' as const,
+      quality: 1,
+      margin: 3,
+      width: 300,
+      color: { dark: '#000000', light: '#ffffff' },
+    });
+  } catch {
+    qrDataUrl = null;
+  }
+
   // Page 1 header
-  drawHeader(doc, order.id);
+  const sepY = drawHeader(doc, order.id, 'DEVIS', qrDataUrl ? 10 : 0);
+
+  // Draw QR code on the RIGHT side, facing Date/Validité/Code on the LEFT
+  if (qrDataUrl) {
+    doc.addImage(qrDataUrl, 'PNG', 162, 28, 26, 26);
+    doc.setFontSize(6);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...COLORS.darkGray);
+    doc.text('Scanner pour suivre', 175, 57, { align: 'center' });
+  }
 
   // From / To section
-  const afterFromTo = drawFromTo(doc, order);
+  const afterFromTo = drawFromTo(doc, order, sepY + 6);
 
   // Items table
   const afterTable = await drawItemsTable(doc, order, afterFromTo);
 
-  // Check if totals + conditions fit on current page
+  // Check if totals fit on current page
   const totalsHeight = 80; // approximate
-  const conditionsHeight = 26;
   const remainingSpace = PAGE_H - MARGIN.bottom - afterTable;
 
   let afterTotals: number;
-  if (remainingSpace < totalsHeight + conditionsHeight) {
+  if (remainingSpace < totalsHeight) {
     // Add new page
     doc.addPage();
     drawHeader(doc, order.id);
     afterTotals = drawTotals(doc, order, 56);
   } else {
     afterTotals = drawTotals(doc, order, afterTable);
-  }
-
-  // Conditions
-  const condY = afterTotals + 4;
-  const condFits = condY + conditionsHeight < PAGE_H - MARGIN.bottom - 14;
-  if (!condFits) {
-    doc.addPage();
-    drawHeader(doc, order.id);
-    drawConditions(doc, 56);
-  } else {
-    drawConditions(doc, condY);
   }
 
   // Footer on all pages

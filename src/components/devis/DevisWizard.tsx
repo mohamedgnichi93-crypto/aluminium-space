@@ -96,6 +96,7 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
   const [codeCopied, setCodeCopied] = useState(false);
   const [waUrl, setWaUrl] = useState('');
   const [items, setItems] = useState<DevisItem[]>([]);
+  const [editingItemIndex, setEditingItemIndex] = useState<number | null>(null);
   const wizardTopRef = useRef<HTMLDivElement>(null);
 
   const { register, formState: { errors }, control, watch, setValue, trigger, getValues, resetField } = useForm<FormData>({
@@ -163,22 +164,29 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
           newItem.colorSurchargePct = priceResult.colorSurchargePct;
         }
 
-        setItems(prev => [...prev, newItem]);
-
-        if (goToStep1) {
-          toast.success('✓ Article ajouté ! Vous pouvez en ajouter un autre.');
-          // Reset dimension fields for next item
-          resetField('width');
-          resetField('height');
-          setValue('quantity', 1);
-          resetField('meshType');
-          setValue('color', 'Blanc');
-          resetField('openingType');
-          setStep(1);
+        if (editingItemIndex !== null) {
+          setItems(prev => prev.map((it, i) => i === editingItemIndex ? newItem : it));
+          setEditingItemIndex(null);
+          setStep(4);
           wizardTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         } else {
-          setStep(3);
-          wizardTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          setItems(prev => [...prev, newItem]);
+
+          if (goToStep1) {
+            toast.success('✓ Article ajouté ! Vous pouvez en ajouter un autre.');
+            // Reset dimension fields for next item
+            resetField('width');
+            resetField('height');
+            setValue('quantity', 1);
+            resetField('meshType');
+            setValue('color', 'Blanc');
+            resetField('openingType');
+            setStep(1);
+            wizardTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          } else {
+            setStep(3);
+            wizardTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
         }
       }
     }
@@ -207,6 +215,9 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
   const handlePrev = () => {
     if (step === 3) {
       setItems(prev => prev.slice(0, -1));
+    }
+    if (step === 2) {
+      setEditingItemIndex(null);
     }
     setStep(prev => prev - 1);
     wizardTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -490,6 +501,22 @@ const DevisWizard = ({ initialProductId, onClose: _onClose }: DevisWizardProps =
                 items={items}
                 products={products}
                 onPrev={handlePrev}
+                onEditDimensions={(itemIndex?: number) => {
+                  if (itemIndex !== undefined && itemIndex !== null && items[itemIndex]) {
+                    const item = items[itemIndex];
+                    setEditingItemIndex(itemIndex);
+                    setValue('productId', item.productId ?? '');
+                    setValue('width', item.width ?? 0);
+                    setValue('height', item.height ?? 0);
+                    setValue('quantity', item.quantity ?? 1);
+                    setValue('color', item.color ?? 'Blanc');
+                    setValue('openingType', item.openingType ?? 'fenetre');
+                    setValue('meshType', item.meshType ?? 'fibre');
+                  } else {
+                    setEditingItemIndex(null);
+                  }
+                  setStep(2);
+                }}
                 onSubmitOrder={onSubmit}
                 isSubmitting={isSubmitting}
               />

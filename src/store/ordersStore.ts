@@ -30,6 +30,7 @@ export interface Order {
   baseTVA?: number;
   totalSurcharge?: number;
   baseBrutHT?: number;
+  baseHT?: number;
 }
 
 // ─── Mappers ─────────────────────────────────────────────────────────────────
@@ -50,6 +51,8 @@ function orderToRow(order: Order): any {
     total_price: order.totalTTC || 0,
     timbre: order.timbre || 1000,
     status: order.status || 'pending',
+    tva_percent: order.tva ?? (order as any).tvaPercent ?? 19,
+    fodec_percent: order.fodec ?? (order as any).fodecPercent ?? 1,
   };
 }
 
@@ -63,28 +66,45 @@ export function rowToOrder(row: any): Order {
     notes: row.notes || ''
   };
 
+  const itemsData = Array.isArray(row.items) ? row.items : [];
+  const brutHT = itemsData.reduce((sum: number, item: any) => {
+    const baseUnit = item.baseUnitPrice ?? item.unitPrice ?? 0;
+    const colorUnit = item.colorSurchargeAmount ?? 0;
+    return sum + (baseUnit + colorUnit) * (item.quantity || 1);
+  }, 0);
+
+  const baseHT = itemsData.reduce((sum: number, item: any) => {
+    const baseUnit = item.baseUnitPrice ?? item.unitPrice ?? 0;
+    return sum + baseUnit * (item.quantity || 1);
+  }, 0);
+
+  const totalSurcharge = brutHT - baseHT;
+
   return {
     id: row.order_number || row.id,
     order_number: row.order_number,
     date: row.created_at || row.date,
     clientInfo,
-    items: row.items || [],
-    totalHT: row.total_ht || row.brut_ht || 0,
+    items: itemsData,
+    totalHT: row.total_ht || 0,
     netHT: row.net_ht || row.total_ht || 0,
     remisePercent: row.remise_percent || 0,
     remise: row.remise || 0,
-    fodec: 1, // default 1%
+    fodec: row.fodec_percent ?? 1,
     fodecAmount: row.fodec_amount || 0,
     baseForTVA: row.base_for_tva || 0,
-    tva: 19, // default 19%
+    tva: row.tva_percent ?? 19,
     tvaAmount: row.tva_amount || 0,
     timbre: row.timbre || 1000,
     totalTTC: row.total_ttc || row.total_price || 0,
     status: row.status || 'pending',
     deletedAt: row.deleted_at,
     // extra fields for PDF
-    brutHT: row.total_ht || row.brut_ht || 0,
+    brutHT: brutHT,
     baseTVA: row.base_for_tva || 0,
+    baseHT: baseHT,
+    totalSurcharge: totalSurcharge,
+    baseBrutHT: baseHT,
   };
 }
 

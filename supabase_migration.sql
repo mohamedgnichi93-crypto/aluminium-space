@@ -55,3 +55,9 @@ DROP POLICY IF EXISTS "allow_anon_select_measure" ON measure_requests;
 DROP POLICY IF EXISTS "allow_auth_all_measure" ON measure_requests;
 CREATE POLICY "allow_anon_insert_measure" ON measure_requests FOR INSERT TO anon WITH CHECK (true);
 CREATE POLICY "allow_auth_all_measure" ON measure_requests FOR ALL TO authenticated USING (true);
+
+-- 5. Add tva_percent and fodec_percent to orders table
+ALTER TABLE orders
+  ADD COLUMN IF NOT EXISTS tva_percent NUMERIC DEFAULT 19,
+  ADD COLUMN IF NOT EXISTS fodec_percent NUMERIC DEFAULT 1;
+

@@ -13,11 +13,12 @@ interface Props {
   items: DevisItem[];
   products: Product[];
   onPrev: () => void;
+  onEditDimensions: (itemIndex?: number) => void;
   onSubmitOrder: () => void;
   isSubmitting: boolean;
 }
 
-const StepSummary = ({ formData, items, products, onPrev, onSubmitOrder, isSubmitting }: Props) => {
+const StepSummary = ({ formData, items, products, onPrev, onEditDimensions, onSubmitOrder, isSubmitting }: Props) => {
   const { t, i18n } = useTranslation();
   const isRTL = ['ar', 'tn'].includes(i18n.language);
 
@@ -185,6 +186,26 @@ const StepSummary = ({ formData, items, products, onPrev, onSubmitOrder, isSubmi
                       {formatPriceUtil(itemTotal)} DT
                     </span>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => onEditDimensions(idx)}
+                    style={{
+                      marginTop: 8,
+                      padding: '6px 14px',
+                      background: 'transparent',
+                      border: '1.5px solid #1D3E61',
+                      color: '#1D3E61',
+                      borderRadius: 6,
+                      fontWeight: 600,
+                      fontSize: 12,
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                    }}
+                  >
+                    ✏️ {t('common.modify', 'Modifier')}
+                  </button>
                 </div>
               </div>
             );

@@ -116,18 +116,21 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
       const wClamped = limits ? Math.max(widthNum, limits.minW) : widthNum;
       const hClamped = limits ? Math.max(heightNum, limits.minH) : heightNum;
       const areaM2 = (wClamped * hClamped) / 10000;
-      const dimensionMessage = !limits
-        ? t('quote.dimensions_notice', "Dimensions non valides pour ce produit.")
-        : wClamped > limits.maxW || hClamped > limits.maxH
-          ? `Dimensions maximales: ${limits.maxW} x ${limits.maxH} cm`
-          : limits.maxArea && areaM2 > limits.maxArea
-            ? `Surface maximale pour ELBA: ${limits.maxArea} m2`
-            : '';
-
-      if (dimensionMessage) {
+      // If no limits found for this product, block with error
+      if (!limits) {
         setOutOfBounds(true);
-        setDimensionError(dimensionMessage);
+        setDimensionError(t('quote.dimensions_notice', "Dimensions non valides pour ce produit."));
         setNeedsCustomQuote(false);
+        setValue('unitPrice', 0);
+        setValue('totalPrice', 0);
+        return;
+      }
+
+      // If dimensions exceed max → show "Contactez-nous" (yellow box + WhatsApp)
+      if (wClamped > limits.maxW || hClamped > limits.maxH || (limits.maxArea && areaM2 > limits.maxArea)) {
+        setOutOfBounds(false);
+        setDimensionError('');
+        setNeedsCustomQuote(true);
         setValue('unitPrice', 0);
         setValue('totalPrice', 0);
         return;
@@ -1099,18 +1102,18 @@ const StepDimensions = ({ register, errors, watch, setValue, onNext, onPrev, pro
                       <div style={{ height: '1px', background: 'rgba(29,62,97,0.18)', marginBottom: '16px' }} />
 
                       <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#64748B', gap: '8px' }}>
-                        <span style={{ maxWidth: '50%' }}>{t('quote.fodec', 'FODEC ({{percent}}%)', { percent: 1 })}:</span>
+                        <span style={{ maxWidth: '50%' }}>{t('quote.fodec', 'FODEC ({{percent}}%)', { percent: cfg.fodecPercent })}:</span>
                         <span style={{ flexShrink: 0, whiteSpace: 'nowrap' }}>{(fodec / 1000).toFixed(3)} DT</span>
                       </div>
 
                       <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#64748B', gap: '8px' }}>
-                        <span style={{ maxWidth: '50%' }}>{t('quote.tva', 'TVA ({{percent}}%)', { percent: 19 })}:</span>
+                        <span style={{ maxWidth: '50%' }}>{t('quote.tva', 'TVA ({{percent}}%)', { percent: cfg.tvaPercent })}:</span>
                         <span style={{ flexShrink: 0, whiteSpace: 'nowrap' }}>{(tva / 1000).toFixed(3)} DT</span>
                       </div>
 
                       <div style={{ display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#64748B', gap: '8px' }}>
                         <span style={{ maxWidth: '50%' }}>{t('quote.timbre', 'Timbre fiscal')} :</span>
-                        <span style={{ flexShrink: 0, whiteSpace: 'nowrap' }}>1.000 DT</span>
+                        <span style={{ flexShrink: 0, whiteSpace: 'nowrap' }}>{formatPrice(cfg.timbreFiscal * 1000)} DT</span>
                       </div>
 
                       <div style={{ background: '#1D3E61', borderRadius: '12px', padding: '14px 20px', display: 'flex', flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'center', alignItems: 'center', gap: '8px', flexWrap: 'wrap', boxShadow: '0 4px 12px rgba(29,62,97,0.20)' }}>

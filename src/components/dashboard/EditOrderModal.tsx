@@ -22,6 +22,7 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({
   loadData
 }) => {
   const [productsList, setProductsList] = useState<SupabaseProduct[]>([]);
+  const [itemWarnings, setItemWarnings] = useState<Record<number, string>>({});
   const [manualRemise, setManualRemise] = useState<number | null>(() => {
     const autoPct = getRemisePercent(editingOrder.items?.reduce((sum, it) => sum + (it.quantity || 1), 0) || 0);
     return editingOrder.remisePercent !== autoPct ? editingOrder.remisePercent : null;
@@ -194,7 +195,7 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({
               </h3>
               <button
                 onClick={() => setEditingOrder({
-                  ...editingOrder, items: [...(editingOrder.items || []), { id: Math.random().toString(36).slice(2), productId: '', productName: '', width: 0, height: 0, quantity: 1, meshType: '', unitPrice: 0, totalPrice: 0, color: 'Blanc' }]
+                  ...editingOrder, items: [...(editingOrder.items || []), { id: Math.random().toString(36).slice(2), productId: '', productName: '', width: 0, height: 0, quantity: 1, meshType: '', unitPrice: 0, totalPrice: 0, color: 'Blanc', baseUnitPrice: 0, colorSurchargeAmount: 0, colorSurchargePct: 0 }]
                 })}
                 style={{ background: '#27AE60', color: 'white', border: 'none', borderRadius: '8px', padding: '6px 14px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontFamily: 'Inter, sans-serif', boxShadow: '0 2px 4px rgba(39,174,96,0.2)' }}
               >
@@ -265,6 +266,10 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({
                               const defaultColor = selectedP?.colors?.[0] || 'Blanc';
                               
                               let newPrice = item.unitPrice;
+                              let baseUnitPrice = item.baseUnitPrice || 0;
+                              let colorSurchargeAmount = item.colorSurchargeAmount || 0;
+                              let colorSurchargePct = item.colorSurchargePct || 0;
+
                               if (selectedP && item.width > 0 && item.height > 0) {
                                 const result = calculatePrice({
                                   productId: selectedP.slug,
@@ -277,6 +282,19 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({
                                 });
                                 if (result) {
                                   newPrice = result.unitPrice;
+                                  baseUnitPrice = result.baseUnitPrice;
+                                  colorSurchargeAmount = result.colorSurchargeAmount;
+                                  colorSurchargePct = result.colorSurchargePct;
+                                  setItemWarnings(prev => {
+                                    const next = { ...prev };
+                                    delete next[idx];
+                                    return next;
+                                  });
+                                } else {
+                                  setItemWarnings(prev => ({
+                                    ...prev,
+                                    [idx]: 'Dimensions hors limites pour ce produit — prix non recalculé'
+                                  }));
                                 }
                               }
 
@@ -290,7 +308,10 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({
                                         productName: newName,
                                         color: defaultColor,
                                         unitPrice: newPrice,
-                                        totalPrice: newPrice * it.quantity
+                                        totalPrice: newPrice * it.quantity,
+                                        baseUnitPrice,
+                                        colorSurchargeAmount,
+                                        colorSurchargePct
                                       }
                                     : it
                                 )
@@ -314,6 +335,10 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({
                               const selectedP = productsList.find(p => p.slug === item.productId);
                               
                               let newPrice = item.unitPrice;
+                              let baseUnitPrice = item.baseUnitPrice || 0;
+                              let colorSurchargeAmount = item.colorSurchargeAmount || 0;
+                              let colorSurchargePct = item.colorSurchargePct || 0;
+
                               if (selectedP && item.width > 0 && item.height > 0) {
                                 const result = calculatePrice({
                                   productId: selectedP.slug,
@@ -326,6 +351,19 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({
                                 });
                                 if (result) {
                                   newPrice = result.unitPrice;
+                                  baseUnitPrice = result.baseUnitPrice;
+                                  colorSurchargeAmount = result.colorSurchargeAmount;
+                                  colorSurchargePct = result.colorSurchargePct;
+                                  setItemWarnings(prev => {
+                                    const next = { ...prev };
+                                    delete next[idx];
+                                    return next;
+                                  });
+                                } else {
+                                  setItemWarnings(prev => ({
+                                    ...prev,
+                                    [idx]: 'Dimensions hors limites pour ce produit — prix non recalculé'
+                                  }));
                                 }
                               }
 
@@ -337,7 +375,10 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({
                                         ...it,
                                         color: newColor,
                                         unitPrice: newPrice,
-                                        totalPrice: newPrice * it.quantity
+                                        totalPrice: newPrice * it.quantity,
+                                        baseUnitPrice,
+                                        colorSurchargeAmount,
+                                        colorSurchargePct
                                       }
                                     : it
                                 )
@@ -376,6 +417,10 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({
                               const selectedP = productsList.find(p => p.slug === item.productId);
                               
                               let newPrice = item.unitPrice;
+                              let baseUnitPrice = item.baseUnitPrice || 0;
+                              let colorSurchargeAmount = item.colorSurchargeAmount || 0;
+                              let colorSurchargePct = item.colorSurchargePct || 0;
+
                               if (selectedP && item.width > 0 && item.height > 0) {
                                 const result = calculatePrice({
                                   productId: selectedP.slug,
@@ -388,6 +433,19 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({
                                 });
                                 if (result) {
                                   newPrice = result.unitPrice;
+                                  baseUnitPrice = result.baseUnitPrice;
+                                  colorSurchargeAmount = result.colorSurchargeAmount;
+                                  colorSurchargePct = result.colorSurchargePct;
+                                  setItemWarnings(prev => {
+                                    const next = { ...prev };
+                                    delete next[idx];
+                                    return next;
+                                  });
+                                } else {
+                                  setItemWarnings(prev => ({
+                                    ...prev,
+                                    [idx]: 'Dimensions hors limites pour ce produit — prix non recalculé'
+                                  }));
                                 }
                               }
 
@@ -399,7 +457,10 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({
                                         ...it,
                                         meshType: val,
                                         unitPrice: newPrice,
-                                        totalPrice: newPrice * it.quantity
+                                        totalPrice: newPrice * it.quantity,
+                                        baseUnitPrice,
+                                        colorSurchargeAmount,
+                                        colorSurchargePct
                                       }
                                     : it
                                 )
@@ -421,6 +482,10 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({
                             onChange={e => {
                               const val = parseFloat(e.target.value) || 0;
                               let calculatedUnitPrice = item.unitPrice;
+                              let baseUnitPrice = item.baseUnitPrice || 0;
+                              let colorSurchargeAmount = item.colorSurchargeAmount || 0;
+                              let colorSurchargePct = item.colorSurchargePct || 0;
+
                               const selectedP = productsList.find(p => p.slug === item.productId);
                               if (selectedP && val > 0 && item.height > 0) {
                                 const result = calculatePrice({
@@ -432,13 +497,31 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({
                                   basePrice: selectedP.base_price,
                                   pricePerM2: selectedP.price_per_m2,
                                 });
-                                calculatedUnitPrice = result ? result.unitPrice : 0;
+                                if (result) {
+                                  calculatedUnitPrice = result.unitPrice;
+                                  baseUnitPrice = result.baseUnitPrice;
+                                  colorSurchargeAmount = result.colorSurchargeAmount;
+                                  colorSurchargePct = result.colorSurchargePct;
+                                  setItemWarnings(prev => {
+                                    const next = { ...prev };
+                                    delete next[idx];
+                                    return next;
+                                  });
+                                } else {
+                                  setItemWarnings(prev => ({
+                                    ...prev,
+                                    [idx]: 'Dimensions hors limites pour ce produit — prix non recalculé'
+                                  }));
+                                }
                               } else if (selectedP) {
                                   calculatedUnitPrice = 0;
+                                  baseUnitPrice = 0;
+                                  colorSurchargeAmount = 0;
+                                  colorSurchargePct = 0;
                               }
                               setEditingOrder({
                                 ...editingOrder,
-                                items: items.map((it, i) => i === idx ? { ...it, width: val, unitPrice: calculatedUnitPrice, totalPrice: calculatedUnitPrice * it.quantity } : it)
+                                items: items.map((it, i) => i === idx ? { ...it, width: val, unitPrice: calculatedUnitPrice, totalPrice: calculatedUnitPrice * it.quantity, baseUnitPrice, colorSurchargeAmount, colorSurchargePct } : it)
                               });
                             }}
                             style={{ width: '100%', padding: '10px 12px', border: `1px solid ${hasWidthError ? '#EF4444' : '#E2E8F0'}`, borderRadius: '8px', fontFamily: 'Inter, sans-serif', fontSize: '14px', outline: 'none', boxSizing: 'border-box', background: 'white' }}
@@ -458,6 +541,10 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({
                             onChange={e => {
                               const val = parseFloat(e.target.value) || 0;
                               let calculatedUnitPrice = item.unitPrice;
+                              let baseUnitPrice = item.baseUnitPrice || 0;
+                              let colorSurchargeAmount = item.colorSurchargeAmount || 0;
+                              let colorSurchargePct = item.colorSurchargePct || 0;
+
                               const selectedP = productsList.find(p => p.slug === item.productId);
                               if (selectedP && item.width > 0 && val > 0) {
                                 const result = calculatePrice({
@@ -469,13 +556,31 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({
                                   basePrice: selectedP.base_price,
                                   pricePerM2: selectedP.price_per_m2,
                                 });
-                                calculatedUnitPrice = result ? result.unitPrice : 0;
+                                if (result) {
+                                  calculatedUnitPrice = result.unitPrice;
+                                  baseUnitPrice = result.baseUnitPrice;
+                                  colorSurchargeAmount = result.colorSurchargeAmount;
+                                  colorSurchargePct = result.colorSurchargePct;
+                                  setItemWarnings(prev => {
+                                    const next = { ...prev };
+                                    delete next[idx];
+                                    return next;
+                                  });
+                                } else {
+                                  setItemWarnings(prev => ({
+                                    ...prev,
+                                    [idx]: 'Dimensions hors limites pour ce produit — prix non recalculé'
+                                  }));
+                                }
                               } else if (selectedP) {
                                 calculatedUnitPrice = 0;
+                                baseUnitPrice = 0;
+                                colorSurchargeAmount = 0;
+                                colorSurchargePct = 0;
                               }
                               setEditingOrder({
                                 ...editingOrder,
-                                items: items.map((it, i) => i === idx ? { ...it, height: val, unitPrice: calculatedUnitPrice, totalPrice: calculatedUnitPrice * it.quantity } : it)
+                                items: items.map((it, i) => i === idx ? { ...it, height: val, unitPrice: calculatedUnitPrice, totalPrice: calculatedUnitPrice * it.quantity, baseUnitPrice, colorSurchargeAmount, colorSurchargePct } : it)
                               });
                             }}
                             style={{ width: '100%', padding: '10px 12px', border: `1px solid ${hasHeightError ? '#EF4444' : '#E2E8F0'}`, borderRadius: '8px', fontFamily: 'Inter, sans-serif', fontSize: '14px', outline: 'none', boxSizing: 'border-box', background: 'white' }}
@@ -508,17 +613,42 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({
                           <input
                             type="number" min="0"
                             value={item.unitPrice}
-                            onChange={e => {
-                              const val = parseFloat(e.target.value) || 0;
-                              setEditingOrder({
-                                ...editingOrder,
-                                items: items.map((it, i) => i === idx ? { ...it, unitPrice: val, totalPrice: val * it.quantity } : it)
-                              });
+                            readOnly
+                            style={{
+                              width: '100%',
+                              padding: '10px 12px',
+                              border: '1px solid #E2E8F0',
+                              borderRadius: '8px',
+                              fontFamily: 'Inter, sans-serif',
+                              fontSize: '14px',
+                              outline: 'none',
+                              boxSizing: 'border-box',
+                              background: '#F1F5F9',
+                              color: '#64748B',
+                              cursor: 'not-allowed',
                             }}
-                            style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontFamily: 'Inter, sans-serif', fontSize: '14px', outline: 'none', boxSizing: 'border-box', background: 'white' }}
                           />
                         </div>
                       </div>
+
+                      {itemWarnings[idx] && (
+                        <div style={{
+                          marginTop: 10,
+                          padding: '8px 12px',
+                          backgroundColor: '#FFFBEB',
+                          color: '#B45309',
+                          borderRadius: 8,
+                          fontSize: 12,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          border: '1px solid #FDE68A',
+                          fontFamily: 'Inter, sans-serif',
+                          fontWeight: 500,
+                        }}>
+                          ⚠️ {itemWarnings[idx]}
+                        </div>
+                      )}
                     </motion.div>
                   );
                 })}

@@ -105,7 +105,7 @@ const OrderDetailModal = ({ order, onClose, onStatusChange, onDownloadPDF, onDow
       const updatedOrder: Order = {
         ...order,
         items: editItems,
-        totalHT,
+        totalHT: netHT,
         remise,
         netHT,
         fodecAmount,
@@ -185,7 +185,7 @@ const OrderDetailModal = ({ order, onClose, onStatusChange, onDownloadPDF, onDow
 
       const updatedOrder: Order = {
         ...order,
-        totalHT,
+        totalHT: netHT,
         remise,
         remisePercent: rp,
         netHT,

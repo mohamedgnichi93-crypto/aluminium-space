@@ -38,6 +38,7 @@ function AnimatedRoutes() {
           <Route path="dashbord" element={<Navigate to="/dashboard" replace />} />
           <Route path="admin" element={<Navigate to="/dashboard" replace />} />
           <Route path="devis" element={<motion.div {...pageVariants} initial="initial" animate="animate" exit="exit"><Devis /></motion.div>} />
+          {/* ClientPortal.tsx serves the /mon-espace route (client tracking page) */}
           <Route path="mon-espace" element={<motion.div {...pageVariants} initial="initial" animate="animate" exit="exit"><ClientPortal /></motion.div>} />
           <Route path="*" element={<motion.div {...pageVariants} initial="initial" animate="animate" exit="exit"><NotFound /></motion.div>} />
         </Route>
